@@ -15,7 +15,7 @@ export default function LoginScreen() {
   // Atualmente ela não valida nada, apenas navega para a pasta (drawer)/(tabs)
   // Se pedirem para validar o login (ex: email tem que ser 'a@a.com'), coloque um if aqui.
   const handleLogin = () => {
-    router.replace('./(drawer)/(tabs)/')
+    router.replace('/(drawer)/(tabs)/')
   }
 
   return (

@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Self-Correction Loop — Revisão pós-task",
+      "trigger": "PostTaskExec",
+      "action": {
+        "type": "agent",
+        "prompt": "## Self-Correction Loop — Revisão Crítica Obrigatória\n\nUma task de Spec acabou de ser concluída. Antes de continuar, execute esta revisão crítica sobre o que foi implementado:\n\n### 1. Integridade dos Contratos\n- O `ObservationRepository` ainda expõe `save`, `findById` e `findAll` sem quebras de assinatura?\n- A entidade `Observation` ainda valida `photo` com `'://'` no construtor?\n- O `Coordinates` ainda valida `latitude` ∈ [-90, 90] e `longitude` ∈ [-180, 180]?\n\n### 2. Direção das Dependências (Clean Architecture)\n- Algum arquivo em `src/domain/` passou a importar de `src/infra/` ou `src/usecases/`?\n- Algum use case importa diretamente de `src/infra/` sem passar pela interface do repositório?\n\n### 3. Injeção de Dependência\n- Todos os use cases recebem o repositório via construtor (`constructor(private readonly repository: ...)`)?\n- O `container.ts` é o único lugar que instancia a implementação concreta do repositório?\n\n### 4. Cobertura de Testes\n- Todo novo Value Object tem ao menos: 1 teste de criação válida + 2 testes de validação com erro?\n- Toda nova entidade tem ao menos: 1 teste de criação válida + testes dos casos de erro do `validate()`?\n- Os helpers `make*()` foram usados para evitar repetição nos testes?\n\n### 5. Consistência do Container\n- O `container.ts` foi atualizado para incluir qualquer novo use case ou repositório criado nesta task?\n- O Singleton do novo repositório (se houver) usa `private constructor()` + `private static instance` + `public static getInstance()`?\n\n### Ação\nSe qualquer item acima falhar, **corrija imediatamente antes de marcar a próxima task como iniciada**.  \nRegistre o resultado: `APROVADO` ou `CORRIGIDO — [descreva o que foi corrigido]`.\n"
+      }
+    }
+  ]
+}

@@ -46,6 +46,8 @@ O aplicativo mobile é projetado com arquitetura **Offline-First**, permitindo q
 | **RF12** | O app deve desenhar uma linha de rota (`Polyline`) conectando a sequência de observações no mapa. | Alta | Usuário |
 | **RF13** | O app deve funcionar 100% offline, salvando registros na fila local sem exigir rede ativa. | Alta | Usuário |
 | **RF14** | O app deve sincronizar automaticamente a fila de registros com o Supabase quando houver conexão. | Alta | Sistema Sync |
+| **RF15** | O app deve permitir busca de locais e endereços com sugestão em tempo real (`GooglePlacesAutocomplete`). | Média | Usuário |
+| **RF16** | O app deve traçar rotas viárias turn-by-turn (`MapViewDirections`) entre a posição atual e o destino/observações. | Média | Usuário |
 
 ### 1.2 Requisitos Não Funcionais (RNF)
 
@@ -96,10 +98,12 @@ flowchart LR
         UC09[UC09: Obter Geolocalização GPS]
     end
 
-    subgraph Modulo_Observacoes["Gestão de Observações"]
+    subgraph Modulo_Observacoes["Gestão de Observações & Navegação"]
         UC10[UC10: Registrar Observação]
         UC11[UC11: Listar Observações Salvas]
         UC12[UC12: Visualizar Mapa com Markers e Polyline]
+        UC17[UC17: Buscar Local via Autocomplete]
+        UC18[UC18: Traçar Rota de Navegação Viária]
     end
 
     subgraph Modulo_Sync["Sincronização Offline-First"]
@@ -116,6 +120,8 @@ flowchart LR
     Usuario --> UC10
     Usuario --> UC11
     Usuario --> UC12
+    Usuario --> UC17
+    Usuario --> UC18
 
     UC10 -. <<include>> .-> UC09
     UC10 -. <<include>> .-> UC13

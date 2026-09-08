@@ -14,5 +14,9 @@ jest.mock('@expo/vector-icons', () => {
         AntDesign: MockIcon,
         Entypo: MockIcon,
     };
-
 });
+
+// Mock expo-crypto para testes unitários dos use cases
+jest.mock('expo-crypto', () => ({
+    randomUUID: () => 'test-uuid-' + Math.random().toString(36).substring(2, 9),
+}));

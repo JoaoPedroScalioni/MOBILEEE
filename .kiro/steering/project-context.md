@@ -25,9 +25,12 @@ src/
     entities/          ← Entidades de domínio (regras de negócio)
     value-objects/     ← Objetos de valor (imutáveis, definidos por seus dados)
     repositories/      ← Interfaces (contratos) dos repositórios
-  infra/               ← Implementações concretas dos repositórios
+    gateways/          ← Interfaces para serviços externos (auth, sessão, rede, sync)
+    services/          ← Serviços de domínio (ex.: resolução de conflitos)
+  infra/               ← Implementações concretas in-memory (Singleton) — repositórios e gateways
+  adapters/auth/       ← AuthContext (useAuth) + SessionStorageSecureStore (expo-secure-store)
   usecases/            ← Casos de uso da aplicação (orquestram domínio + infra)
-  fectorie/            ← Container de injeção de dependências (DI)
+  factory/             ← Container de injeção de dependências (DI)
 ```
 
 ### Camada de Domínio (`src/domain/`)
@@ -70,9 +73,21 @@ findAll(): Promise<Observation[]>
 - Sem input
 - Delega para `repository.findAll()`
 
-### Container DI (`src/fectorie/container.ts`)
-- Singleton que instancia `InMemoryObservationRepository`, `RegisterObservation` e `ListObservations`
+### Container DI (`src/factory/container.ts`)
+- Singleton que instancia todos os repositórios/gateways in-memory e os use cases:
+  `RegisterObservation`, `ListObservations`, `AuthenticateUser`, `SignOut`,
+  `RestoreSession`, `SyncPendingQueue`, `AuthContext`
 - Exporta `container` já instanciado — as telas importam diretamente
+
+### Autenticação e Sessão
+- `AuthenticateUser` valida credenciais via `AuthGateway` e persiste `Session` em `SessionStorage`
+- `AuthContext` (`useAuth`) expõe o estado `loading | authenticated | unauthenticated` no app
+- `SessionStorageSecureStore` persiste a sessão com `expo-secure-store` (chave `ecofield.session`)
+
+### Fila de Sincronização
+- `SyncQueueItem` (INSERT|UPDATE|DELETE) é enfileirado pelo `RegisterObservation`
+- `SyncPendingQueue` drena a fila: verifica rede → envia via `SyncGateway` → aplica `SincronizacaoService`
+- `SincronizacaoService.resolverConflito()` usa last-write-wins (`updatedAtLocal` vs `updatedAtRemoto`)
 
 ---
 
@@ -97,7 +112,7 @@ app/
 
 ## Padrões e Convenções
 
-- **Sempre use o container** (`import { container } from '@/src/fectorie/container'`) nas telas — nunca instancie casos de uso diretamente nas telas.
+- **Sempre use o container** (`import { container } from '@/src/factory/container'`) nas telas — nunca instancie casos de uso diretamente nas telas.
 - **Value Objects são imutáveis** — jamais altere suas propriedades após criação.
 - **Entidades se auto-validam** no construtor — nunca crie uma entidade com dados inválidos.
 - **Repositórios são contratos** — a infra pode ser trocada (SQLite, Firebase) sem tocar no domínio.

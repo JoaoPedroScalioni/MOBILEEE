@@ -1,0 +1,1 @@
+export { MapaLavoura } from './MapaLavoura.native';

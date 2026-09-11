@@ -4,32 +4,36 @@ import React from 'react';
 
 export default function TabLayout() {
   return (
-    // TABS: Define o menu inferior (barra de abas).
-    // Se o professor pedir para adicionar uma nova aba, crie um arquivo .tsx na pasta (tabs)
-    // e adicione um novo <Tabs.Screen> aqui abaixo.
     <Tabs
       screenOptions={{
-        headerShown: false, // Esconde o cabeçalho no menu de abas, pois o Drawer já tem um.
+        headerShown: false,
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Camera',
-          tabBarIcon: () => <Ionicons name="camera-outline" size={24} color={"black"}/>,
+          title: 'Apontamento',
+          tabBarIcon: () => <Ionicons name="cafe-outline" size={24} color={"black"}/>,
         }}
       />
       <Tabs.Screen
-        name="maps"
+        name="trabalhadores"
         options={{
-          title: 'Maps',
+          title: 'Trabalhadores',
+          tabBarIcon: () => <Ionicons name="people-outline" size={24} color={"black"}/>,
+        }}
+      />
+      <Tabs.Screen
+        name="despesas"
+        options={{
+          title: 'Despesas',
+          tabBarIcon: () => <Ionicons name="wallet-outline" size={24} color={"black"}/>,
+        }}
+      />
+      <Tabs.Screen
+        name="mapas"
+        options={{
+          title: 'Mapa',
           tabBarIcon: () => <Ionicons name="map-outline" size={24} color={"black"}/>,
-        }}
-      />
-      <Tabs.Screen
-        name="list"
-        options={{
-          title: 'Lista',
-          tabBarIcon: () => <Ionicons name="list-outline" size={24} color={"black"}/>,
         }}
       />
     </Tabs>

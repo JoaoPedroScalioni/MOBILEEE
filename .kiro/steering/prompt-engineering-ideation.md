@@ -35,14 +35,16 @@ Tarefa: [descreva o problema ou oportunidade em aberto — sem sugerir solução
 Restrições conhecidas: [liste o que não pode mudar — ex: Clean Architecture, Expo v54, TypeScript]
 ```
 
-**Exemplo aplicado ao EcoField:**
+**Exemplo aplicado ao SafraCafé:**
 ```
-Contexto: O EcoField é um app de observações de campo com câmera + GPS, 
-          arquitetura limpa (DDD), repositório em memória e Expo Router v54.
-Papel: Arquiteto mobile sênior especialista em apps de coleta de dados.
-Tarefa: Quais mecanismos de persistência e sincronização de dados poderiam 
-        substituir o InMemoryRepository sem quebrar os contratos do domínio?
-Restrições: O contrato ObservationRepository (save/findById/findAll) não pode mudar.
+Contexto: O SafraCafé é um app de gestão da colheita cafeeira (trabalhadores,
+          apontamentos de balaio, despesas) com câmera + GPS + mapas, arquitetura
+          limpa (DDD), repositórios em memória e Expo Router v54.
+Papel: Arquiteto mobile sênior especialista em apps offline-first de campo.
+Tarefa: Quais mecanismos de persistência e sincronização de dados poderiam
+        substituir os InMemoryRepository sem quebrar os contratos do domínio?
+Restrições: Os contratos TrabalhadorRepository/ApontamentoRepository/DespesaRepository
+            (save/findById/findAll) não podem mudar.
             O projeto usa TypeScript + Expo SDK 54.
 ```
 
@@ -57,7 +59,7 @@ Nunca peça ao modelo que siga um único caminho linear. Exija que ele **ramifiq
 Gere 3 a 5 abordagens alternativas para [problema].
 Para cada abordagem:
   - Descreva a ideia em 2-3 frases
-  - Liste 2 vantagens concretas para o contexto do EcoField
+  - Liste 2 vantagens concretas para o contexto do SafraCafé
   - Liste 2 riscos ou limitações reais
   - Dê uma nota de viabilidade de 1 a 10 considerando: Expo v54, Clean Architecture, equipe pequena
 Continue desenvolvendo apenas as abordagens com nota >= 7.
@@ -71,7 +73,7 @@ Continue desenvolvendo apenas as abordagens com nota >= 7.
 
 Durante ideação, use estas perguntas para expandir antes de convergir:
 
-- "O que acontece se escalarmos isso para 10.000 observações?"
+- "O que acontece se escalarmos isso para 10.000 apontamentos?"
 - "Como um usuário de campo com conexão intermitente usaria isso?"
 - "O que precisaria mudar na camada de domínio para suportar isso?"
 - "Quais novos casos de uso isso habilita?"

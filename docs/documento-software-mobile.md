@@ -1,16 +1,19 @@
 # Documento de Engenharia e Especificação de Software Mobile
-## EcoField / Mobile Observation App — Expo & React Native
+## SafraCafé — Gestão Operacional e Financeira da Colheita Cafeeira (Offline-First) — Expo & React Native
 
-> **Status do Documento:** Aprovado / Baseline de Arquitetura  
-> **Versão:** 1.0.0  
-> **Padrão Metodológico:** SDD (Spec Driven Development), DDD (Domain-Driven Design), Clean Architecture & TDD  
-> **Alinhamento Curricular:** Ementa de Desenvolvimento Mobile (07/ago a 08/set e módulos futuros de Autenticação/Sync)
+> **Status do Documento:** Aprovado / Baseline de Arquitetura (atualizado: +Autenticação & Sessão +Sincronização Offline-First +Domínio SafraCafé implementados)
+> **Versão:** 1.2.0
+> **Padrão Metodológico:** SDD (Spec Driven Development), DDD (Domain-Driven Design), Clean Architecture & TDD
+> **Alinhamento Curricular:** Ementa de Desenvolvimento Mobile (07/ago a 11/set) — QR Code, GPS/Mapas, Câmera, Autenticação, Sync
 
 ---
 
 ## Sumário Executivo e Stack de Referência
 
-O aplicativo mobile é projetado com arquitetura **Offline-First**, permitindo que pesquisadores e agentes de campo capturem observações georreferenciadas com fotos e leitura de QR Code, visualizem seus registros em listas e mapas com itinerário traçado por rotas (`Polyline`), autentiquem-se de forma segura e sincronizem seus dados de maneira assíncrona com o backend na nuvem.
+O aplicativo mobile é projetado com arquitetura **Offline-First** para gerenciar a **colheita cafeeira**:
+cadastro de trabalhadores (com QR Code no crachá), apontamento diário de balaios (litros) georreferenciado,
+registro de despesas com foto do recibo, visualização da lavoura em mapa com rotas (`Polyline`/`MapViewDirections`)
+e sincronização assíncrona com o backend na nuvem.
 
 | Camada / Função | Escolha Default (Adotada) | Alternativa Avaliada | Finalidade / Justificativa |
 | :--- | :--- | :--- | :--- |
@@ -19,8 +22,8 @@ O aplicativo mobile é projetado com arquitetura **Offline-First**, permitindo q
 | **Linguagem** | **TypeScript 5.9** | JavaScript ES6+ | Tipagem estática estrita em todas as camadas de domínio e aplicação. |
 | **Persistência Local** | **InMemory / SQLite** via `expo-sqlite` (Drizzle ORM) | WatermelonDB | Persistência local imediata (*outbox* pattern) com tolerância a modo avião. |
 | **BaaS / Nuvem** | **Supabase** (Postgres, Auth, Storage, Realtime) | Firebase | Banco relacional com Row Level Security (RLS), Auth e bucket de fotos. |
-| **Câmera & Mídia** | `expo-camera` + `expo-image-picker` | — | Captura de imagens, visualização prévia (preview), galeria e scanner de QR Code. |
-| **Geolocalização & Mapas** | `expo-location` + `react-native-maps` | Mapbox | Obtenção de coordenadas GPS, exibição de mapa com `Marker`s e traçado `Polyline`. |
+| **Câmera & Mídia** | `expo-camera` + `expo-image-picker` | — | Captura de fotos, preview e scanner de QR Code do crachá. |
+| **Geolocalização & Mapas** | `expo-location` + `react-native-maps` (+ `react-native-maps-directions`, `react-native-google-places-autocomplete`) | Mapbox | Coordenadas GPS, `Marker`s, `Polyline`, rota viária e busca de destino. |
 | **Segurança & Sessão** | `expo-secure-store` | AsyncStorage | Armazenamento cifrado de tokens JWT de sessão de usuário. |
 | **Testes Unitários** | **Jest 29** + `@testing-library/react-native` | Detox / Maestro | TDD para Value Objects, Entidades e Use Cases com repositórios fakes. |
 
@@ -34,29 +37,29 @@ O aplicativo mobile é projetado com arquitetura **Offline-First**, permitindo q
 | :--- | :--- | :---: | :--- |
 | **RF01** | O app deve permitir que o usuário realize cadastro (Sign Up) com e-mail e senha. | Média | Visitante |
 | **RF02** | O app deve permitir login (Sign In) e encerramento de sessão (Sign Out). | Alta | Usuário Autenticado |
-| **RF03** | O app deve capturar fotos em tempo real utilizando a câmera (frontal ou traseira). | Alta | Usuário / Câmera |
-| **RF04** | O app deve permitir a seleção de fotos existentes a partir da galeria do dispositivo (`expo-image-picker`). | Média | Usuário |
-| **RF05** | O app deve fornecer pré-visualização (preview) da imagem capturada com opções de descartar ou salvar. | Alta | Usuário |
-| **RF06** | O app deve ler códigos QR (QR Code) através do sensor da câmera e exibir o resultado decodificado. | Média | Usuário / Câmera |
-| **RF07** | O app deve capturar a geolocalização exata (latitude e longitude) no momento do registro via GPS. | Alta | Usuário / GPS |
-| **RF08** | O app deve validar geograficamente as coordenadas (latitude entre -90 e 90, longitude entre -180 e 180). | Alta | Sistema |
-| **RF09** | O app deve registrar a observação associando ID único (UUID), coordenadas válidas e URI da foto. | Alta | Usuário |
-| **RF10** | O app deve listar todas as observações salvas em uma `FlatList` com foto e coordenadas. | Alta | Usuário |
-| **RF11** | O app deve exibir um mapa interativo com marcadores (`Marker`) para a posição atual e cada observação. | Alta | Usuário |
-| **RF12** | O app deve desenhar uma linha de rota (`Polyline`) conectando a sequência de observações no mapa. | Alta | Usuário |
+| **RF03** | O app deve cadastrar trabalhadores da colheita (nome, CPF válido de 11 dígitos, código do crachá e diária em reais). | Alta | Gestor de Fazenda |
+| **RF04** | O app deve ler o QR Code do crachá do trabalhador via câmera para agilizar o apontamento. | Média | Usuário / Câmera |
+| **RF05** | O app deve registrar apontamentos de colheita (litros do balaio) georreferenciados via GPS, vinculados a um trabalhador existente. | Alta | Usuário / GPS |
+| **RF06** | O app deve validar a quantidade de balaio (maior que zero), as coordenadas (lat -90..90, lng -180..180) e a data do apontamento. | Alta | Sistema |
+| **RF07** | O app deve registrar despesas da operação (descrição, valor, categoria) com foto do recibo (ou sem foto) e geolocalização. | Alta | Usuário |
+| **RF08** | O app deve listar todos os trabalhadores cadastrados e suas diárias. | Alta | Gestor de Fazenda |
+| **RF09** | O app deve listar todas as despesas registradas com categoria e valor. | Alta | Usuário |
+| **RF10** | O app deve exibir um mapa interativo com marcadores (`Marker` + `Callout`) para a posição atual e cada apontamento. | Alta | Usuário |
+| **RF11** | O app deve desenhar a rota (`Polyline`/`MapViewDirections`) conectando os apontamentos e até o destino buscado. | Alta | Usuário |
+| **RF12** | O app deve permitir busca de locais com sugestão em tempo real (`GooglePlacesAutocomplete`). | Média | Usuário |
 | **RF13** | O app deve funcionar 100% offline, salvando registros na fila local sem exigir rede ativa. | Alta | Usuário |
 | **RF14** | O app deve sincronizar automaticamente a fila de registros com o Supabase quando houver conexão. | Alta | Sistema Sync |
-| **RF15** | O app deve permitir busca de locais e endereços com sugestão em tempo real (`GooglePlacesAutocomplete`). | Média | Usuário |
-| **RF16** | O app deve traçar rotas viárias turn-by-turn (`MapViewDirections`) entre a posição atual e o destino/observações. | Média | Usuário |
+| **RF15** | O app deve enfileirar cada cadastro/apontamento/despesa na outbox de sincronização (INSERT). | Alta | Sistema |
+| **RF16** | O app deve resolver conflitos de sincronização (Last-Write-Wins). | Média | Sistema Sync |
 
 ### 1.2 Requisitos Não Funcionais (RNF)
 
 | ID | Categoria | Descrição e Critério Mensurável | Prioridade |
 | :--- | :--- | :--- | :---: |
-| **RNF01** | **Offline-First** | Todas as ações de captura, registro, visualização em lista e no mapa devem funcionar com o dispositivo em Modo Avião. | Alta |
+| **RNF01** | **Offline-First** | Todas as ações de captura, registro, listagem e mapa devem funcionar com o dispositivo em Modo Avião. | Alta |
 | **RNF02** | **Permissões** | Permissões de Câmera, Galeria e Localização devem ser solicitadas contextualizadas na tela de uso, com fallback visual caso negadas. | Alta |
 | **RNF03** | **Bateria e Dados** | A captura de localização deve ser pontual por demanda de registro (não polling contínuo desnecessário), poupando bateria. | Média |
-| **RNF04** | **Armazenamento** | As fotos locais devem ser gerenciadas em diretório temporário/armazenamento do app até upload confirmado para a nuvem. | Média |
+| **RNF04** | **Armazenamento** | As fotos locais (recibos) devem ser gerenciadas em diretório temporário/armazenamento do app até upload confirmado para a nuvem. | Média |
 | **RNF05** | **Sincronização** | A sincronização deve usar fila outbox com retentativa (*exponential backoff*) e resolução de conflito *Last-Write-Wins* via `updated_at`. | Alta |
 | **RNF06** | **Segurança** | Tokens de autenticação de sessão devem ser armazenados exclusivamente em `expo-secure-store`, nunca em texto plano. | Alta |
 | **RNF07** | **Qualidade / TDD** | Todos os Value Objects, Entidades e Casos de Uso devem possuir cobertura de testes unitários isolados com Jest. | Alta |
@@ -67,7 +70,7 @@ O aplicativo mobile é projetado com arquitetura **Offline-First**, permitindo q
 
 ### 2.1 Atores do Sistema
 - **Visitante**: Usuário que acessa o app antes de autenticar.
-- **Usuário Autenticado**: Agente de campo (herda de Visitante) com permissão para registrar e consultar observações.
+- **Gestor de Fazenda**: Agente de campo autenticado (herda de Visitante) que administra trabalhadores, apontamentos e despesas da colheita.
 - **Hardware do Dispositivo (Câmera / GPS)**: Sensores nativos do smartphone.
 - **Sistema de Sincronização (Sync Engine)**: Worker em background que monitora conectividade de rede (`NetInfo`).
 - **Supabase (BaaS)**: Backend as a Service gerenciado com Postgres, Storage e Auth.
@@ -78,9 +81,9 @@ O aplicativo mobile é projetado com arquitetura **Offline-First**, permitindo q
 flowchart LR
     subgraph Atores
         Visitante((Visitante))
-        Usuario((Usuário Autenticado))
+        Gestor((Gestor de Fazenda))
         SyncWorker((Sistema de Sincronização))
-        Usuario --|> Visitante
+        Gestor --|> Visitante
     end
 
     subgraph Modulo_Autenticacao["Autenticação & Sessão"]
@@ -92,79 +95,104 @@ flowchart LR
 
     subgraph Modulo_Hardware["Hardware & Sensores"]
         UC05[UC05: Solicitar Permissões Nativas]
-        UC06[UC06: Capturar Foto em Tempo Real]
-        UC07[UC07: Selecionar Foto da Galeria]
-        UC08[UC08: Escanear QR Code]
+        UC08[UC08: Escanear QR Code do Crachá]
         UC09[UC09: Obter Geolocalização GPS]
+        UC10[UC10: Capturar Foto do Recibo]
     end
 
-    subgraph Modulo_Observacoes["Gestão de Observações & Navegação"]
-        UC10[UC10: Registrar Observação]
-        UC11[UC11: Listar Observações Salvas]
-        UC12[UC12: Visualizar Mapa com Markers e Polyline]
-        UC17[UC17: Buscar Local via Autocomplete]
-        UC18[UC18: Traçar Rota de Navegação Viária]
+    subgraph Modulo_Gestao["Gestão da Colheita"]
+        UC11[UC11: Cadastrar Trabalhador]
+        UC12[UC12: Listar Trabalhadores]
+        UC13[UC13: Registrar Apontamento de Balaio]
+        UC14[UC14: Registrar Despesa]
+        UC15[UC15: Listar Despesas]
+        UC16[UC16: Visualizar Mapa com Markers, Polyline e Rota]
+        UC19[UC19: Buscar Local via Autocomplete]
     end
 
     subgraph Modulo_Sync["Sincronização Offline-First"]
-        UC13[UC13: Enfileirar na Outbox Local]
-        UC14[UC14: Sincronizar Fila Pendente]
-        UC15[UC15: Fazer Upload de Mídia no Storage]
-        UC16[UC16: Resolver Conflitos de Dados]
+        UC17[UC17: Enfileirar na Outbox Local]
+        UC18[UC18: Sincronizar Fila Pendente]
+        UC20[UC20: Fazer Upload de Mídia no Storage]
+        UC21[UC21: Resolver Conflitos de Dados]
     end
 
     Visitante --> UC01
     Visitante --> UC02
-    Usuario --> UC03
-    Usuario --> UC04
-    Usuario --> UC10
-    Usuario --> UC11
-    Usuario --> UC12
-    Usuario --> UC17
-    Usuario --> UC18
+    Gestor --> UC03
+    Gestor --> UC04
+    Gestor --> UC11
+    Gestor --> UC12
+    Gestor --> UC13
+    Gestor --> UC14
+    Gestor --> UC15
+    Gestor --> UC16
+    Gestor --> UC19
 
-    UC10 -. <<include>> .-> UC09
-    UC10 -. <<include>> .-> UC13
-    UC06 -. <<extend>> .-> UC10
-    UC07 -. <<extend>> .-> UC10
-    UC08 -. <<extend>> .-> UC10
-    UC05 -. <<include>> .-> UC06
+    UC11 -. <<include>> .-> UC17
+    UC13 -. <<include>> .-> UC09
+    UC13 -. <<include>> .-> UC17
+    UC13 -. <<extend>> .-> UC08
+    UC14 -. <<extend>> .-> UC10
+    UC14 -. <<include>> .-> UC17
     UC05 -. <<include>> .-> UC09
+    UC05 -. <<include>> .-> UC08
 
-    SyncWorker --> UC14
-    UC14 -. <<include>> .-> UC15
-    UC14 -. <<include>> .-> UC16
+    SyncWorker --> UC18
+    UC18 -. <<include>> .-> UC20
+    UC18 -. <<include>> .-> UC21
 ```
 
 ### 2.3 Especificação Textual dos Casos de Uso Principais
 
-#### UC10 — Registrar Observação de Campo
-- **Ator Principal:** Usuário Autenticado
-- **Pré-condições:** O app está aberto na tela de captura (`app/(drawer)/(tabs)/index.tsx`).
+#### UC13 — Registrar Apontamento de Balaio
+- **Ator Principal:** Gestor de Fazenda
+- **Pré-condições:** Está autenticado na tela de apontamento (`app/(drawer)/(tabs)/index.tsx`); existe pelo menos um trabalhador cadastrado.
 - **Fluxo Principal:**
-  1. O usuário captura uma foto via câmera ou seleciona da galeria.
-  2. O sistema exibe o preview da foto com opções de "Descartar" ou "Salvar".
-  3. O usuário toca em "Salvar".
-  4. O sistema obtém as coordenadas geográficas via `expo-location`.
-  5. O caso de uso `RegisterObservation` instancia o Value Object `Coordinates`, validando limites (-90 a 90; -180 a 180).
-  6. O caso de uso instancia a entidade `Observation` com UUID gerado no cliente.
-  7. O repositório salva a observação localmente no repositório Singleton.
-  8. O sistema notifica o usuário de sucesso e restaura a câmera para novo registro.
+  1. O usuário seleciona o trabalhador (chips de lista ou leitura do QR Code do crachá via `expo-camera`).
+  2. O sistema informa a quantidade de litros do balaio.
+  3. O sistema obtém as coordenadas via `expo-location`.
+  4. O caso de uso `RegistrarApontamento` instancia `QuantidadeBalaio` (litros > 0) e `Coordinates` (valida limites).
+  5. O caso de uso valida a existência do trabalhador (lança "Trabalhador não encontrado" se ausente).
+  6. A entidade `Apontamento` é criada com UUID gerado no cliente e a data atual.
+  7. O repositório salva o apontamento localmente no repositório Singleton e enfileira um `INSERT` na outbox.
+  8. O sistema notifica o usuário de sucesso e restaura o formulário.
 - **Fluxos Alternativos:**
-  - *Fluxo sem rede:* O salvamento local ocorre normalmente; a observação fica disponível para visualização imediata.
-  - *Permissão negada:* O sistema exibe mensagem amigável e impede o salvamento até autorização do usuário.
-- **Pós-condições:** Observação armazenada e disponível para listagem e plotagem no mapa.
+  - *Fluxo offline:* O salvamento local e o enfileiramento ocorrem normalmente; o apontamento fica disponível no mapa imediatamente.
+  - *Trabalhador inexistente / quantidade inválida:* O sistema exibe mensagem de erro e não persiste nada.
+- **Pós-condições:** Apontamento armazenado, enfileirado para sync e disponível para plotagem no mapa.
 
-#### UC12 — Visualizar Mapa com Markers e Polyline
-- **Ator Principal:** Usuário Autenticado
-- **Pré-condições:** Permissão de localização concedida.
+#### UC11 — Cadastrar Trabalhador da Colheita
+- **Ator Principal:** Gestor de Fazenda
+- **Pré-condições:** Autenticado (tela `app/(drawer)/(tabs)/trabalhadores.tsx`).
 - **Fluxo Principal:**
-  1. O usuário clica na aba "Mapa" (`app/(drawer)/(tabs)/maps.tsx`).
-  2. O sistema executa `container.listObservations.execute()` recarregando as observações.
-  3. O mapa centraliza na localização atual com marcador azul do usuário.
-  4. Para cada observação cadastrada, renderiza um `<Marker>` vermelho com `<Callout>` interativo exibindo foto e coordenadas.
-  5. Se houver 2 ou mais observações, desenha um `<Polyline>` ligando a ordem dos pontos no mapa.
-- **Pós-condições:** Itinerário de campo exibido visualmente.
+  1. O usuário abre o modal de cadastro e informa nome, CPF, código do crachá e diária.
+  2. O caso de uso `CadastrarTrabalhador` valida a entidade (`Trabalhador`: id, nome, CPF `^\d{11}$`, crachá e diária `ValorMonetario` ≥ 0).
+  3. O repositório salva o trabalhador e enfileira um `INSERT` na outbox.
+  4. A lista da tela é recarregada exibindo o novo trabalhador.
+- **Fluxo Alternativo:** *CPF inválido* — o sistema lança erro e não altera repositório nem fila.
+- **Pós-condições:** Trabalhador disponível para seleção/apontamento e sincronização.
+
+#### UC14 — Registrar Despesa da Operação
+- **Ator Principal:** Gestor de Fazenda
+- **Pré-condições:** Autenticado (tela `app/(drawer)/(tabs)/despesas.tsx`).
+- **Fluxo Principal:**
+  1. O usuário informa descrição, valor, categoria (Refeição | Combustível | Insumos | Ferramentas | Transporte | Outros).
+  2. Opcionalmente captura foto do recibo (`expo-image-picker`) e o sistema obtém a localização atual.
+  3. O caso de uso `RegistrarDespesa` valida `Despesa` (descrição, `ValorMonetario`, categoria, `fotoUri` com `://` se informada, data).
+  4. Salva no repositório e enfileira um `INSERT` na outbox.
+- **Fluxo Alternativo:** *Valor inválido* — erro de domínio, nada é salvo nem enfileirado.
+- **Pós-condições:** Despesa listada e pronta para sincronização.
+
+#### UC16 — Visualizar Mapa de Apontamentos
+- **Ator Principal:** Gestor de Fazenda
+- **Pré-condições:** Permissão de localização concedida; apontamentos registrados.
+- **Fluxo Principal:**
+  1. O usuário clica na aba "Mapa" (`app/(drawer)/(tabs)/mapas.tsx`).
+  2. O sistema executa `container.listarApontamentos.execute()` recarregando os apontamentos.
+  3. Renderiza marcador azul da posição atual e `<Marker>` + `<Callout>` para cada apontamento (litros e trabalhador).
+  4. Desenha `<Polyline>` ligando os pontos e, com destino buscado, traça a rota com `MapViewDirections`.
+- **Pós-condições:** Lavoura exibida visualmente com o itinerário de colheita.
 
 ---
 
@@ -178,12 +206,44 @@ classDiagram
         -validate() void
     }
 
-    class Observation {
-        +string id
-        +Coordinates coordinates
-        +string photo
+    class QuantidadeBalaio {
+        +number litros
         -validate() void
-        +updatePhoto(string photo) void
+    }
+
+    class ValorMonetario {
+        +number valor
+        +formatar() string
+        -validate() void
+    }
+
+    class Trabalhador {
+        +string id
+        +string nome
+        +string cpf
+        +string cracha
+        +ValorMonetario diaria
+        -validate() void
+    }
+
+    class Apontamento {
+        +string id
+        +string trabalhadorId
+        +QuantidadeBalaio quantidade
+        +Coordinates coordenadas
+        +number data
+        -validate() void
+    }
+
+    class Despesa {
+        +string id
+        +string descricao
+        +ValorMonetario valor
+        +string categoria
+        +Coordinates coordenadas
+        +string fotoUri
+        +number data
+        -validate() void
     }
 
     class SyncStatus {
@@ -200,29 +260,169 @@ classDiagram
         +string entityId
         +string operation
         +number attempts
+        +SyncStatus status
         +DateTime createdAt
+        +DateTime updatedAt
+        +registrarTentativa() void
+        +marcarSincronizado() void
+        +marcarErro() void
     }
 
-    class ObservationRepository {
+    class User {
+        +string id
+        +string name
+        +string email
+        -validate() void
+    }
+
+    class Session {
+        +string token
+        +User user
+        +number expiresAt
+        +boolean isValid(number agora)
+    }
+
+    class SincronizacaoService {
+        +string resolverConflito(number local, number remoto)
+    }
+
+    class TrabalhadorRepository {
         <<interface>>
-        +save(Observation observation) Promise~void~
-        +findById(string id) Promise~Observation~
-        +findAll() Promise~Observation[]~
+        +save(Trabalhador t) Promise~void~
+        +findById(string id) Promise~Trabalhador~
+        +findByCracha(string codigo) Promise~Trabalhador~
+        +findAll() Promise~Trabalhador[]~
     }
 
-    class InMemoryObservationRepository {
-        -Observation[] observations
-        -static InMemoryObservationRepository instance
+    class ApontamentoRepository {
+        <<interface>>
+        +save(Apontamento a) Promise~void~
+        +findById(string id) Promise~Apontamento~
+        +findByTrabalhadorId(string id) Promise~Apontamento[]~
+        +findAll() Promise~Apontamento[]~
+    }
+
+    class DespesaRepository {
+        <<interface>>
+        +save(Despesa d) Promise~void~
+        +findById(string id) Promise~Despesa~
+        +findAll() Promise~Despesa[]~
+    }
+
+    class SyncQueueRepository {
+        <<interface>>
+        +enqueue(SyncQueueItem item) Promise~void~
+        +save(SyncQueueItem item) Promise~void~
+        +remove(string id) Promise~void~
+        +findById(string id) Promise~SyncQueueItem~
+        +findPending() Promise~SyncQueueItem[]~
+        +findAll() Promise~SyncQueueItem[]~
+    }
+
+    class AuthGateway {
+        <<interface>>
+        +signIn(CredenciaisAuth credenciais) Promise~Session~
+        +signUp(CredenciaisAuth credenciais) Promise~Session~
+        +signOut() Promise~void~
+    }
+
+    class SessionStorage {
+        <<interface>>
+        +salvar(Session sessao) Promise~void~
+        +carregar() Promise~Session~
+        +limpar() Promise~void~
+    }
+
+    class NetworkGateway {
+        <<interface>>
+        +isConnected() Promise~boolean~
+    }
+
+    class SyncGateway {
+        <<interface>>
+        +push(SyncQueueItem item) Promise~SyncResultadoGateway~
+    }
+
+    class InMemoryTrabalhadorRepository {
+        -Trabalhador[] trabalhadores
+        -static InMemoryTrabalhadorRepository instance
         -constructor()
-        +static getInstance() InMemoryObservationRepository
-        +save(Observation observation) Promise~void~
-        +findById(string id) Promise~Observation~
-        +findAll() Promise~Observation[]~
+        +static getInstance() InMemoryTrabalhadorRepository
+        +save(Trabalhador t) Promise~void~
+        +findById(string id) Promise~Trabalhador~
+        +findByCracha(string codigo) Promise~Trabalhador~
+        +findAll() Promise~Trabalhador[]
     }
 
-    Observation *-- Coordinates : compõe
-    InMemoryObservationRepository ..|> ObservationRepository : implementa
-    InMemoryObservationRepository o-- Observation : armazena
+    class InMemoryApontamentoRepository {
+        -Apontamento[] apontamentos
+        -static InMemoryApontamentoRepository instance
+        -constructor()
+        +static getInstance() InMemoryApontamentoRepository
+    }
+
+    class InMemoryDespesaRepository {
+        -Despesa[] despesas
+        -static InMemoryDespesaRepository instance
+        -constructor()
+        +static getInstance() InMemoryDespesaRepository
+    }
+
+    class InMemorySyncQueueRepository {
+        -SyncQueueItem[] items
+        -static InMemorySyncQueueRepository instance
+        -constructor()
+        +static getInstance() InMemorySyncQueueRepository
+    }
+
+    class InMemoryAuthGateway {
+        -static InMemoryAuthGateway instance
+        -constructor()
+        +static getInstance() InMemoryAuthGateway
+    }
+
+    class InMemoryNetworkGateway {
+        -boolean connected
+        -static InMemoryNetworkGateway instance
+        -constructor()
+        +static getInstance() InMemoryNetworkGateway
+        +setConnected(boolean value) void
+    }
+
+    class InMemorySyncGateway {
+        -static InMemorySyncGateway instance
+        -constructor()
+        +static getInstance() InMemorySyncGateway
+    }
+
+    class SessionStorageSecureStore {
+        -static SessionStorageSecureStore instance
+        -constructor()
+        +static getInstance() SessionStorageSecureStore
+    }
+
+    Trabalhador *-- ValorMonetario : possui diária
+    Apontamento *-- QuantidadeBalaio
+    Apontamento *-- Coordinates
+    Apontamento --> Trabalhador : agrega por trabalhadorId
+    Despesa *-- ValorMonetario
+    Despesa *-- Coordinates
+    SyncQueueItem --> SyncStatus
+    SyncQueueItem o-- Apontamento : referencia
+    SyncQueueItem o-- Trabalhador : referencia
+    SyncQueueItem o-- Despesa : referencia
+    Session *-- User : possui
+    InMemoryTrabalhadorRepository ..|> TrabalhadorRepository : implementa
+    InMemoryApontamentoRepository ..|> ApontamentoRepository : implementa
+    InMemoryDespesaRepository ..|> DespesaRepository : implementa
+    InMemorySyncQueueRepository ..|> SyncQueueRepository : implementa
+    InMemoryAuthGateway ..|> AuthGateway : implementa
+    InMemoryNetworkGateway ..|> NetworkGateway : implementa
+    InMemorySyncGateway ..|> SyncGateway : implementa
+    SessionStorageSecureStore ..|> SessionStorage : implementa
+    InMemoryTrabalhadorRepository o-- Trabalhador : armazena
+    InMemoryApontamentoRepository o-- Apontamento : armazena
+    InMemoryDespesaRepository o-- Despesa : armazena
 ```
 
 ### 3.1 Diagramas Entidade-Relacionamento (DER Local e Remoto)
@@ -230,21 +430,46 @@ classDiagram
 #### DER Local (SQLite via Drizzle / Cache Local)
 ```mermaid
 erDiagram
-    OBSERVATIONS ||--o{ SYNC_QUEUE : gera
+    TRABALHADORES ||--o{ APONTAMENTOS : recebe
+    TRABALHADORES ||--o{ SYNC_QUEUE : gera
+    APONTAMENTOS ||--o{ SYNC_QUEUE : gera
+    DESPESAS ||--o{ SYNC_QUEUE : gera
 
-    OBSERVATIONS {
+    TRABALHADORES {
         text id PK "UUID gerado no cliente"
+        text nome "Nome do trabalhador"
+        text cpf "CPF 11 dígitos validado"
+        text cracha "Código do crachá / QR Code"
+        real diaria "Valor da diária em BRL"
+        text updated_at "Timestamp ISO 8601"
+    }
+
+    APONTAMENTOS {
+        text id PK "UUID gerado no cliente"
+        text trabalhador_id FK "FK lógica para TRABALHADORES"
+        real litros "Volume do balaio (>0)"
         real latitude "Latitude validada (-90 a 90)"
         real longitude "Longitude validada (-180 a 180)"
-        text photo_uri "URI local do arquivo"
-        text sync_status "pending | synced | error"
+        integer data "Epoch ms do apontamento"
+        text updated_at "Timestamp ISO 8601"
+    }
+
+    DESPESAS {
+        text id PK "UUID gerado no cliente"
+        text descricao
+        real valor "Valor em BRL (≥0)"
+        text categoria "Refeição|Combustível|Insumos|Ferramentas|Transporte|Outros"
+        text foto_uri "URI local do recibo (opcional)"
+        real latitude
+        real longitude
+        integer data "Epoch ms da despesa"
         text updated_at "Timestamp ISO 8601"
     }
 
     SYNC_QUEUE {
         text id PK "UUID único"
-        text entity "Nome da entidade (Observation)"
-        text entity_id "FK lógica para observation"
+        text entity "Nome da entidade (Trabalhador|Apontamento|Despesa)"
+        text entity_id "FK lógica"
         text operation "INSERT | UPDATE | DELETE"
         integer attempts "Tentativas de sync"
         text created_at "Timestamp de inclusão na fila"
@@ -254,7 +479,9 @@ erDiagram
 #### DER Remoto (Supabase / Postgres com RLS)
 ```mermaid
 erDiagram
-    PROFILES ||--o{ OBSERVATIONS : possui
+    PROFILES ||--o{ TRABALHADORES : gerencia
+    TRABALHADORES ||--o{ APONTAMENTOS : recebe
+    PROFILES ||--o{ DESPESAS : gerencia
 
     PROFILES {
         uuid id PK "auth.users(id)"
@@ -262,62 +489,102 @@ erDiagram
         text email
     }
 
-    OBSERVATIONS {
+    TRABALHADORES {
         uuid id PK "Mesmo UUID gerado no cliente"
         uuid user_id FK "FK para profiles(id)"
-        double_precision latitude
-        double_precision longitude
-        text photo_url "URL pública no Supabase Storage"
+        text nome
+        text cpf
+        text cracha
+        numeric diaria
         timestamptz updated_at
         timestamptz deleted_at "Soft delete"
+    }
+
+    APONTAMENTOS {
+        uuid id PK "Mesmo UUID gerado no cliente"
+        uuid user_id FK "FK para profiles(id)"
+        uuid trabalhador_id FK "FK para trabalhadores(id)"
+        numeric litros
+        double_precision latitude
+        double_precision longitude
+        timestamptz ocorrido_em
+        timestamptz updated_at
+    }
+
+    DESPESAS {
+        uuid id PK "Mesmo UUID gerado no cliente"
+        uuid user_id FK "FK para profiles(id)"
+        text descricao
+        numeric valor
+        text categoria
+        text foto_url "URL pública no Supabase Storage"
+        timestamptz ocorrido_em
+        timestamptz updated_at
     }
 ```
 
 > **Políticas de Row Level Security (RLS):**
-> - `SELECT / INSERT / UPDATE`: Garantidas por `auth.uid() = user_id`.
+> - `SELECT / INSERT / UPDATE`: Garantidas por `auth.uid() = user_id` em todas as tabelas.
+
+**Persistência da Sessão:** A sessão do usuário (`Session` — token, usuário, `expiresAt`) **não** é
+persistida em SQLite: é armazenada exclusivamente no *Keychain/Keystore* do dispositivo via
+`expo-secure-store` (adapter `SessionStorageSecureStore`, chave `safracafe.session`), atendendo ao
+requisito RNF06 (tokens cifrados, nunca em texto plano).
 
 ---
 
 ## 4. Diagrama de Objetos (Validação de Cenário de Estado Misto)
 
-Este diagrama representa um instantâneo real de dados em memória, validando que o sistema tolera de forma resiliente um estado misto (onde uma observação já foi sincronizada com a nuvem enquanto outra foi recém-criada offline e permanece pendente):
+Este diagrama representa um instantâneo real de dados em memória, validando que o sistema tolera de forma resiliente um estado misto (onde um apontamento já foi sincronizado com a nuvem enquanto outro foi recém-criado offline e permanece pendente):
 
 ```mermaid
 classDiagram
-    class obs01_sincronizada {
+    class trab01 {
         <<instance>>
-        id = "a1b2c3d4-e5f6-7890-abcd-111111111111"
-        photo = "https://supabase.co/storage/v1/photos/obs1.jpg"
+        id = "t1"
+        nome = "José da Silva"
+        cpf = "52998224725"
+        cracha = "TRAB-001"
+        diaria = "R$ 60,00"
+    }
+    class apt01_sincronizado {
+        <<instance>>
+        id = "a1"
+        trabalhadorId = "t1"
+        litros = 45
         sync_status = "synced"
     }
     class coords01 {
         <<instance>>
-        latitude = -23.5505
-        longitude = -46.6333
+        latitude = -21.7534
+        longitude = -45.9054
     }
-    class obs02_pendente {
+    class apt02_pendente {
         <<instance>>
-        id = "f9e8d7c6-b5a4-3210-fedc-222222222222"
-        photo = "file:///data/user/0/app/cache/camera-987.jpg"
+        id = "a2"
+        trabalhadorId = "t2"
+        litros = 60
         sync_status = "pending"
     }
     class coords02 {
         <<instance>>
-        latitude = -23.5520
-        longitude = -46.6350
+        latitude = -21.7540
+        longitude = -45.9060
     }
     class queueItem02 {
         <<instance>>
         id = "queue-001"
-        entity = "Observation"
-        entityId = "f9e8d7c6-b5a4-3210-fedc-222222222222"
+        entity = "Apontamento"
+        entityId = "a2"
         operation = "INSERT"
         attempts = 0
     }
 
-    obs01_sincronizada *-- coords01
-    obs02_pendente *-- coords02
-    obs02_pendente "1" -- "1" queueItem02 : gera
+    apt01_sincronizado *-- coords01
+    apt02_pendente *-- coords02
+    apt01_sincronizado --> trab01 : trabalhador
+    apt02_pendente --> trab01 : trabalhador
+    apt02_pendente "1" -- "1" queueItem02 : gera
 ```
 
 ---
@@ -341,75 +608,85 @@ stateDiagram-v2
 
 | Caso de Uso | Boundary de UI (Telas) | Boundary de Hardware / Gateway | Control (Casos de Uso) | Entidades Envolvidas |
 | :--- | :--- | :--- | :--- | :--- |
-| **Registrar Observação** | `CameraScreen` (`app/(drawer)/(tabs)/index.tsx`) | `CameraGateway`, `LocationGateway` | `RegisterObservation` | `Observation`, `Coordinates` |
-| **Listar Observações** | `ListScreen` (`app/(drawer)/(tabs)/list.tsx`) | N/A (leitura em repositório local) | `ListObservations` | `Observation` |
-| **Visualizar no Mapa** | `MapsScreen` (`app/(drawer)/(tabs)/maps.tsx`) | `LocationGateway`, `MapView` | `ListObservations` | `Observation`, `Coordinates` |
-| **Autenticação** | `LoginScreen` / `ModalScreen` | `AuthGateway` (Supabase Auth) | `AuthenticateUserUseCase` | `User` |
-| **Sincronização** | Indicador de status na UI | `SyncGateway`, `NetInfo` | `SyncQueueUseCase` | `Observation`, `SyncQueueItem` |
+| **Cadastrar Trabalhador** | `TrabalhadoresScreen` (`app/(drawer)/(tabs)/trabalhadores.tsx`) | `AuthGateway` (sessão) | `CadastrarTrabalhador` | `Trabalhador`, `ValorMonetario` |
+| **Listar Trabalhadores** | `TrabalhadoresScreen` | N/A (repositório local) | `ListarTrabalhadores` | `Trabalhador` |
+| **Registrar Apontamento** | `ApontamentoScreen` (`app/(drawer)/(tabs)/index.tsx`) | `CameraGateway` (QR), `LocationGateway` | `RegistrarApontamento` | `Apontamento`, `QuantidadeBalaio`, `Coordinates`, `Trabalhador` |
+| **Registrar Despesa** | `DespesasScreen` (`app/(drawer)/(tabs)/despesas.tsx`) | `ImagePickerGateway`, `LocationGateway` | `RegistrarDespesa` | `Despesa`, `ValorMonetario`, `Coordinates` |
+| **Listar Despesas** | `DespesasScreen` | N/A (repositório local) | `ListarDespesas` | `Despesa` |
+| **Visualizar no Mapa** | `MapasScreen` (`app/(drawer)/(tabs)/mapas.tsx`) | `LocationGateway`, `MapView`, `MapViewDirections`, `GooglePlacesAutocomplete` | `ListarApontamentos` | `Apontamento`, `Coordinates` |
+| **Login** | `LoginScreen` (`app/index.tsx`) | `AuthGateway` (conta demo in-memory), `SessionStorageSecureStore` | `AuthenticateUser` | `User`, `Session` |
+| **Restaurar Sessão** | `AuthProvider` (`app/_layout.tsx`) | `SessionStorageSecureStore` | `RestoreSession` | `Session` |
+| **Logout** | `LoginScreen` / menu do drawer | `AuthGateway`, `SessionStorageSecureStore` | `SignOut` | `Session` |
+| **Sincronizar Fila** | Indicador de status na UI | `SyncGateway` (in-memory), `NetworkGateway` (in-memory) | `SyncPendingQueue` | `SyncQueueItem`, `Trabalhador`, `Apontamento`, `Despesa` |
 
 ---
 
-## 7. Diagrama de Sequência: Registro e Visualização no Mapa
+## 7. Diagrama de Sequência: Registro de Apontamento e Visualização no Mapa
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Usuario as Usuário
-    participant Tela as CameraScreen (UI)
-    participant Loc as expo-location (Gateway)
-    participant UseCase as RegisterObservation (Control)
-    participant Entity as Observation (Entity)
-    participant Repo as InMemoryRepo (Infra)
-    participant Mapa as MapsScreen (UI)
+    actor Usuario as Gestor de Fazenda
+    participant Tela as ApontamentoScreen (UI)
+    participant Loc as expo-location / QR (Gateway)
+    participant UseCase as RegistrarApontamento (Control)
+    participant Entity as Apontamento (Entity)
+    participant Repo as InMemoryApontamentoRepository (Infra)
+    participant Queue as InMemorySyncQueueRepository (Infra)
+    participant Mapa as MapasScreen (UI)
 
-    Usuario->>Tela: Captura foto e toca "Salvar"
-    Tela->>Loc: getCurrentPositionAsync()
-    Loc-->>Tela: { latitude: -23.55, longitude: -46.63 }
-    Tela->>UseCase: execute({ photo, lat, lng })
+    Usuario->>Tela: Seleciona/captura trabalhador (QR) e informa litros
+    Tela->>Loc: getCurrentPositionAsync() / scan QR
+    Loc-->>Tela: { trabalhadorId, latitude, longitude }
+    Tela->>UseCase: execute({ trabalhadorId, litros, lat, lng })
+    UseCase->>UseCase: valida existência do trabalhador
+    UseCase->>Entity: new QuantidadeBalaio(litros)
     UseCase->>Entity: new Coordinates(lat, lng)
-    UseCase->>Entity: new Observation(uuid, coords, photo)
+    UseCase->>Entity: new Apontamento(uuid, trabalhadorId, qtd, coords, agora)
     Entity-->>UseCase: Instância validada com sucesso
-    UseCase->>Repo: save(observation)
+    UseCase->>Repo: save(apontamento)
+    UseCase->>Queue: enqueue(SyncQueueItem INSERT 'Apontamento')
     Repo-->>UseCase: Confirmação de salvamento
-    UseCase-->>Tela: Retorna observação cadastrada
-    Tela-->>Usuario: Feedback "Observação salva com sucesso!"
+    UseCase-->>Tela: Retorna apontamento registrado
+    Tela-->>Usuario: Feedback "Apontamento salvo com sucesso!"
 
     Note over Usuario, Mapa: Usuário transita para a aba de Mapa
     Usuario->>Mapa: Acessa aba "Mapa"
     Mapa->>Repo: findAll()
-    Repo-->>Mapa: [Observation1, Observation2, ...]
+    Repo-->>Mapa: [Apontamento1, Apontamento2, ...]
     Mapa->>Mapa: Renderiza <Marker> azul para posição atual
-    Mapa->>Mapa: Renderiza <Marker> vermelho para cada observação
+    Mapa->>Mapa: Renderiza <Marker> vermelho para cada apontamento
     Mapa->>Mapa: Renderiza <Polyline> unindo todas as coordenadas
-    Mapa-->>Usuario: Exibe itinerário e pinos interativos
+    Mapa-->>Usuario: Exibe itinerário de colheita e pinos interativos
 ```
 
 ---
 
-## 8. Diagrama de Atividades: Fluxo de Captura com Permissões
+## 8. Diagrama de Atividades: Fluxo de Apontamento com Permissões (QR/Localização)
 
 ```mermaid
 flowchart TD
-    Inicio([Usuário aciona Câmera]) --> ValidaPermissao{Permissão de Câmera concedida?}
-    ValidaPermissao -- Não --> PedePermissao[Solicitar Permissão ao SO]
-    PedePermissao --> PermissaoAceita{Usuário autorizou?}
-    PermissaoAceita -- Não --> AlertaNegado[Exibir tela de permissão com botão explicativo]
-    AlertaNegado --> Fim([Fim do Fluxo])
-    
-    PermissaoAceita -- Sim --> AbreCamera[Exibir CameraView]
-    ValidaPermissao -- Sim --> AbreCamera
+    Inicio([Usuário inicia Apontamento]) --> SelecionaTrabalhador{Trabalhador selecionado?}
+    SelecionaTrabalhador -- Não --> EscaneiaQR[Escaneia QR Code do crachá via expo-camera]
+    EscaneiaQR --> ValidaTrabalhador{Trabalhador existente?}
+    ValidaTrabalhador -- Não --> AlertaTrabalhadorExiste[Exibir mensagem Trabalhador não encontrado]
+    AlertaTrabalhadorExiste --> Fim([Fim do Fluxo])
+    SelecionaTrabalhador -- Sim --> InformaLitros[Informar litros do balaio]
+    ValidaTrabalhador -- Sim --> InformaLitros
 
-    AbreCamera --> CapturaFoto[Usuário fotografa ou seleciona da galeria]
-    CapturaFoto --> MostraPreview[Exibir tela de Preview da Imagem]
-    MostraPreview --> DecideAcao{Usuário confirmou?}
-    DecideAcao -- Descartar --> AbreCamera
-    DecideAcao -- Salvar --> PegaGPS[Capturar Coordenadas GPS via expo-location]
+    InformaLitros --> Confirma{Usuário confirmou?}
+    Confirma -- Cancelar --> Fim
+    Confirma -- Confirmar --> PegaGPS[Capturar Coordenadas GPS via expo-location]
 
     PegaGPS --> ValidaGPS{Coordenadas válidas no range?}
     ValidaGPS -- Não --> AlertaGPS[Lançar erro de domínio]
-    ValidaGPS -- Sim --> SalvaRegistro[Salvar observação no Repositório InMemory]
+    AlertaGPS --> Fim
+    ValidaGPS -- Sim --> ValidaQtd{Quantidade > 0?}
+    ValidaQtd -- Não --> AlertaQtd[Lançar erro de domínio]
+    AlertaQtd --> Fim
+    ValidaQtd -- Sim --> SalvaRegistro[Salvar apontamento no Repo e enfileirar INSERT na outbox]
     SalvaRegistro --> NotificaSucesso[Exibir mensagem de sucesso]
-    NotificaSucesso --> FimSucesso([Observação disponível imediatamente])
+    NotificaSucesso --> FimSucesso([Apontamento disponível no mapa imediatamente])
 ```
 
 ---
@@ -419,22 +696,47 @@ flowchart TD
 ```mermaid
 flowchart TB
     subgraph UI_Layer["Camada de Apresentação (Interface Adapters - Entrada)"]
-        CameraViewScreen["Camera Screen (app/(drawer)/(tabs)/index.tsx)"]
-        ListViewScreen["List Screen (app/(drawer)/(tabs)/list.tsx)"]
-        MapViewScreen["Maps Screen (app/(drawer)/(tabs)/maps.tsx)"]
+        LoginScreen["Login Screen (app/index.tsx)"]
+        ApontamentoScreen["Apontamento Screen (app/(drawer)/(tabs)/index.tsx)"]
+        TrabalhadoresScreen["Trabalhadores Screen (app/(drawer)/(tabs)/trabalhadores.tsx)"]
+        DespesasScreen["Despesas Screen (app/(drawer)/(tabs)/despesas.tsx)"]
+        MapasScreen["Mapas Screen (app/(drawer)/(tabs)/mapas.tsx)"]
+        AuthCtx["AuthContext / useAuth (Provider)"]
     end
 
     subgraph Application_Layer["Camada de Aplicação (Use Cases)"]
-        RegisterUC["RegisterObservation"]
-        ListUC["ListObservations"]
+        CadTrabUC["CadastrarTrabalhador"]
+        LisTrabUC["ListarTrabalhadores"]
+        RegAptUC["RegistrarApontamento"]
+        LisAptUC["ListarApontamentos"]
+        RegDespUC["RegistrarDespesa"]
+        LisDespUC["ListarDespesas"]
+        AuthUC["AuthenticateUser"]
+        SignOutUC["SignOut"]
+        RestoreUC["RestoreSession"]
+        SyncUC["SyncPendingQueue"]
     end
 
     subgraph Domain_Layer["Camada de Domínio (Pure TypeScript)"]
-        ObsEntity["Observation (Entidade)"]
+        TrabEntity["Trabalhador (Entidade)"]
+        AptEntity["Apontamento (Entidade)"]
+        DespEntity["Despesa (Entidade)"]
         CoordsVO["Coordinates (Value Object)"]
-        RepoInterface[["ObservationRepository (Interface)"]]
-        CamGatewayInterface[["CameraGateway (Interface)"]]
-        LocGatewayInterface[["LocationGateway (Interface)"]]
+        BalaioVO["QuantidadeBalaio (Value Object)"]
+        ValorVO["ValorMonetario (Value Object)"]
+        SyncStatusVO["SyncStatus (Value Object)"]
+        QueueItemEntity["SyncQueueItem (Entidade)"]
+        UserEntity["User (Entidade)"]
+        SessionEntity["Session (Entidade)"]
+        ConflitoSvc["SincronizacaoService (Serviço)"]
+        RepoTrabInterface[["TrabalhadorRepository (Interface)"]]
+        RepoAptInterface[["ApontamentoRepository (Interface)"]]
+        RepoDespInterface[["DespesaRepository (Interface)"]]
+        QueueRepoInterface[["SyncQueueRepository (Interface)"]]
+        AuthGwInterface[["AuthGateway (Interface)"]]
+        SessionStInterface[["SessionStorage (Interface)"]]
+        NetGwInterface[["NetworkGateway (Interface)"]]
+        SyncGwInterface[["SyncGateway (Interface)"]]
     end
 
     subgraph Factory_Layer["Container / Injeção de Dependência"]
@@ -442,28 +744,88 @@ flowchart TB
     end
 
     subgraph Infra_Layer["Camada de Infraestrutura (Drivers & Adapters)"]
-        InMemoryRepo["InMemoryObservationRepository (Singleton)"]
-        ExpoSensors["Expo Camera & Location Drivers"]
+        InMemoryTrabalhador["InMemoryTrabalhadorRepository (Singleton)"]
+        InMemoryApt["InMemoryApontamentoRepository (Singleton)"]
+        InMemoryDesp["InMemoryDespesaRepository (Singleton)"]
+        InMemoryQueue["InMemorySyncQueueRepository (Singleton)"]
+        InMemoryAuth["InMemoryAuthGateway (Singleton)"]
+        InMemoryNet["InMemoryNetworkGateway (Singleton)"]
+        InMemorySync["InMemorySyncGateway (Singleton)"]
+        SecureStore["SessionStorageSecureStore (expo-secure-store)"]
+        ExpoSensors["Expo Camera, ImagePicker & Location Drivers"]
+        NativeMaps["react-native-maps + directions + places"]
     end
 
-    CameraViewScreen --> DIContainer
-    ListViewScreen --> DIContainer
-    MapViewScreen --> DIContainer
+    LoginScreen --> AuthCtx
+    AuthCtx --> DIContainer
+    ApontamentoScreen --> DIContainer
+    TrabalhadoresScreen --> DIContainer
+    DespesasScreen --> DIContainer
+    MapasScreen --> DIContainer
 
-    DIContainer --> RegisterUC
-    DIContainer --> ListUC
-    DIContainer --> InMemoryRepo
+    DIContainer --> CadTrabUC
+    DIContainer --> LisTrabUC
+    DIContainer --> RegAptUC
+    DIContainer --> LisAptUC
+    DIContainer --> RegDespUC
+    DIContainer --> LisDespUC
+    DIContainer --> AuthUC
+    DIContainer --> SignOutUC
+    DIContainer --> RestoreUC
+    DIContainer --> SyncUC
+    DIContainer --> InMemoryTrabalhador
+    DIContainer --> InMemoryApt
+    DIContainer --> InMemoryDesp
+    DIContainer --> InMemoryQueue
+    DIContainer --> InMemoryAuth
 
-    RegisterUC --> RepoInterface
-    ListUC --> RepoInterface
-    RegisterUC --> ObsEntity
-    RegisterUC --> CoordsVO
+    CadTrabUC --> RepoTrabInterface
+    CadTrabUC --> QueueRepoInterface
+    CadTrabUC --> TrabEntity
+    RegAptUC --> RepoAptInterface
+    RegAptUC --> RepoTrabInterface
+    RegAptUC --> QueueRepoInterface
+    RegAptUC --> AptEntity
+    RegAptUC --> CoordsVO
+    RegAptUC --> BalaioVO
+    RegDespUC --> RepoDespInterface
+    RegDespUC --> QueueRepoInterface
+    RegDespUC --> DespEntity
+    RegDespUC --> ValorVO
+    LisTrabUC --> RepoTrabInterface
+    LisAptUC --> RepoAptInterface
+    LisDespUC --> RepoDespInterface
+    AuthUC --> AuthGwInterface
+    AuthUC --> SessionStInterface
+    AuthUC --> UserEntity
+    AuthUC --> SessionEntity
+    RestoreUC --> SessionStInterface
+    SignOutUC --> AuthGwInterface
+    SignOutUC --> SessionStInterface
+    SyncUC --> QueueRepoInterface
+    SyncUC --> NetGwInterface
+    SyncUC --> SyncGwInterface
+    SyncUC --> ConflitoSvc
+    SyncUC --> SyncStatusVO
+    SyncUC --> QueueItemEntity
 
-    InMemoryRepo ..|> RepoInterface
-    InMemoryRepo --> ObsEntity
+    InMemoryTrabalhador ..|> RepoTrabInterface
+    InMemoryApt ..|> RepoAptInterface
+    InMemoryDesp ..|> RepoDespInterface
+    InMemoryQueue ..|> QueueRepoInterface
+    InMemoryAuth ..|> AuthGwInterface
+    InMemoryNet ..|> NetGwInterface
+    InMemorySync ..|> SyncGwInterface
+    SecureStore ..|> SessionStInterface
+    InMemoryTrabalhador --> TrabEntity
+    InMemoryApt --> AptEntity
+    InMemoryDesp --> DespEntity
+    InMemoryAuth --> UserEntity
+    InMemoryAuth --> SessionEntity
 
-    CameraViewScreen --> ExpoSensors
-    MapViewScreen --> ExpoSensors
+    ApontamentoScreen --> ExpoSensors
+    DespesasScreen --> ExpoSensors
+    MapasScreen --> NativeMaps
 ```
 
 ---
@@ -472,21 +834,72 @@ flowchart TB
 
 ### 10.1 Padrões Obrigatórios Implementados no Projeto
 1. **Regra da Direção das Dependências:** O diretório `domain/` é independente e não importa nada de `infra/`, `usecases/` ou bibliotecas de terceiros (`expo-*`, `react-native`).
-2. **Injeção de Dependência (DI):** Todo caso de uso recebe seus repositórios por parâmetro no construtor (`constructor(private readonly repository: ObservationRepository)`).
-3. **Padrão Singleton:** O repositório de infraestrutura (`InMemoryObservationRepository`) e a fábrica (`Container`) implementam o padrão Singleton com:
+2. **Injeção de Dependência (DI):** Todo caso de uso recebe seus repositórios/gateways por parâmetro no construtor. Ex.: `RegistrarApontamento(apontamentoRepository, trabalhadorRepository, syncQueueRepository)`, `AuthenticateUser(authGateway, sessionStorage)`, `SyncPendingQueue(syncQueueRepository, networkGateway, syncGateway)`.
+3. **Padrão Singleton:** Todas as implementações concretas da infraestrutura (`InMemoryTrabalhadorRepository`, `InMemoryApontamentoRepository`, `InMemoryDespesaRepository`, `InMemorySyncQueueRepository`, `InMemoryAuthGateway`, `InMemoryNetworkGateway`, `InMemorySyncGateway`, `SessionStorageSecureStore`) e a fábrica (`src/factory/container.ts`) implementam o padrão Singleton com:
    - `private constructor()`
    - `private static instance`
    - `public static getInstance()`
-4. **Auto-Validação:** Value Objects e Entidades se autovalidam no construtor e em métodos de modificação de estado (`updatePhoto`), impedindo estados inconsistentes no sistema.
+4. **Auto-Validação:** Value Objects e Entidades se autovalidam no construtor e em métodos de modificação de estado (`registrarTentativa`, `marcarSincronizado`, `marcarErro`, `update*`), impedindo estados inconsistentes no sistema.
 
 ### 10.2 Matriz de Testes TDD Executada e Aprovada
 
-| Arquivo de Teste | Camada Alvo | Cenários Cobertos | Status |
+> **Total:** 23 suítes / 85 testes, executando em `npx jest --ci` (verde), `npx tsc --noEmit` (limpo) e `npx expo lint` (sem avisos).
+
+#### Camada de Domínio (sem mocks)
+| Arquivo de Teste | Alvo | Cenários Cobertos | Status |
 | :--- | :--- | :--- | :---: |
-| [`Coordinates.test.ts`](file:///c:/PROJETOMOBILE/tests/domain/Coordinates.test.ts) | Domain (Value Object) | Criação com lat/lng válidas; rejeição de lat > 90 ou < -90; rejeição de lon > 180 ou < -180. | ✅ Aprovado |
-| [`Observations.test.ts`](file:///c:/PROJETOMOBILE/tests/domain/Observations.test.ts) | Domain (Entidade) | Criação de observação; validação de URI com protocolo `://`; método `updatePhoto` e re-validação. | ✅ Aprovado |
-| [`RegisterObservation.test.ts`](file:///c:/PROJETOMOBILE/tests/usecases/RegisterObservation.test.ts) | Application (Use Case) | Execução com dados válidos salvando no fake repo; rejeição se coordenadas inválidas; rejeição se foto inválida. | ✅ Aprovado |
-| [`ListObservations.test.ts`](file:///c:/PROJETOMOBILE/tests/usecases/ListObservations.test.ts) | Application (Use Case) | Retorno de lista vazia; listagem completa de itens pré-armazenados. | ✅ Aprovado |
+| [`Coordinates.test.ts`](file:///c:/PROJETOMOBILE/tests/domain/Coordinates.test.ts) | VO | Criação lat/lng válidas; rejeição lat fora de [-90,90]; rejeição lng fora de [-180,180]. | ✅ Aprovado |
+| [`QuantidadeBalaio.test.ts`](file:///c:/PROJETOMOBILE/tests/domain/QuantidadeBalaio.test.ts) | VO | Criação com litros positivos; rejeição de zero/negativo/Não-numérico. | ✅ Aprovado |
+| [`ValorMonetario.test.ts`](file:///c:/PROJETOMOBILE/tests/domain/ValorMonetario.test.ts) | VO | Criação válida/zero; rejeição de negativo; `formatar()` pt-BR (R$). | ✅ Aprovado |
+| [`Trabalhador.test.ts`](file:///c:/PROJETOMOBILE/tests/domain/Trabalhador.test.ts) | Entidade | Criação válida; rejeição de id/nome/crachá vazios e CPF inválido. | ✅ Aprovado |
+| [`Apontamento.test.ts`](file:///c:/PROJETOMOBILE/tests/domain/Apontamento.test.ts) | Entidade | Criação válida com quantidade/coordenadas/data; rejeição de campos inválidos. | ✅ Aprovado |
+| [`Despesa.test.ts`](file:///c:/PROJETOMOBILE/tests/domain/Despesa.test.ts) | Entidade | Criação com/sem foto; rejeição de descrição/categoria/foto sem `://`/data inválidas. | ✅ Aprovado |
+| [`SyncStatus.test.ts`](file:///c:/PROJETOMOBILE/tests/domain/SyncStatus.test.ts) | VO | `deValor` para estados válidos; rejeição de estado desconhecido. | ✅ Aprovado |
+| [`SyncQueueItem.test.ts`](file:///c:/PROJETOMOBILE/tests/domain/SyncQueueItem.test.ts) | Entidade | Criação com op INSERT; incremento de `attempts`; transição para SYNCED; falha em operação inválida. | ✅ Aprovado |
+| [`Session.test.ts`](file:///c:/PROJETOMOBILE/tests/domain/Session.test.ts) | Entidade | `Session` válida/`isValid`; expiração; entidade `User` (e-mail/nome/id inválidos). | ✅ Aprovado |
+| [`SincronizacaoService.test.ts`](file:///c:/PROJETOMOBILE/tests/domain/SincronizacaoService.test.ts) | Serviço | Resolução last-write-wins para `'local'`, `'remoto'` e empate. | ✅ Aprovado |
+
+#### Camada de Aplicação (use cases com fakes in-memory)
+| Arquivo de Teste | Alvo | Cenários Cobertos | Status |
+| :--- | :--- | :--- | :---: |
+| [`CadastrarTrabalhador.test.ts`](file:///c:/PROJETOMOBILE/tests/usecases/CadastrarTrabalhador.test.ts) | Use case | Salva e enfileira INSERT 'Trabalhador'; CPF inválido não altera repositório nem fila. | ✅ Aprovado |
+| [`ListarTrabalhadores.test.ts`](file:///c:/PROJETOMOBILE/tests/usecases/ListarTrabalhadores.test.ts) | Use case | Lista completa; lista vazia. | ✅ Aprovado |
+| [`RegistrarApontamento.test.ts`](file:///c:/PROJETOMOBILE/tests/usecases/RegistrarApontamento.test.ts) | Use case | Salva e enfileira INSERT 'Apontamento'; trabalhador inexistente rejeitado; litros inválidos não enfileiram. | ✅ Aprovado |
+| [`ListarApontamentos.test.ts`](file:///c:/PROJETOMOBILE/tests/usecases/ListarApontamentos.test.ts) | Use case | Lista completa; filtro por trabalhador. | ✅ Aprovado |
+| [`RegistrarDespesa.test.ts`](file:///c:/PROJETOMOBILE/tests/usecases/RegistrarDespesa.test.ts) | Use case | Salva e enfileira com/sem foto de recibo; valor inválido não enfileira. | ✅ Aprovado |
+| [`ListarDespesas.test.ts`](file:///c:/PROJETOMOBILE/tests/usecases/ListarDespesas.test.ts) | Use case | Lista completa; lista vazia. | ✅ Aprovado |
+| [`AuthenticateUser.test.ts`](file:///c:/PROJETOMOBILE/tests/usecases/AuthenticateUser.test.ts) | Use case | Login com credenciais válidas salva sessão; rejeição de credenciais inválidas. | ✅ Aprovado |
+| [`RestoreSession.test.ts`](file:///c:/PROJETOMOBILE/tests/usecases/RestoreSession.test.ts) | Use case | Restaura sessão válida; retorna `null` sem sessão/vencida. | ✅ Aprovado |
+| [`SignOut.test.ts`](file:///c:/PROJETOMOBILE/tests/usecases/SignOut.test.ts) | Use case | Encerra sessão e limpa storage. | ✅ Aprovado |
+| [`SyncPendingQueue.test.ts`](file:///c:/PROJETOMOBILE/tests/usecases/SyncPendingQueue.test.ts) | Use case | Sincroniza fila com rede; mantém pendentes offline; não trava sem rede. | ✅ Aprovado |
+
+#### Camada de Adapters e Telas (mocks + RNTL)
+| Arquivo de Teste | Alvo | Cenários Cobertos | Status |
+| :--- | :--- | :--- | :---: |
+| [`SessionStorageSecureStore.test.ts`](file:///c:/PROJETOMOBILE/tests/adapters/SessionStorageSecureStore.test.ts) | Adapter | `salvar`/`carregar` serializa JSON no SecureStore; `limpar` remove a chave. | ✅ Aprovado |
+| [`AuthContext.test.tsx`](file:///c:/PROJETOMOBILE/tests/adapters/AuthContext.test.tsx) | Adapter/React | Restaura sessão no boot; estado `unauthenticated`; login autentica e persiste; logout limpa. | ✅ Aprovado |
+| [`LoginScreen.test.tsx`](file:///c:/PROJETOMOBILE/tests/screens/LoginScreen.test.tsx) | Tela | Login válido navega para o painel; credenciais inválidas disparam `Alert`; campos vazios não navegam. | ✅ Aprovado |
+
+### 10.3 Rastreabilidade RF → Caso de Uso → Teste
+
+| Requisito | Caso de Uso | Teste de Referência | Status |
+| :--- | :--- | :--- | :---: |
+| RF01 (cadastro) | UC01 — *planejado* (gateway `signUp` no contrato) | — | ⏳ Próximo módulo |
+| RF02 (login/logout) | UC02, UC03 | `AuthenticateUser.test.ts`, `SignOut.test.ts`, `LoginScreen.test.tsx` | ✅ |
+| RF03/RF06/RF15 (trabalhador) | UC11, UC17 | `CadastrarTrabalhador.test.ts`, `Trabalhador.test.ts` | ✅ |
+| RF04 (QR crachá) | UC13 (extend) | Verificação manual na tela de apontamento (`expo-camera`) | ✅ |
+| RF05 (apontamento) | UC13 | `RegistrarApontamento.test.ts`, `Apontamento.test.ts` | ✅ |
+| RF06 (validações geo/qtd/data) | UC13/UC14 | `QuantidadeBalaio.test.ts`, `Coordinates.test.ts`, `Apontamento.test.ts`, `Despesa.test.ts` | ✅ |
+| RF07 (despesa) | UC14 | `RegistrarDespesa.test.ts`, `Despesa.test.ts` | ✅ |
+| RF08 (lista trabalhadores) | UC12 | `ListarTrabalhadores.test.ts` | ✅ |
+| RF09 (lista despesas) | UC15 | `ListarDespesas.test.ts` | ✅ |
+| RF10/RF11/RF12 (mapa/rota/busca) | UC16/UC19 | Verificação manual na tela `mapas.tsx` (renderização) | ✅ |
+| RF13/RF15 (offline) | UC17 | `RegistrarApontamento.test.ts`, `CadastrarTrabalhador.test.ts`, `RegistrarDespesa.test.ts` (enfileiram offline) | ✅ |
+| RF14 (sync) | UC18 | `SyncPendingQueue.test.ts` | ✅ |
+| RF16 (conflitos) | UC21 | `SincronizacaoService.test.ts`, `SyncQueueItem.test.ts` | ✅ |
+| RNF06 (sessão segura) | UC02/UC04 | `SessionStorageSecureStore.test.ts`, `Session.test.ts` | ✅ |
+| RNF07 (qualidade) | Todos | Matriz 10.2 (23 suítes / 85 testes) | ✅ |
+| RNF01/RNF02/RNF03/RNF04 | Cross-cutting | Não testáveis unitariamente — aceitos por implementação + revisão manual | — |
 
 ---
 
@@ -507,3 +920,4 @@ flowchart TB
 - [x] 13. Mapeamento DDD (aggregates, entidades, value objects, repositories, gateways).
 - [x] 14. Estrutura de camadas Clean Architecture (domain/application/adapters/infra) sem SDK nativo/ORM vazando pra domain/application.
 - [x] 15. Plano de testes TDD por caso de uso (domínio → use case com fakes → gateway/adapter mockado → repository real → componente).
+- [x] 16. Matriz de rastreabilidade RF → Caso de Uso → Teste (seção 10.3), marcando o que é implementado vs. planejado.

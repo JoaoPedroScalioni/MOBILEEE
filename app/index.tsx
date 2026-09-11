@@ -1,37 +1,46 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
+import { useState } from 'react'
+import { Alert, StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
-import { useState } from 'react'
 import { router } from 'expo-router'
+import { useAuth } from '@/src/adapters/auth/AuthContext'
 
 export default function LoginScreen() {
-  // ESTADOS: Variáveis que guardam o que o usuário digita.
-  // Se o professor pedir para adicionar um campo de "nome", crie um novo state:
-  // const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('') 
-  
-  // Função que roda ao clicar em "Entrar"
-  // Atualmente ela não valida nada, apenas navega para a pasta (drawer)/(tabs)
-  // Se pedirem para validar o login (ex: email tem que ser 'a@a.com'), coloque um if aqui.
-  const handleLogin = () => {
-    router.replace('/(drawer)/(tabs)/')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { login } = useAuth()
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Campos obrigatórios', 'Informe e-mail e senha para entrar.')
+      return
+    }
+    setLoading(true)
+    try {
+      await login(email, password)
+      router.replace('/(drawer)/(tabs)')
+    } catch (error) {
+      Alert.alert('Falha no login', error instanceof Error ? error.message : 'Credenciais inválidas.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.card}>
-          
+
           <View style={styles.logoContainer}>
             <View style={styles.logo}>
               <Ionicons name="leaf" size={32} color={'white'} />
             </View>
           </View>
-          
-          <Text style={styles.title}>AppTest</Text>
-          <Text style={styles.subTitle}>Um app bem legal</Text>
-          
+
+          <Text style={styles.title}>SafraCafé</Text>
+          <Text style={styles.subTitle}>Gestão da colheita cafeeira — offline-first</Text>
+
           <Text style={styles.label}>Email</Text>
           <View style={styles.inputContainer}>
             <Ionicons name='mail-outline' size={24} color='#666' style={styles.inputIcon} />
@@ -42,10 +51,10 @@ export default function LoginScreen() {
               keyboardType='email-address'
               autoCapitalize='none'
               value={email}
-              onChangeText={setEmail} // Quando digita, atualiza a variável 'email'
+              onChangeText={setEmail}
             />
           </View>
-          
+
           <Text style={styles.label}>Password</Text>
           <View style={styles.inputContainer}>
             <Ionicons name='lock-closed-outline' size={24} color='#666' style={styles.inputIcon} />
@@ -54,20 +63,20 @@ export default function LoginScreen() {
               placeholder='******'
               placeholderTextColor="#999"
               autoCapitalize='none'
-              secureTextEntry={true} // Esconde a senha com asteriscos
+              secureTextEntry={true}
               value={password}
               onChangeText={setPassword}
             />
           </View>
-          
-          {/* BOTÃO DE LOGIN */}
-          {/* Se pedirem para desabilitar o botão se os campos estiverem vazios, você poderia usar:
-              disabled={email === '' || password === ''}
-          */}
-          <TouchableOpacity onPress={handleLogin} style={styles.button}>
-            <Text style={styles.buttonText}>Entrar</Text>
+
+          <TouchableOpacity
+            onPress={handleLogin}
+            style={[styles.button, loading && styles.buttonDisabled]}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>{loading ? 'Entrando...' : 'Entrar'}</Text>
           </TouchableOpacity>
-          
+
         </View>
       </View>
     </SafeAreaView>
@@ -156,6 +165,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 16,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
     color: '#fff',

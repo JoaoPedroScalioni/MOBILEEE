@@ -34,14 +34,14 @@ npx jest
 
 1. **Frontend e Telas:** Você vai ter que saber montar as telas e as navegações em Tabs (abas). O problema que ele vai dar provavelmente envolverá consertar ou adicionar algo aqui.
 2. **Entidades e Value Objects:**
-   - **Value Object:** Ele citou o `Coordinates`. Você tem que saber fazer e testar a validação dele (Latitude tem que ser entre `-90` e `90` e Longitude entre `-180` e `180`).
-   - **Entidade:** Precisa saber modelar uma entidade, com agregações e validações (ex: validação da foto).
+   - **Value Object:** Ele citou o `Coordinates`. Você tem que saber fazer e testar a validação dele (Latitude tem que ser entre `-90` e `90` e Longitude entre `-180` e `180`). No SafraCafé temos também `QuantidadeBalaio` (litros > 0) e `ValorMonetario` (>= 0).
+   - **Entidade:** Precisa saber modelar uma entidade, com agregações e validações (ex: `Trabalhador` valida CPF com 11 dígitos; `Despesa` valida a foto do recibo com `://`).
 3. **Casos de Uso (Use Cases):**
    - Vão cair até 2 casos de uso.
    - Eles recebem o repositório como dependência através do construtor (`constructor(private readonly repository...)`).
    - É dentro deles que você usa bibliotecas externas e executa a regra da aplicação, orquestrando as entidades.
 4. **Infra e Banco de Dados (Singleton):**
-   - O professor mandou usar uma "Infraestrutura na memória", ou seja, usar um Array `private observations = []` em vez de um banco de dados real.
+   - O professor mandou usar uma "Infraestrutura na memória", ou seja, usar um Array `private itens = []` em vez de um banco de dados real (no nosso app: `InMemoryTrabalhadorRepository`, `InMemoryApontamentoRepository`, `InMemoryDespesaRepository`).
    - Você vai criar a classe com `implements InterfaceDaEntidade` e criar os métodos de salvar e buscar nela.
    - **IMPORTANTE:** Ela DEVE ser **Singleton**. Isso significa: 
      1) `private constructor()`
@@ -49,7 +49,7 @@ npx jest
      3) Um método `public static getInstance()`
 5. **Container (Factory):**
    - O `container.ts` é quem junta o repositório com o caso de uso.
-   - Também é Singleton. Nele você define, por exemplo, que o `RegisterObservation` vai de fato utilizar o `InMemoryObservationRepository`.
+   - Também é Singleton. Nele você define, por exemplo, que o `RegistrarApontamento` vai de fato utilizar o `InMemoryApontamentoRepository`.
 6. **Lógica da Câmera:**
    - No `index.tsx` fica a câmera para tirar a foto.
    - Preste atenção aos botões: O clique que cancela a foto passa uma "arrow function" `onPress={() => setUri(null)}`, mas o botão de salvar chama uma função de verdade `onPress={savePhoto}`. Ele quer que você entenda por que cada um é usado.
@@ -57,8 +57,8 @@ npx jest
 7. **Testes Unitários:**
    - Ele vai cobrar os testes de *Value Object* e *Entidade*.
    - No `Coordinates` (Value Object), ele disse que vai ter uns 3 testes (`expects`).
-   - O arquivo de testes da observação pode se chamar `Observation.tests.ts`. Pode ser útil criar uma função "helper" `makeCoords` pra facilitar.
-   - Você usará o `describe("Observation Entity", () => { ... })`.
+   - O arquivo de testes da entidade pode se chamar `Trabalhador.test.ts` (ou `Apontamento.test.ts`, `Despesa.test.ts`). Pode ser útil criar uma função "helper" `makeTrabalhador()` pra facilitar.
+   - Você usará o `describe("Trabalhador Entity", () => { ... })`.
 
 ---
 
@@ -108,7 +108,7 @@ jest.mock('@expo/vector-icons', () => {
 *(Certifique-se de não apagar o seu original, apenas compare com este se der erro de dependência. Especialmente útil na parte de `devDependencies` e `scripts`)*
 ```json
 {
-  "name": "ecofield",
+  "name": "safracafe",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {

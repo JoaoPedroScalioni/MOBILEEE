@@ -1,40 +1,48 @@
-import { CameraType, CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import * as ImagePicker from 'expo-image-picker';
+import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import * as Location from 'expo-location';
-import { useEffect, useRef, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
-  Image,
+  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
-  SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { container } from '@/src/fectorie/container';
+import { Trabalhador } from '@/src/domain/entities/Trabalhador';
+import { container } from '@/src/factory/container';
 
-// Modos de operação da tela
-type ScreenMode = 'camera' | 'qrcode' | 'preview';
+type ScreenMode = 'select' | 'scan';
 
-export default function Camera() {
-  // --- Estados ---
+export default function Apontamento() {
+  const [trabalhadores, setTrabalhadores] = useState<Trabalhador[]>([]);
+  const [selecionado, setSelecionado] = useState<Trabalhador | null>(null);
+  const [litros, setLitros] = useState('');
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
-  const [facing, setFacing] = useState<CameraType>('back');
+  const [mode, setMode] = useState<ScreenMode>('select');
   const [permission, requestPermission] = useCameraPermissions();
-  const [uri, setUri] = useState<string | null>(null);
-  const [mode, setMode] = useState<ScreenMode>('camera');
-  const [qrResult, setQrResult] = useState<string | null>(null);
+  const [salvando, setSalvando] = useState(false);
 
-  // Ref para controlar a câmera (tirar foto)
-  const cameraRef = useRef<CameraView>(null);
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      container.listarTrabalhadores.execute().then((res) => {
+        if (active) setTrabalhadores(res);
+      });
+      return () => {
+        active = false;
+      };
+    }, []),
+  );
 
-  // --- Permissão de localização ao abrir a tela ---
   useEffect(() => {
     async function getCurrentLocation() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permissão negada', 'Precisamos de acesso à sua localização para salvar a observação.');
+        Alert.alert('Permissão negada', 'Precisamos de acesso à sua localização para registrar o balaio.');
         return;
       }
       const loc = await Location.getCurrentPositionAsync({});
@@ -43,145 +51,74 @@ export default function Camera() {
     getCurrentLocation();
   }, []);
 
-  // --- Guarda de permissão da câmera ---
-  if (!permission) {
-    return <View style={styles.container} />;
-  }
-
-  if (!permission.granted) {
-    return (
-      <SafeAreaView style={styles.permissionContainer}>
-        <Ionicons name="camera-outline" size={64} color="#666" />
-        <Text style={styles.permissionText}>Precisamos de acesso à câmera</Text>
-        <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
-          <Text style={styles.permissionButtonText}>Conceder permissão</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
+  function selecionarPorCracha(codigo: string) {
+    const cracha = codigo.trim();
+    const trabalhador = trabalhadores.find(
+      (t) => t.cracha.toLowerCase() === cracha.toLowerCase(),
     );
-  }
-
-  // --- Ações ---
-
-  function toggleCameraFacing() {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
-  }
-
-  async function takePicture() {
-    if (cameraRef.current) {
-      const foto = await cameraRef.current.takePictureAsync();
-      if (foto?.uri) {
-        setUri(foto.uri);
-        setMode('preview');
-      }
+    if (trabalhador) {
+      setSelecionado(trabalhador);
+      setMode('select');
+    } else {
+      Alert.alert('Não encontrado', `Nenhum trabalhador com o crachá "${cracha}".`);
     }
   }
 
-  // Abre a galeria do dispositivo via expo-image-picker
-  async function pickFromLibrary() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permissão negada', 'Precisamos de acesso à sua galeria de fotos.');
+  function handleBarcodeScanned(result: BarcodeScanningResult) {
+    selecionarPorCracha(result.data);
+  }
+
+  async function registrar() {
+    const litrosNumero = Number(litros.replace(',', '.'));
+    if (!selecionado) {
+      Alert.alert('Atenção', 'Selecione um trabalhador antes de registrar.');
       return;
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled && result.assets.length > 0) {
-      setUri(result.assets[0].uri);
-      setMode('preview');
+    if (!litros || Number.isNaN(litrosNumero) || litrosNumero <= 0) {
+      Alert.alert('Atenção', 'Informe a quantidade de litros do balaio.');
+      return;
     }
-  }
-
-  // Salva a foto capturada (câmera ou galeria) + localização
-  async function savePhoto() {
-    if (!uri) return;
-
     if (!location) {
       Alert.alert('Aguarde', 'Ainda estamos obtendo sua localização. Tente novamente em instantes.');
       return;
     }
 
+    setSalvando(true);
     try {
-      await container.registerObservation.execute({
-        photo: uri,
+      await container.registrarApontamento.execute({
+        trabalhadorId: selecionado.id,
+        litros: litrosNumero,
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       });
-      setUri(null);
-      setMode('camera');
-      Alert.alert('Sucesso', 'Observação salva com sucesso!');
-    } catch (error) {
-      Alert.alert('Erro', 'Não foi possível salvar a observação.');
+      setLitros('');
+      setSelecionado(null);
+      Alert.alert('Sucesso', 'Balaio registrado com sucesso!');
+    } catch {
+      Alert.alert('Erro', 'Não foi possível registrar o balaio.');
+    } finally {
+      setSalvando(false);
     }
   }
 
-  function cancelPreview() {
-    setUri(null);
-    setMode('camera');
-  }
-
-  // Chamado pelo scanner do QR Code quando detecta um código
-  function handleBarcodeScanned(result: BarcodeScanningResult) {
-    setQrResult(result.data);
-    setMode('camera'); // Volta para câmera normal após leitura
-    Alert.alert('QR Code detectado', result.data, [
-      { text: 'OK' },
-      { text: 'Copiar', onPress: () => {} }, // placeholder para Clipboard
-    ]);
-  }
-
-  function enterQrMode() {
-    setQrResult(null);
-    setMode('qrcode');
-  }
-
-  function exitQrMode() {
-    setMode('camera');
-  }
-
-  // --- Renders por modo ---
-
-  // Modo PRÉVIA: exibe a foto capturada/selecionada com opções de salvar ou cancelar
-  if (mode === 'preview' && uri) {
-    return (
-      <View style={styles.container}>
-        <Image source={{ uri }} style={styles.previewImage} resizeMode="cover" />
-
-        {/* Badge informativo de localização */}
-        <View style={styles.locationBadge}>
-          <Ionicons name="location-outline" size={14} color="#fff" />
-          <Text style={styles.locationText}>
-            {location
-              ? `${location.coords.latitude.toFixed(4)}, ${location.coords.longitude.toFixed(4)}`
-              : 'Obtendo localização…'}
-          </Text>
-        </View>
-
-        {/* Botão Salvar */}
-        <View style={styles.previewSave}>
-          <TouchableOpacity style={[styles.actionButton, styles.saveButton]} onPress={savePhoto}>
-            <Ionicons name="checkmark-outline" size={22} color="#fff" />
-            <Text style={styles.actionButtonText}>Salvar</Text>
+  if (mode === 'scan') {
+    if (!permission) {
+      return <View style={styles.container} />;
+    }
+    if (!permission.granted) {
+      return (
+        <View style={styles.permissionContainer}>
+          <Ionicons name="qr-code-outline" size={64} color="#666" />
+          <Text style={styles.permissionText}>Precisamos de acesso à câmera para ler o crachá.</Text>
+          <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
+            <Text style={styles.permissionButtonText}>Conceder permissão</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setMode('select')}>
+            <Text style={styles.backLink}>Cancelar e voltar</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Botão Cancelar */}
-        <View style={styles.previewCancel}>
-          <TouchableOpacity style={[styles.actionButton, styles.cancelButton]} onPress={cancelPreview}>
-            <Ionicons name="close-outline" size={22} color="#fff" />
-            <Text style={styles.actionButtonText}>Cancelar</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
-  // Modo QR CODE: câmera com barcode scanner ativo e overlay visual
-  if (mode === 'qrcode') {
+      );
+    }
     return (
       <View style={styles.container}>
         <CameraView
@@ -190,16 +127,12 @@ export default function Camera() {
           barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
           onBarcodeScanned={handleBarcodeScanned}
         />
-
-        {/* Overlay com moldura do QR */}
         <View style={styles.qrOverlay}>
           <View style={styles.qrFrame} />
-          <Text style={styles.qrHint}>Aponte para um QR Code</Text>
+          <Text style={styles.qrHint}>Aponte para o QR Code do crachá</Text>
         </View>
-
-        {/* Botão voltar */}
         <View style={styles.topLeft}>
-          <TouchableOpacity style={styles.iconButton} onPress={exitQrMode}>
+          <TouchableOpacity style={styles.iconButton} onPress={() => setMode('select')}>
             <Ionicons name="arrow-back-outline" size={26} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -207,70 +140,192 @@ export default function Camera() {
     );
   }
 
-  // Modo CÂMERA (padrão)
   return (
-    <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing} ref={cameraRef} />
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <Text style={styles.title}>Registrar Apontamento</Text>
+      <Text style={styles.subtitle}>Selecione o trabalhador e informe os litros do balaio.</Text>
 
-      {/* Botão virar câmera — canto superior direito */}
-      <View style={styles.topRight}>
-        <TouchableOpacity style={styles.iconButton} onPress={toggleCameraFacing}>
-          <Ionicons name="camera-reverse-outline" size={26} color="#fff" />
+      <View style={styles.workerRow}>
+        <View style={styles.workerInfo}>
+          <Text style={styles.label}>Trabalhador</Text>
+          <Text style={styles.workerName}>{selecionado ? selecionado.nome : 'Nenhum selecionado'}</Text>
+          {selecionado && (
+            <Text style={styles.workerMeta}>
+              Crachá {selecionado.cracha} · Diária {selecionado.diaria.formatar()}
+            </Text>
+          )}
+        </View>
+        <TouchableOpacity style={styles.scanButton} onPress={() => setMode('scan')}>
+          <Ionicons name="qr-code-outline" size={20} color="#fff" />
+          <Text style={styles.scanButtonText}>Ler crachá</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Botão QR Code — canto superior esquerdo */}
-      <View style={styles.topLeft}>
-        <TouchableOpacity style={styles.iconButton} onPress={enterQrMode}>
-          <Ionicons name="qr-code-outline" size={26} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      {!selecionado && (
+        <View>
+          <Text style={styles.label}>Ou escolha manualmente</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+            {trabalhadores.map((t) => (
+              <TouchableOpacity
+                key={t.id}
+                style={styles.chip}
+                onPress={() => setSelecionado(t)}
+              >
+                <Text style={styles.chipText}>{t.nome}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
 
-      {/* Barra inferior: galeria | capturar */}
-      <View style={styles.bottomBar}>
-        {/* Galeria */}
-        <TouchableOpacity style={styles.sideButton} onPress={pickFromLibrary}>
-          <Ionicons name="images-outline" size={30} color="#fff" />
-          <Text style={styles.sideButtonText}>Galeria</Text>
-        </TouchableOpacity>
+      <Text style={styles.label}>Quantidade (litros)</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Ex.: 45"
+        placeholderTextColor="#999"
+        keyboardType="numeric"
+        value={litros}
+        onChangeText={setLitros}
+      />
 
-        {/* Botão principal de captura */}
-        <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-          <View style={styles.captureButtonInner} />
-        </TouchableOpacity>
+      {location && (
+        <Text style={styles.coords}>
+          📍 {location.coords.latitude.toFixed(4)}, {location.coords.longitude.toFixed(4)}
+        </Text>
+      )}
 
-        {/* Espaço reservado para simetria */}
-        <View style={styles.sideButton} />
-      </View>
-    </View>
+      <TouchableOpacity
+        style={[styles.saveButton, salvando && styles.saveButtonDisabled]}
+        disabled={salvando}
+        onPress={registrar}
+      >
+        <Text style={styles.saveButtonText}>{salvando ? 'Salvando...' : 'Registrar balaio'}</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: '#f8f9ff',
+  },
+  content: {
+    padding: 20,
+    gap: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666',
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 6,
+  },
+  workerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+  },
+  workerInfo: {
+    flex: 1,
+  },
+  workerName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  workerMeta: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+  scanButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#2d6a4f',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  scanButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  chips: {
+    gap: 8,
+    paddingVertical: 4,
+  },
+  chip: {
+    backgroundColor: '#e7f3ee',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#2d6a4f',
+  },
+  chipText: {
+    color: '#2d6a4f',
+    fontWeight: '600',
+  },
+  input: {
+    borderWidth: 1.5,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    height: 54,
+    fontSize: 16,
+    backgroundColor: '#fff',
+  },
+  coords: {
+    fontSize: 13,
+    color: '#2d6a4f',
+  },
+  saveButton: {
+    backgroundColor: '#2d6a4f',
+    borderRadius: 12,
+    height: 54,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  saveButtonDisabled: {
+    opacity: 0.6,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   camera: {
     flex: 1,
   },
-
-  // --- Permissão ---
   permissionContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 16,
     backgroundColor: '#f5f5f5',
+    padding: 24,
   },
   permissionText: {
     fontSize: 16,
     color: '#444',
     textAlign: 'center',
-    paddingHorizontal: 32,
   },
   permissionButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#2d6a4f',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 10,
@@ -280,12 +335,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-
-  // --- Botões de posição fixa ---
-  topRight: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
+  backLink: {
+    color: '#2d6a4f',
+    fontWeight: '600',
   },
   topLeft: {
     position: 'absolute',
@@ -297,96 +349,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 50,
   },
-
-  // --- Barra inferior ---
-  bottomBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 110,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingBottom: 20,
-  },
-  sideButton: {
-    width: 70,
-    alignItems: 'center',
-  },
-  sideButtonText: {
-    color: '#fff',
-    fontSize: 11,
-    marginTop: 4,
-  },
-  captureButton: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    borderWidth: 4,
-    borderColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  captureButtonInner: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: '#fff',
-  },
-
-  // --- Prévia ---
-  previewImage: {
-    flex: 1,
-  },
-  locationBadge: {
-    position: 'absolute',
-    top: 50,
-    alignSelf: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  locationText: {
-    color: '#fff',
-    fontSize: 13,
-  },
-  previewSave: {
-    position: 'absolute',
-    bottom: 40,
-    right: 30,
-  },
-  previewCancel: {
-    position: 'absolute',
-    bottom: 40,
-    left: 30,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 30,
-  },
-  saveButton: {
-    backgroundColor: '#34C759',
-  },
-  cancelButton: {
-    backgroundColor: 'rgba(0,0,0,0.6)',
-  },
-  actionButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-
-  // --- QR Code ---
   qrOverlay: {
     position: 'absolute',
     top: 0,
@@ -402,7 +364,6 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#fff',
     borderRadius: 12,
-    backgroundColor: 'transparent',
   },
   qrHint: {
     color: '#fff',

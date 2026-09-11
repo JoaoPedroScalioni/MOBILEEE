@@ -22,15 +22,17 @@ FORMATO:     [A estrutura exata esperada no output — seções, tipos de artefa
 TOM:         [Direto e técnico | Didático | Formal]
 ```
 
-**Exemplo aplicado ao EcoField — nova entidade "Espécie":**
+**Exemplo aplicado ao SafraCafé — nova entidade "Talhão":**
 ```
-OBJETIVO:    Criar a proposta de design para uma nova entidade Species no domínio do EcoField.
-CONTEXTO:    O EcoField registra Observations com foto e GPS. Precisamos associar cada 
-             observação a uma espécie catalogada. Existe uma Observation.ts com id, 
-             coordinates e photo. O repositório usa InMemory (Singleton).
-RESTRIÇÕES:  Clean Architecture: domínio não pode importar infra. Interface 
-             ObservationRepository não pode quebrar. Expo SDK 54. TypeScript strict.
-FORMATO:     1. Value Objects necessários, 2. Mudanças na entidade Observation, 
+OBJETIVO:    Criar a proposta de design para uma nova entidade Talhao no domínio do SafraCafé.
+CONTEXTO:    O SafraCafé registra Apontamentos de balaio (litros + GPS) por trabalhador. 
+             Precisamos associar cada apontamento a um talhão da lavoura. Já existem 
+             Trabalhador.ts, Apontamento.ts (com trabalhadorId, quantidade, coordenadas, data) 
+             e repos InMemory (Singleton).
+RESTRIÇÕES:  Clean Architecture: domínio não pode importar infra. Interfaces 
+             (TrabalhadorRepository/ApontamentoRepository/DespesaRepository) não podem quebrar. 
+             Expo SDK 54. TypeScript strict.
+FORMATO:     1. Value Objects necessários, 2. Mudanças na entidade Apontamento, 
              3. Novo contrato de repositório, 4. Casos de uso afetados, 
              5. Testes unitários obrigatórios.
 TOM:         Técnico e direto.
@@ -42,7 +44,7 @@ TOM:         Técnico e direto.
 
 Propostas complexas **nunca são geradas em um único prompt**. Decomponha em etapas sequenciais onde o output de cada uma é o input da próxima.
 
-**Fluxo padrão para uma nova feature no EcoField:**
+**Fluxo padrão para uma nova feature no SafraCafé:**
 
 ```
 Prompt 1 — Análise de Impacto
@@ -113,10 +115,10 @@ Limite: 2–5 exemplos. Mais de 10 raramente melhora qualidade e consome context
 
 Quando a proposta depende de **dados externos** (docs de API, versões de libs, esquemas existentes), injete-os explicitamente. Nunca confie na memória estática do modelo para dados que podem mudar.
 
-**Fontes a injetar no contexto para o EcoField:**
-- `#File src/domain/entities/Observation.ts` — estado atual da entidade
-- `#File src/domain/repositories/ObservationRepository.ts` — contrato vigente
-- `#File src/fectorie/container.ts` — wiring atual do DI
+**Fontes a injetar no contexto para o SafraCafé:**
+- `#File src/domain/entities/Apontamento.ts` — estado atual da entidade
+- `#File src/domain/repositories/ApontamentoRepository.ts` — contrato vigente
+- `#File src/factory/container.ts` — wiring atual do DI
 - Trecho relevante da doc do Expo: https://docs.expo.dev/versions/v54.0.0/
 
 **Template de injeção:**
@@ -136,7 +138,7 @@ Ao final de qualquer proposta gerada, adicione sempre este prompt de revisão an
 
 ```
 Revise a proposta acima respondendo:
-1. Todos os contratos existentes (ObservationRepository, Observation, Coordinates) são preservados?
+1. Todos os contratos existentes (TrabalhadorRepository, ApontamentoRepository, DespesaRepository, Coordinates) são preservados?
 2. Alguma camada está importando de uma camada superior (violação de Clean Architecture)?
 3. Os casos de uso propostos têm injeção de dependência via construtor?
 4. Existe algum caso de erro não coberto na spec de testes?

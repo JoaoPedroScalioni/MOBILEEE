@@ -1,4 +1,4 @@
-# EcoField — Guia de Agentes, Steering e Fluxo SDD
+# SafraCafé — Guia de Agentes, Steering e Fluxo SDD
 
 > Leia as docs do Expo sempre na versão correta: https://docs.expo.dev/versions/v54.0.0/
 
@@ -71,7 +71,7 @@ Para ativar um steering manual, mencione a tag no chat:
 **Gatilho:** `PostTaskExec` — dispara automaticamente após cada task de Spec ser marcada como concluída
 
 **O que verifica:**
-- Integridade dos contratos (`ObservationRepository`, `Observation`, `Coordinates`)
+- Integridade dos contratos (`TrabalhadorRepository`, `ApontamentoRepository`, `DespesaRepository`, `Apontamento`, `Coordinates`)
 - Direção das dependências (domain não importa infra)
 - Injeção de dependência via construtor em todos os use cases
 - Cobertura mínima de testes (VOs e entidades)

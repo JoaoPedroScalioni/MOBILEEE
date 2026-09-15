@@ -2,11 +2,11 @@ import { Coordinates } from '../value-objects/Coordinates';
 import { QuantidadeBalaio } from '../value-objects/QuantidadeBalaio';
 
 export class Apontamento {
-    private readonly _id: string;
-    private readonly _trabalhadorId: string;
-    private readonly _quantidade: QuantidadeBalaio;
-    private readonly _coordenadas: Coordinates;
-    private readonly _data: number;
+    private _id: string;
+    private _trabalhadorId: string;
+    private _quantidade: QuantidadeBalaio;
+    private _coordenadas: Coordinates;
+    private _data: number;
 
     constructor(
         id: string,
@@ -41,6 +41,11 @@ export class Apontamento {
 
     get data(): number {
         return this._data;
+    }
+
+    atualizarData(data: number): void {
+        this._data = data;
+        this.validate();
     }
 
     private validate(): void {

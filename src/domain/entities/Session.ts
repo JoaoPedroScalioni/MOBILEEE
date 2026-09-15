@@ -2,9 +2,9 @@ import { User } from './User';
 
 export class Session {
   constructor(
-    public readonly token: string,
-    public readonly user: User,
-    public readonly expiresAt: number,
+    public token: string,
+    public user: User,
+    public expiresAt: number,
   ) {
     this.validate();
   }
@@ -19,6 +19,11 @@ export class Session {
     if (!(this.expiresAt > 0)) {
       throw new Error('Expiração de sessão inválida');
     }
+  }
+
+  atualizarToken(token: string): void {
+    this.token = token;
+    this.validate();
   }
 
   isValid(agora: number = Date.now()): boolean {

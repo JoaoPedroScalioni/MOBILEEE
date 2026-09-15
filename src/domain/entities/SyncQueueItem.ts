@@ -95,15 +95,18 @@ export class SyncQueueItem {
     this._attempts += 1;
     this._status = SyncStatus.syncing();
     this._updatedAt = agora;
+    this.validate();
   }
 
   marcarSincronizado(agora: number): void {
     this._status = SyncStatus.synced();
     this._updatedAt = agora;
+    this.validate();
   }
 
   marcarErro(agora: number): void {
     this._status = SyncStatus.error();
     this._updatedAt = agora;
+    this.validate();
   }
 }

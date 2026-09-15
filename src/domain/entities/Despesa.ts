@@ -13,13 +13,13 @@ export const CATEGORIAS_DESPESA = [
 export type CategoriaDespesa = (typeof CATEGORIAS_DESPESA)[number];
 
 export class Despesa {
-    private readonly _id: string;
-    private readonly _descricao: string;
-    private readonly _valor: ValorMonetario;
-    private readonly _categoria: CategoriaDespesa;
-    private readonly _fotoUri: string | null;
-    private readonly _coordenadas: Coordinates;
-    private readonly _data: number;
+    private _id: string;
+    private _descricao: string;
+    private _valor: ValorMonetario;
+    private _categoria: CategoriaDespesa;
+    private _fotoUri: string | null;
+    private _coordenadas: Coordinates;
+    private _data: number;
 
     constructor(
         id: string,
@@ -66,6 +66,26 @@ export class Despesa {
 
     get fotoUri(): string | null {
         return this._fotoUri;
+    }
+
+    atualizarDescricao(descricao: string): void {
+        this._descricao = descricao;
+        this.validate();
+    }
+
+    atualizarCategoria(categoria: CategoriaDespesa): void {
+        this._categoria = categoria;
+        this.validate();
+    }
+
+    atualizarCoordenadas(coordenadas: Coordinates): void {
+        this._coordenadas = coordenadas;
+        this.validate();
+    }
+
+    atualizarFotoUri(fotoUri: string | null): void {
+        this._fotoUri = fotoUri;
+        this.validate();
     }
 
     private validate(): void {

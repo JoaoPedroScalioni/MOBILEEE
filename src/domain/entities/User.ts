@@ -2,9 +2,9 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export class User {
   constructor(
-    public readonly id: string,
-    public readonly name: string,
-    public readonly email: string,
+    public id: string,
+    public name: string,
+    public email: string,
   ) {
     this.validate();
   }
@@ -19,5 +19,15 @@ export class User {
     if (!EMAIL_REGEX.test(this.email)) {
       throw new Error('E-mail inválido');
     }
+  }
+
+  atualizarNome(nome: string): void {
+    this.name = nome;
+    this.validate();
+  }
+
+  atualizarEmail(email: string): void {
+    this.email = email;
+    this.validate();
   }
 }

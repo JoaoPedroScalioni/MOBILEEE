@@ -3,11 +3,11 @@ import { ValorMonetario } from '../value-objects/ValorMonetario';
 const CPF_REGEX = /^\d{11}$/;
 
 export class Trabalhador {
-    private readonly _id: string;
-    private readonly _nome: string;
-    private readonly _cpf: string;
-    private readonly _cracha: string;
-    private readonly _diaria: ValorMonetario;
+    private _id: string;
+    private _nome: string;
+    private _cpf: string;
+    private _cracha: string;
+    private _diaria: ValorMonetario;
 
     constructor(id: string, nome: string, cpf: string, cracha: string, diaria: ValorMonetario) {
         this._id = id;
@@ -36,6 +36,16 @@ export class Trabalhador {
 
     get diaria(): ValorMonetario {
         return this._diaria;
+    }
+
+    atualizarNome(nome: string): void {
+        this._nome = nome;
+        this.validate();
+    }
+
+    atualizarCracha(cracha: string): void {
+        this._cracha = cracha;
+        this.validate();
     }
 
     private validate(): void {

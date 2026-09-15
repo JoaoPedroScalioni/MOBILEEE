@@ -20,13 +20,7 @@ export default function DrawerLayout() {
           title: 'Painel' // Texto que aparece no topo da tela (header)
         }}
       />
-      <Drawer.Screen
-        name='hellopage'
-        options={{
-          drawerLabel: 'Hello',
-          title: 'Hello'
-        }}
-      />
+      
     </Drawer>
   )
 }

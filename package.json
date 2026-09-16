@@ -43,8 +43,8 @@
     "react-native-maps": "1.27.2",
     "react-native-maps-directions": "^1.9.0",
     "react-native-reanimated": "~4.5.0",
-    "react-native-safe-area-context": "~5.7.0",
-    "react-native-screens": "~4.26.0",
+    "react-native-safe-area-context": "^4.14.1",
+    "react-native-screens": "^4.28.0",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "~0.10.0"
   },

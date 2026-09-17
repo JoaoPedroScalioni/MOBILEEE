@@ -13,32 +13,47 @@ interface SessionJson {
 
 export class SessionStorageSecureStore implements SessionStorage {
     async salvar(session: Session): Promise<void> {
-        const json: SessionJson = {
-            token: session.token,
-            user: {
-                id: session.user.id,
-                name: session.user.name,
-                email: session.user.email,
-            },
-            expiresAt: session.expiresAt,
-        };
-        await SecureStore.setItemAsync(CHAVE_SESSAO, JSON.stringify(json));
+        try {
+            const json: SessionJson = {
+                token: session.token,
+                user: {
+                    id: session.user.id,
+                    name: session.user.name,
+                    email: session.user.email,
+                },
+                expiresAt: session.expiresAt,
+            };
+            await SecureStore.setItemAsync(CHAVE_SESSAO, JSON.stringify(json));
+        } catch {
+            // Silencioso em caso de limitação de SecureStore
+        }
     }
 
     async carregar(): Promise<Session | null> {
-        const raw = await SecureStore.getItemAsync(CHAVE_SESSAO);
-        if (!raw) {
+        try {
+            const raw = await SecureStore.getItemAsync(CHAVE_SESSAO);
+            if (!raw) {
+                return null;
+            }
+            const json = JSON.parse(raw) as SessionJson;
+            if (!json?.token || !json?.user?.id) {
+                return null;
+            }
+            return new Session(
+                json.token,
+                new User(json.user.id, json.user.name, json.user.email),
+                json.expiresAt,
+            );
+        } catch {
             return null;
         }
-        const json = JSON.parse(raw) as SessionJson;
-        return new Session(
-            json.token,
-            new User(json.user.id, json.user.name, json.user.email),
-            json.expiresAt,
-        );
     }
 
     async limpar(): Promise<void> {
-        await SecureStore.deleteItemAsync(CHAVE_SESSAO);
+        try {
+            await SecureStore.deleteItemAsync(CHAVE_SESSAO);
+        } catch {
+            // Silencioso
+        }
     }
 }

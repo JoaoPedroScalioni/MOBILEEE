@@ -27,17 +27,34 @@ export class InMemoryAuthGateway implements AuthGateway {
     }
 
     private semearContaDemo(): void {
-        const user = new User(
-            Crypto.randomUUID(),
-            "Pesquisador CEFET",
-            "pesquisador@ecofield.app",
-        );
-        this.contas.set(user.email, { user, password: "123456" });
+        const contasIniciais = [
+            {
+                nome: "Pesquisador CEFET",
+                email: "pesquisador@ecofield.app",
+                senha: "123456",
+            },
+            {
+                nome: "Administrador Safra",
+                email: "admin@safracafe.com",
+                senha: "123456",
+            },
+            {
+                nome: "Produtor Rural",
+                email: "admin@safra.com",
+                senha: "123456",
+            },
+        ];
+
+        for (const c of contasIniciais) {
+            const user = new User(Crypto.randomUUID(), c.nome, c.email);
+            this.contas.set(c.email.toLowerCase(), { user, password: c.senha });
+        }
     }
 
     async signIn(credentials: CredenciaisAuth): Promise<Session> {
-        const conta = this.contas.get(credentials.email);
-        if (!conta || conta.password !== credentials.password) {
+        const emailNormalizado = credentials.email.trim().toLowerCase();
+        const conta = this.contas.get(emailNormalizado);
+        if (!conta || conta.password !== credentials.password.trim()) {
             throw new Error("Credenciais inválidas");
         }
         const session = new Session(

@@ -1,5 +1,4 @@
 import * as ImagePicker from 'expo-image-picker';
-import * as Location from 'expo-location';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -16,11 +15,20 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { CATEGORIAS_DESPESA, Despesa } from '@/src/domain/entities/Despesa';
 import { container } from '@/src/factory/container';
+import {
+  obterLocalizacaoSegura,
+  COORDENADAS_PADRAO_FAZENDA,
+  LocationResult,
+} from '@/src/shared/utils/locationHelper';
 
 export default function Despesas() {
   const [list, setList] = useState<Despesa[]>([]);
   const [modalVisivel, setModalVisivel] = useState(false);
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [locationResult, setLocationResult] = useState<LocationResult>({
+    ...COORDENADAS_PADRAO_FAZENDA,
+    isFallback: true,
+    status: 'fallback',
+  });
 
   const [descricao, setDescricao] = useState('');
   const [valor, setValor] = useState('');
@@ -40,16 +48,11 @@ export default function Despesas() {
   );
 
   useEffect(() => {
-    async function getCurrentLocation() {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permissão negada', 'Precisamos de acesso à sua localização para registrar a despesa.');
-        return;
-      }
-      const loc = await Location.getCurrentPositionAsync({});
-      setLocation(loc);
+    async function carregarLocalizacao() {
+      const loc = await obterLocalizacaoSegura(4000);
+      setLocationResult(loc);
     }
-    getCurrentLocation();
+    carregarLocalizacao();
   }, []);
 
   async function tirarFoto() {
@@ -74,19 +77,14 @@ export default function Despesas() {
       Alert.alert('Atenção', 'Informe descrição e valor válidos.');
       return;
     }
-    if (!location) {
-      Alert.alert('Aguarde', 'Ainda estamos obtendo sua localização. Tente novamente em instantes.');
-      return;
-    }
-
     try {
       await container.registrarDespesa.execute({
         descricao,
         valor: valorNumero,
         categoria: categoria as Despesa['categoria'],
         fotoUri,
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
+        latitude: locationResult.latitude,
+        longitude: locationResult.longitude,
       });
       setModalVisivel(false);
       setDescricao('');

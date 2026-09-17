@@ -17,6 +17,9 @@ class FakeTrabalhadorRepository implements TrabalhadorRepository {
     async findAll() {
         return [...this.itens];
     }
+    async delete(id: string) {
+        this.itens = this.itens.filter((t) => t.id !== id);
+    }
 }
 
 describe('ListarTrabalhadores Use Case', () => {

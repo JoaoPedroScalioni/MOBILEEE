@@ -48,6 +48,18 @@ export class Trabalhador {
         this.validate();
     }
 
+    atualizarDiaria(diaria: ValorMonetario): void {
+        this._diaria = diaria;
+        this.validate();
+    }
+
+    atualizar(nome: string, cracha: string, diaria: ValorMonetario): void {
+        this._nome = nome;
+        this._cracha = cracha;
+        this._diaria = diaria;
+        this.validate();
+    }
+
     private validate(): void {
         if (!this._id.trim()) {
             throw new Error('Id de trabalhador inválido');

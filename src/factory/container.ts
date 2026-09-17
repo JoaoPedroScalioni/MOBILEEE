@@ -12,6 +12,8 @@ import { RestoreSession } from "../usecases/RestoreSession";
 import { SignOut } from "../usecases/SignOut";
 import { SyncPendingQueue } from "../usecases/SyncPendingQueue";
 import { CadastrarTrabalhador } from "../usecases/CadastrarTrabalhador";
+import { EditarTrabalhador } from "../usecases/EditarTrabalhador";
+import { ExcluirTrabalhador } from "../usecases/ExcluirTrabalhador";
 import { ListarTrabalhadores } from "../usecases/ListarTrabalhadores";
 import { RegistrarApontamento } from "../usecases/RegistrarApontamento";
 import { ListarApontamentos } from "../usecases/ListarApontamentos";
@@ -32,6 +34,8 @@ class Container {
     public readonly sincronizacaoService: SincronizacaoService;
 
     public readonly cadastrarTrabalhador: CadastrarTrabalhador;
+    public readonly editarTrabalhador: EditarTrabalhador;
+    public readonly excluirTrabalhador: ExcluirTrabalhador;
     public readonly listarTrabalhadores: ListarTrabalhadores;
     public readonly registrarApontamento: RegistrarApontamento;
     public readonly listarApontamentos: ListarApontamentos;
@@ -54,6 +58,14 @@ class Container {
         this.sincronizacaoService = new SincronizacaoService();
 
         this.cadastrarTrabalhador = new CadastrarTrabalhador(
+            this.trabalhadorRepository,
+            this.syncQueueRepository,
+        );
+        this.editarTrabalhador = new EditarTrabalhador(
+            this.trabalhadorRepository,
+            this.syncQueueRepository,
+        );
+        this.excluirTrabalhador = new ExcluirTrabalhador(
             this.trabalhadorRepository,
             this.syncQueueRepository,
         );

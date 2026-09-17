@@ -34,4 +34,22 @@ describe('Trabalhador Entity', () => {
         expect(() => new Trabalhador('t1', 'Nome', '52998224725', '  ', new ValorMonetario(60)))
             .toThrow('Crachá de trabalhador inválido');
     });
+
+    it('atualiza nome, crachá e diária com validação', () => {
+        const t = makeTrabalhador();
+        t.atualizar('Novo Nome', 'TRAB-999', new ValorMonetario(85));
+        expect(t.nome).toBe('Novo Nome');
+        expect(t.cracha).toBe('TRAB-999');
+        expect(t.diaria.valor).toBe(85);
+
+        expect(() => t.atualizar('  ', 'TRAB-999', new ValorMonetario(85))).toThrow(
+            'Nome de trabalhador inválido',
+        );
+    });
+
+    it('atualiza diária individualmente', () => {
+        const t = makeTrabalhador();
+        t.atualizarDiaria(new ValorMonetario(90));
+        expect(t.diaria.valor).toBe(90);
+    });
 });

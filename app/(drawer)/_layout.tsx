@@ -1,26 +1,53 @@
-import { Drawer } from 'expo-router/drawer'
+import { Drawer } from 'expo-router/drawer';
+import { Alert, TouchableOpacity, LogBox } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { useAuth } from '@/src/adapters/auth/AuthContext';
 
-// DRAWER LAYOUT: Define o menu lateral da aplicação.
+LogBox.ignoreLogs([
+  "Codegen didn't run for REASharedTransitionBoundaryView",
+  'REASharedTransitionBoundaryView',
+]);
+
 export default function DrawerLayout() {
+  const { logout } = useAuth();
+
+  const confirmarLogout = () => {
+    Alert.alert('Sair da Conta', 'Deseja realmente sair do SafraCafé?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Sair',
+        style: 'destructive',
+        onPress: async () => {
+          await logout();
+          router.replace('/');
+        },
+      },
+    ]);
+  };
+
   return (
     <Drawer
       screenOptions={{
-        // Se precisar mudar a cor do cabeçalho globalmente, adicione aqui: headerStyle: { backgroundColor: 'red' }
+        headerTintColor: '#1a1a1a',
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={confirmarLogout}
+            style={{ marginRight: 16, padding: 6 }}
+            accessibilityLabel="Sair da Conta"
+          >
+            <Ionicons name="log-out-outline" size={24} color="#dc2626" />
+          </TouchableOpacity>
+        ),
       }}
     >
-      {/* 
-        Cada Drawer.Screen é um item no menu lateral.
-        Se o professor pedir para adicionar uma nova página no menu, 
-        crie o arquivo .tsx na pasta (drawer) e adicione um novo <Drawer.Screen name="nomedoarquivo" /> aqui.
-      */}
       <Drawer.Screen
-        name='(tabs)'
+        name="(tabs)"
         options={{
-          drawerLabel: 'Painel', // Texto que aparece no menu lateral
-          title: 'Painel' // Texto que aparece no topo da tela (header)
+          drawerLabel: 'Painel',
+          title: 'SafraCafé',
         }}
       />
-      
     </Drawer>
-  )
+  );
 }

@@ -1,9 +1,37 @@
-module.exports = {
-  resolver: {
-    alias: {
-      '^expo-router/assets/(.*)$': '<rootDir>/assets/images/$1',
-    },
-    assetExts: ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'avif', 'mp4', 'mov', 'wav', 'mp3', 'm4a', 'caf', 'aac', 'ogg', 'flac', 'wma', 'mid', 'webm', 'tif', 'tiff', 'pdf'],
-    sourceExts: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
-  },
+const { getDefaultConfig } = require('expo/metro-config');
+const path = require('path');
+const fs = require('fs');
+
+const config = getDefaultConfig(__dirname);
+
+const defaultResolveRequest = config.resolver?.resolveRequest;
+
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (moduleName.startsWith('expo-router/assets/')) {
+    const assetName = moduleName.replace('expo-router/assets/', '');
+    const localAssetPath = path.resolve(__dirname, 'assets/expo-router', assetName);
+    if (fs.existsSync(localAssetPath)) {
+      return {
+        filePath: localAssetPath,
+        type: 'sourceFile',
+      };
+    }
+  }
+
+  if (moduleName === 'react-native-reanimated') {
+    const reanimatedEntry = path.resolve(__dirname, 'node_modules/react-native-reanimated/lib/module/index.js');
+    if (fs.existsSync(reanimatedEntry)) {
+      return {
+        filePath: reanimatedEntry,
+        type: 'sourceFile',
+      };
+    }
+  }
+
+  if (defaultResolveRequest) {
+    return defaultResolveRequest(context, moduleName, platform);
+  }
+  return context.resolveRequest(context, moduleName, platform);
 };
+
+module.exports = config;

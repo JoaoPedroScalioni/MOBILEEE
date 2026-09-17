@@ -5,4 +5,5 @@ export interface TrabalhadorRepository {
     findById(id: string): Promise<Trabalhador | null>;
     findByCracha(cracha: string): Promise<Trabalhador | null>;
     findAll(): Promise<Trabalhador[]>;
+    delete(id: string): Promise<void>;
 }

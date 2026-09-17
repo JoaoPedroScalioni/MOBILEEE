@@ -1,5 +1,4 @@
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import * as Location from 'expo-location';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -13,42 +12,59 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Trabalhador } from '@/src/domain/entities/Trabalhador';
+import { Apontamento as ApontamentoEntity } from '@/src/domain/entities/Apontamento';
 import { container } from '@/src/factory/container';
+import {
+  obterLocalizacaoSegura,
+  COORDENADAS_PADRAO_FAZENDA,
+  LocationResult,
+} from '@/src/shared/utils/locationHelper';
 
 type ScreenMode = 'select' | 'scan';
 
 export default function Apontamento() {
   const [trabalhadores, setTrabalhadores] = useState<Trabalhador[]>([]);
+  const [apontamentos, setApontamentos] = useState<ApontamentoEntity[]>([]);
   const [selecionado, setSelecionado] = useState<Trabalhador | null>(null);
   const [litros, setLitros] = useState('');
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [locationResult, setLocationResult] = useState<LocationResult>({
+    ...COORDENADAS_PADRAO_FAZENDA,
+    isFallback: true,
+    status: 'fallback',
+  });
   const [mode, setMode] = useState<ScreenMode>('select');
   const [permission, requestPermission] = useCameraPermissions();
   const [salvando, setSalvando] = useState(false);
 
+  const carregarDados = useCallback(async () => {
+    try {
+      const [resTrab, resApont] = await Promise.all([
+        container.listarTrabalhadores.execute(),
+        container.listarApontamentos.execute(),
+      ]);
+      setTrabalhadores(resTrab);
+      setApontamentos(resApont);
+    } catch (err) {
+      console.error('Erro ao carregar dados de apontamento:', err);
+    }
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       let active = true;
-      container.listarTrabalhadores.execute().then((res) => {
-        if (active) setTrabalhadores(res);
-      });
+      carregarDados();
       return () => {
         active = false;
       };
-    }, []),
+    }, [carregarDados]),
   );
 
   useEffect(() => {
-    async function getCurrentLocation() {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permissão negada', 'Precisamos de acesso à sua localização para registrar o balaio.');
-        return;
-      }
-      const loc = await Location.getCurrentPositionAsync({});
-      setLocation(loc);
+    async function carregarLocalizacao() {
+      const loc = await obterLocalizacaoSegura(4000);
+      setLocationResult(loc);
     }
-    getCurrentLocation();
+    carregarLocalizacao();
   }, []);
 
   function selecionarPorCracha(codigo: string) {
@@ -78,28 +94,35 @@ export default function Apontamento() {
       Alert.alert('Atenção', 'Informe a quantidade de litros do balaio.');
       return;
     }
-    if (!location) {
-      Alert.alert('Aguarde', 'Ainda estamos obtendo sua localização. Tente novamente em instantes.');
-      return;
-    }
 
     setSalvando(true);
     try {
       await container.registrarApontamento.execute({
         trabalhadorId: selecionado.id,
         litros: litrosNumero,
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
+        latitude: locationResult.latitude,
+        longitude: locationResult.longitude,
       });
+
       setLitros('');
+      const nomeTrabalhador = selecionado.nome;
       setSelecionado(null);
-      Alert.alert('Sucesso', 'Balaio registrado com sucesso!');
-    } catch {
-      Alert.alert('Erro', 'Não foi possível registrar o balaio.');
+
+      // Recarrega imediatamente a lista de apontamentos
+      const listaAtualizada = await container.listarApontamentos.execute();
+      setApontamentos(listaAtualizada);
+
+      Alert.alert('Sucesso!', `Balaio de ${litrosNumero}L registrado para ${nomeTrabalhador}.`);
+    } catch (error) {
+      Alert.alert('Erro', error instanceof Error ? error.message : 'Não foi possível registrar o balaio.');
     } finally {
       setSalvando(false);
     }
   }
+
+  // Cálculos do resumo do dia
+  const totalBalaios = apontamentos.length;
+  const totalLitros = apontamentos.reduce((acc, item) => acc + item.quantidade.litros, 0);
 
   if (mode === 'scan') {
     if (!permission) {
@@ -143,16 +166,34 @@ export default function Apontamento() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Registrar Apontamento</Text>
-      <Text style={styles.subtitle}>Selecione o trabalhador e informe os litros do balaio.</Text>
+      <Text style={styles.subtitle}>Selecione o trabalhador e informe os litros colhidos no balaio.</Text>
 
+      {/* Cartões de Resumo do Dia */}
+      <View style={styles.summaryRow}>
+        <View style={styles.summaryCard}>
+          <Ionicons name="basket-outline" size={22} color="#2d6a4f" />
+          <Text style={styles.summaryValue}>{totalBalaios}</Text>
+          <Text style={styles.summaryLabel}>Balaios Hoje</Text>
+        </View>
+
+        <View style={styles.summaryCard}>
+          <Ionicons name="water-outline" size={22} color="#2d6a4f" />
+          <Text style={styles.summaryValue}>{totalLitros} L</Text>
+          <Text style={styles.summaryLabel}>Total Colhido</Text>
+        </View>
+      </View>
+
+      {/* Card de Seleção do Trabalhador */}
       <View style={styles.workerRow}>
         <View style={styles.workerInfo}>
-          <Text style={styles.label}>Trabalhador</Text>
+          <Text style={styles.label}>Trabalhador Selecionado</Text>
           <Text style={styles.workerName}>{selecionado ? selecionado.nome : 'Nenhum selecionado'}</Text>
-          {selecionado && (
+          {selecionado ? (
             <Text style={styles.workerMeta}>
               Crachá {selecionado.cracha} · Diária {selecionado.diaria.formatar()}
             </Text>
+          ) : (
+            <Text style={styles.workerMeta}>Toque em "Ler crachá" ou escolha abaixo</Text>
           )}
         </View>
         <TouchableOpacity style={styles.scanButton} onPress={() => setMode('scan')}>
@@ -161,6 +202,7 @@ export default function Apontamento() {
         </TouchableOpacity>
       </View>
 
+      {/* Seleção rápida de trabalhadores */}
       {!selecionado && (
         <View>
           <Text style={styles.label}>Ou escolha manualmente</Text>
@@ -178,29 +220,89 @@ export default function Apontamento() {
         </View>
       )}
 
-      <Text style={styles.label}>Quantidade (litros)</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Ex.: 45"
-        placeholderTextColor="#999"
-        keyboardType="numeric"
-        value={litros}
-        onChangeText={setLitros}
-      />
+      {/* Entrada de Quantidade */}
+      <View>
+        <Text style={styles.label}>Quantidade colhida (litros)</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Ex.: 45 ou 60"
+          placeholderTextColor="#999"
+          keyboardType="numeric"
+          value={litros}
+          onChangeText={setLitros}
+        />
+      </View>
 
-      {location && (
+      {/* Tag de GPS */}
+      <View style={styles.locationTag}>
+        <Ionicons
+          name={locationResult.isFallback ? 'warning-outline' : 'location'}
+          size={16}
+          color={locationResult.isFallback ? '#d97706' : '#2d6a4f'}
+        />
         <Text style={styles.coords}>
-          📍 {location.coords.latitude.toFixed(4)}, {location.coords.longitude.toFixed(4)}
+          {locationResult.latitude.toFixed(4)}, {locationResult.longitude.toFixed(4)}
+          {locationResult.isFallback ? ' (ref. Sul de MG)' : ' (GPS ativo)'}
         </Text>
-      )}
+      </View>
 
+      {/* Botão Registrar */}
       <TouchableOpacity
         style={[styles.saveButton, salvando && styles.saveButtonDisabled]}
         disabled={salvando}
         onPress={registrar}
       >
+        <Ionicons name="checkmark-circle-outline" size={22} color="#fff" style={{ marginRight: 8 }} />
         <Text style={styles.saveButtonText}>{salvando ? 'Salvando...' : 'Registrar balaio'}</Text>
       </TouchableOpacity>
+
+      {/* Seção de Histórico de Balaios do Dia */}
+      <View style={styles.historySection}>
+        <View style={styles.historyHeader}>
+          <Text style={styles.historyTitle}>Últimos Balaios Registrados</Text>
+          <Text style={styles.historyCount}>{apontamentos.length} registros</Text>
+        </View>
+
+        {apontamentos.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Ionicons name="cafe-outline" size={36} color="#bbb" />
+            <Text style={styles.emptyTitle}>Nenhum balaio registrado ainda hoje</Text>
+            <Text style={styles.emptySubtitle}>
+              Assim que você registrar o primeiro balaio, ele aparecerá aqui com os detalhes.
+            </Text>
+          </View>
+        ) : (
+          [...apontamentos].reverse().map((item, index) => {
+            const trabalhador = trabalhadores.find((t) => t.id === item.trabalhadorId);
+            const nomeExibicao = trabalhador ? trabalhador.nome : 'Trabalhador ID: ' + item.trabalhadorId.slice(0, 8);
+            const crachaExibicao = trabalhador ? `Crachá ${trabalhador.cracha}` : '';
+            const horaFormatada = new Date(item.data).toLocaleTimeString('pt-BR', {
+              hour: '2-digit',
+              minute: '2-digit',
+            });
+
+            return (
+              <View key={item.id || index} style={styles.historyCard}>
+                <View style={styles.historyIconBox}>
+                  <Ionicons name="cafe" size={22} color="#2d6a4f" />
+                </View>
+                <View style={styles.historyInfo}>
+                  <Text style={styles.historyWorkerName}>{nomeExibicao}</Text>
+                  <Text style={styles.historyMeta}>
+                    {horaFormatada} {crachaExibicao ? `· ${crachaExibicao}` : ''}
+                  </Text>
+                  <Text style={styles.historyCoords}>
+                    📍 {item.coordenadas.latitude.toFixed(4)}, {item.coordenadas.longitude.toFixed(4)}
+                  </Text>
+                </View>
+                <View style={styles.historyBadge}>
+                  <Text style={styles.historyLitrosText}>{item.quantidade.litros} L</Text>
+                </View>
+              </View>
+            );
+          })
+        )}
+      </View>
     </ScrollView>
   );
 }
@@ -213,6 +315,7 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     gap: 16,
+    paddingBottom: 40,
   },
   title: {
     fontSize: 24,
@@ -222,6 +325,36 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: '#666',
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  summaryCard: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  summaryValue: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#2d6a4f',
+    marginTop: 6,
+    marginBottom: 2,
+  },
+  summaryLabel: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '500',
   },
   label: {
     fontSize: 13,
@@ -236,9 +369,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   workerInfo: {
     flex: 1,
+    paddingRight: 10,
   },
   workerName: {
     fontSize: 16,
@@ -262,6 +398,7 @@ const styles = StyleSheet.create({
   scanButtonText: {
     color: '#fff',
     fontWeight: '600',
+    fontSize: 13,
   },
   chips: {
     gap: 8,
@@ -278,6 +415,7 @@ const styles = StyleSheet.create({
   chipText: {
     color: '#2d6a4f',
     fontWeight: '600',
+    fontSize: 13,
   },
   input: {
     borderWidth: 1.5,
@@ -288,17 +426,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#fff',
   },
+  locationTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   coords: {
     fontSize: 13,
-    color: '#2d6a4f',
+    color: '#555',
   },
   saveButton: {
+    flexDirection: 'row',
     backgroundColor: '#2d6a4f',
-    borderRadius: 12,
+    borderRadius: 14,
     height: 54,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 4,
+    shadowColor: '#2d6a4f',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 4,
   },
   saveButtonDisabled: {
     opacity: 0.6,
@@ -307,6 +456,97 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  historySection: {
+    marginTop: 16,
+    gap: 12,
+  },
+  historyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  historyTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  historyCount: {
+    fontSize: 13,
+    color: '#666',
+    fontWeight: '500',
+  },
+  emptyCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderStyle: 'dashed',
+    gap: 8,
+  },
+  emptyTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#444',
+  },
+  emptySubtitle: {
+    fontSize: 13,
+    color: '#888',
+    textAlign: 'center',
+  },
+  historyCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  historyIconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: '#e7f3ee',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  historyInfo: {
+    flex: 1,
+  },
+  historyWorkerName: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  historyMeta: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+  historyCoords: {
+    fontSize: 11,
+    color: '#888',
+    marginTop: 2,
+  },
+  historyBadge: {
+    backgroundColor: '#2d6a4f',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  historyLitrosText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
   },
   camera: {
     flex: 1,

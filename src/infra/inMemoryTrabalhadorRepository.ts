@@ -37,7 +37,19 @@ export class InMemoryTrabalhadorRepository implements TrabalhadorRepository {
     }
 
     async save(trabalhador: Trabalhador): Promise<void> {
-        this.trabalhadores.push(trabalhador);
+        const index = this.trabalhadores.findIndex((t) => t.id === trabalhador.id);
+        if (index >= 0) {
+            this.trabalhadores[index] = trabalhador;
+        } else {
+            this.trabalhadores.push(trabalhador);
+        }
+    }
+
+    async delete(id: string): Promise<void> {
+        const index = this.trabalhadores.findIndex((t) => t.id === id);
+        if (index >= 0) {
+            this.trabalhadores.splice(index, 1);
+        }
     }
 
     async findById(id: string): Promise<Trabalhador | null> {

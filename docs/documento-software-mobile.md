@@ -934,10 +934,10 @@ flowchart TB
             VOs["Value Objects (Coordinates, QuantidadeBalaio, ValorMonetario, SyncStatus)"]
         end
         subgraph Sub_Portas["Contratos de Portas (Interfaces)"]
-            P_Repos[[Portas de Repositório: Trabalhador, Apontamento, Despesa, SyncQueue]]
-            P_Gateways[[Portas de Gateway: Camera, Location, Network, Sync, Auth, Storage]]
+            P_Repos[["Portas de Repositório: Trabalhador, Apontamento, Despesa, SyncQueue"]]
+            P_Gateways[["Portas de Gateway: Camera, Location, Network, Sync, Auth, Storage"]]
         end
-        SVC_Sync[Domain Service: SincronizacaoService LWW]
+        SVC_Sync["Domain Service: SincronizacaoService LWW"]
     end
 
     subgraph LayerAdapters["4. Interface Adapters — Saída (Implementações)"]
@@ -950,10 +950,10 @@ flowchart TB
 
     subgraph LayerInfra["5. Frameworks & Drivers (Borda Externa)"]
         direction TB
-        F_LocalDB[(expo-sqlite + drizzle-orm)]
-        F_Hardware[expo-camera + expo-image-picker + expo-location]
-        F_Cloud[@supabase/supabase-js — Auth, Postgres, Storage]
-        F_NativeLibs[expo-secure-store + NetInfo + react-native-maps*]
+        F_LocalDB[("expo-sqlite + drizzle-orm")]
+        F_Hardware["expo-camera + expo-image-picker + expo-location"]
+        F_Cloud["@supabase/supabase-js (Auth, Postgres, Storage)"]
+        F_NativeLibs["expo-secure-store + NetInfo + react-native-maps"]
     end
 
     %% Relações de Chamada Limpas (Entrada -> Use Cases -> Domínio)
@@ -973,7 +973,7 @@ flowchart TB
     A_Hardware --> F_Hardware
     A_Cloud --> F_Cloud
     A_Security --> F_NativeLibs
-    Screens -.->|renderiza mapa nativo*| F_NativeLibs
+    Screens -.->|renderiza mapa nativo| F_NativeLibs
 ```
 
 > [!NOTE]

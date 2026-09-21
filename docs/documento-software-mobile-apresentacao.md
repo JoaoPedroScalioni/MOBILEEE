@@ -440,19 +440,18 @@ flowchart LR
     %% Entrada e GPS Compulsório
     Preenche --> Litros[Digitar Litros] --> Salvar[Tocar em Salvar]
     Salvar --> PermGPS{GPS?}
-    PermGPS -- Não --> Bloqueio[Bloquear: GPS Obrigatório] --> Start
+    PermGPS -- Não --> Bloqueio["Bloquear: GPS Obrigatório"] --> Start
     PermGPS -- Sim --> FixGPS[Capturar Satélites]
-    FixGPS --> GPSOk{Sinal Fixado?}
-    GPSOk -- Não --> RetentaGPS[Avisar 'Aguarde GPS'] --> FixGPS
+    GPSOk -- Não --> RetentaGPS["Avisar: Aguarde GPS"] --> FixGPS
     
     %% Persistência Local
     GPSOk -- Sim --> GravaLocal[Persistir no SQLite] --> Outbox[Enfileirar na Outbox]
-    Outbox --> Feedback[Feedback de Sucesso!]
+    Outbox --> Feedback["Feedback de Sucesso!"]
 
     %% Sincronização Assíncrona
     Feedback --> Rede{Internet Ativa?}
     Rede -- Não --> Aguarda[Aguardar Conexão] --> Rede
-    Rede -- Sim --> Envio[SyncEngine Transmite Lote] --> Confirma[Marcar Sincronizado e Purgar Fila] --> Fim((Fim))
+    Rede -- Sim --> Envio[SyncEngine Transmite Lote] --> Confirma["Marcar Sincronizado e Purgar Fila"] --> Fim((Fim))
 ```
 
 ---
@@ -483,10 +482,10 @@ flowchart TB
             VOs["Value Objects: Coordinates · QuantidadeBalaio · ValorMonetario · SyncStatus"]
         end
         subgraph Sub_Portas["Contratos de Portas (Interfaces)"]
-            P_Repos[[Portas Repositórios: TrabalhadorRepo · ApontamentoRepo · DespesaRepo · SyncQueueRepo]]
-            P_Gateways[[Portas Gateways: CameraGateway · LocationGateway · NetworkGateway · SyncGateway]]
+            P_Repos[["Portas Repositórios: TrabalhadorRepo · ApontamentoRepo · DespesaRepo · SyncQueueRepo"]]
+            P_Gateways[["Portas Gateways: CameraGateway · LocationGateway · NetworkGateway · SyncGateway"]]
         end
-        SVC_Sync[Domain Service: SincronizacaoService LWW]
+        SVC_Sync["Domain Service: SincronizacaoService LWW"]
     end
 
     subgraph LayerAdapters["4. Interface Adapters — Saída (Implementações)"]
@@ -497,10 +496,10 @@ flowchart TB
 
     subgraph LayerInfra["5. Frameworks & Drivers (Borda Externa)"]
         direction TB
-        F_LocalDB[(expo-sqlite + drizzle-orm)]
-        F_Hardware[expo-camera + expo-location + NetInfo]
-        F_Cloud[@supabase/supabase-js — Auth, Postgres, Storage]
-        F_NativeLibs[expo-secure-store + react-native-maps*]
+        F_LocalDB[("expo-sqlite + drizzle-orm")]
+        F_Hardware["expo-camera + expo-location + NetInfo"]
+        F_Cloud["@supabase/supabase-js (Auth, Postgres, Storage)"]
+        F_NativeLibs["expo-secure-store + react-native-maps"]
     end
 
     %% Fluxo de Dependências Limpo
@@ -518,7 +517,7 @@ flowchart TB
     A_Gateways --> F_Hardware
     A_Gateways --> F_Cloud
     A_Gateways --> F_NativeLibs
-    Screens -.->|renderiza mapa nativo*| F_NativeLibs
+    Screens -.->|renderiza mapa nativo| F_NativeLibs
 ```
 
 ---

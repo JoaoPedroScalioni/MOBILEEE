@@ -53,9 +53,13 @@ A tabela a seguir consolida os Requisitos Funcionais (RF) e Não Funcionais (RNF
 | **RNF05** | **Armazenamento Local** | Utilização de SQLite gerenciado via Drizzle ORM. Mídia física (fotos de recibo) armazenada no diretório de arquivos da aplicação (`FileSystem.documentDirectory`). Itens da fila `sync_queue` são transitórios e expurgados após confirmação do servidor. | Média |
 | **RNF06** | **Consistência de Dados** | Todos os identificadores são UUIDs v4 gerados no cliente. Exclusões de registros locais utilizam *Soft Delete* (`deletedAt`), propagando-se como eventos de exclusão na fila de sincronização. | Alta |
 | **RNF07** | **Segurança** | Tokens de autenticação e segredos de sessão devem ser armazenados exclusivamente no `expo-secure-store` com chave criptografada em hardware (Keystore/Keychain), nunca em `AsyncStorage` aberto. No backend Supabase, tabelas devem ser protegidas por *Row Level Security* (RLS) restritas a `usuario_id = auth.uid()`. | Alta |
-| **RNF08** | **Compatibilidade** | Suporte a Android 10+ (API 29+) e iOS 15+, executando no runtime Expo SDK 54. Degradação graciosa em ambiente Web para desenvolvimento e testes. | Média |
+| **RNF08** | **Compatibilidade** | Suporte a Android 10+ (API 29+) e iOS 15+, executando no runtime Expo SDK 54. Degradação graciosa em ambiente Web para desenvolvimento e testes.<br>*Nota Técnica:* O módulo `react-native-maps` requer build nativo via Expo Dev Client (`npx expo run:android` ou `npx expo prebuild`), não sendo suportado no Expo Go puro. | Média |
 | **RNF09** | **Usabilidade em Campo** | Interface de alto contraste e botões de grande dimensão para operação sob sol forte na lavoura. Indicadores visuais imediatos de estado de sincronização e avisos claros de bloqueio caso o sensor GPS não tenha obtido fixação precisa. | Alta |
 | **RNF10** | **Testabilidade e Isolamento** | Nenhuma dependência nativa (`expo-*`), ORM (`drizzle-orm`) ou cliente de rede (`@supabase/supabase-js`) deve ser importada dentro das pastas `src/domain/` ou `src/application/`. Todos os use cases devem ser testáveis isoladamente via TDD com Jest e fakes em memória. | Alta |
+
+> [!IMPORTANT]
+> **Nota Técnica de Ambiente e Execução (RNF08):**  
+> A biblioteca de mapas nativos `react-native-maps` (com provedor Google Maps / Apple Maps) requer módulos nativos compilados com chaves de API específicas. Consequentemente, sua execução plena necessita de compilação via **Expo Dev Client** (`npx expo run:android` / `npx expo run:ios` ou `npx expo prebuild`), **não sendo suportada no Expo Go puro**. Em ambiente Web ou de teste local automatizado, o sistema adota degradação graciosa com mock/implementação compatível.
 
 ### 1.3 Matriz de Operação Offline × Online (RNF01 Detalhado)
 
@@ -280,8 +284,15 @@ classDiagram
         +atualizarDiaria(ValorMonetario novaDiaria) void
     }
 
+    class Apontador {
+        -String id
+        -String nome
+        -String email
+    }
+
     class Apontamento {
         -String id
+        -String apontadorId
         -String trabalhadorId
         -QuantidadeBalaio quantidade
         -Coordinates coordenadas
@@ -295,6 +306,7 @@ classDiagram
 
     class Despesa {
         -String id
+        -String apontadorId
         -String descricao
         -ValorMonetario valor
         -CategoriaDespesa categoria
@@ -376,6 +388,9 @@ classDiagram
         +resolverConflito(int localUpdatedAt, int serverUpdatedAt) String
     }
 
+    Apontador "1" -- "0..*" Apontamento : registra
+    Apontador "1" -- "0..*" Despesa : lanca
+    Apontador "1" -- "0..1" Session : mantem
     Trabalhador "1" -- "0..*" Apontamento : executa colheita em
     Trabalhador "1" -- "0..*" SyncQueueItem : gera evento em
     Apontamento "1" -- "0..*" SyncQueueItem : gera evento em
@@ -398,9 +413,10 @@ Em uma arquitetura Offline-First, cada entidade de negócio possui uma represent
 
 | Entidade / Classe | Persistência Local (SQLite via Drizzle ORM) | Persistência Remota (Supabase BaaS) | Estratégia de Sincronização e Fonte da Verdade |
 |---|---|---|---|
+| **Apontador** | Sim (tabela `apontadores`) | Sim (`profiles` no Postgres) | Espelha os dados cadastrais do operador autenticado na sessão ativa para auditoria e rastreabilidade local. |
 | **Trabalhador** | Sim (tabela `trabalhadores`) | Sim (tabela `trabalhadores` no Postgres) | O terminal local é a fonte da verdade no ato do cadastro. O servidor consolida os dados; conflitos são resolvidos via *Last-Write-Wins* (`updated_at`). |
-| **Apontamento** | Sim (tabela `apontamentos`) | Sim (tabela `apontamentos` no Postgres) | Registro imutável de evento de campo. Criado localmente com UUID próprio e propagado assincronamente. |
-| **Despesa** | Sim (tabela `despesas`) | Sim (tabela `despesas` no Postgres) | Local armazena caminho do arquivo; Supabase armazena metadados e URL pública do Storage. |
+| **Apontamento** | Sim (tabela `apontamentos`, com `apontador_id`) | Sim (tabela `apontamentos` no Postgres, com `usuario_id`) | Registro imutável de evento de campo vinculado ao apontador e ao colhedor. Criado localmente com UUID próprio e propagado assincronamente. |
+| **Despesa** | Sim (tabela `despesas`, com `apontador_id`) | Sim (tabela `despesas` no Postgres, com `usuario_id`) | Local armazena dados operacionais com vínculo do apontador e caminho do arquivo; Supabase armazena metadados e URL do Storage. |
 | **FotoRecibo** | Sim (arquivo físico no `FileSystem` + URI) | Sim (Supabase Storage bucket `recibos`) | Upload assíncrono do binário desacoplado da inserção relacional para resiliência de banda. |
 | **SyncQueueItem** | Sim (tabela `sync_queue`) | **Não** (tabela exclusivamente local) | Fila efêmera (Outbox). Cada item é excluído da base local assim que o Supabase confirma o recebimento. |
 | **User** | Sim (cache de perfil do operador) | Sim (`auth.users` + tabela `profiles`) | A fonte primária da verdade é o Supabase Auth. O aparelho guarda cache para reconhecimento de sessão offline. |
@@ -412,14 +428,22 @@ Em uma arquitetura Offline-First, cada entidade de negócio possui uma represent
 
 ### 6.1 DER Local — SQLite (Drizzle ORM)
 
-O modelo local inclui a tabela transitória de fila (`SYNC_QUEUE`) e as colunas operacionais de controle de sincronização:
+O modelo local inclui a tabela de `APONTADORES` (espelhando a sessão do operador ativo), a tabela transitória de fila (`SYNC_QUEUE`) e as chaves estrangeiras de rastreabilidade de operador (`apontador_id`):
 
 ```mermaid
 erDiagram
+    APONTADORES ||--o{ APONTAMENTOS : registra
+    APONTADORES ||--o{ DESPESAS : registra
     TRABALHADORES ||--o{ APONTAMENTOS : possui
     TRABALHADORES ||--o{ SYNC_QUEUE : gera
     APONTAMENTOS ||--o{ SYNC_QUEUE : gera
     DESPESAS ||--o{ SYNC_QUEUE : gera
+
+    APONTADORES {
+        text id PK "UUID do Auth / profiles"
+        text nome "Nome completo do operador"
+        text email "E-mail do operador"
+    }
 
     TRABALHADORES {
         text id PK "UUID gerado no cliente"
@@ -434,7 +458,8 @@ erDiagram
 
     APONTAMENTOS {
         text id PK "UUID gerado no cliente"
-        text trabalhador_id FK "Chave estrangeira"
+        text apontador_id FK "Operador que registrou (APONTADORES)"
+        text trabalhador_id FK "Colhedor (TRABALHADORES)"
         real litros "Volume colhido"
         real latitude "Coordenada GPS"
         real longitude "Coordenada GPS"
@@ -446,6 +471,7 @@ erDiagram
 
     DESPESAS {
         text id PK "UUID gerado no cliente"
+        text apontador_id FK "Operador que lancou (APONTADORES)"
         text descricao "Descricao do gasto"
         real valor "Valor em reais"
         text categoria "Refeicao|Combustivel|Insumos|Outros"
@@ -472,13 +498,14 @@ erDiagram
 
 ### 6.2 DER Remoto — Supabase (PostgreSQL)
 
-O schema em nuvem não contém tabela de fila, operando com tipos de precisão nativos do PostgreSQL (`timestamptz`, `numeric`, `double precision`) e referenciando o ID de autenticação do operador:
+O schema em nuvem não contém tabela de fila, operando com tipos de precisão nativos do PostgreSQL (`timestamptz`, `numeric`, `double precision`) e referenciando a chave primária `id` de `PROFILES` (vinculada a `auth.users`) em todas as tabelas transacionais (`usuario_id FK`), garantindo rastreabilidade completa e isolamento multitenant por operador:
 
 ```mermaid
 erDiagram
     PROFILES ||--o{ TRABALHADORES : gerencia
-    TRABALHADORES ||--o{ APONTAMENTOS : contem
+    PROFILES ||--o{ APONTAMENTOS : registra
     PROFILES ||--o{ DESPESAS : lanca
+    TRABALHADORES ||--o{ APONTAMENTOS : contem
 
     PROFILES {
         uuid id PK "Referencia auth.users.id"
@@ -499,6 +526,7 @@ erDiagram
 
     APONTAMENTOS {
         uuid id PK "UUID client-generated"
+        uuid usuario_id FK "Chave estrangeira PROFILES (operador que registrou)"
         uuid trabalhador_id FK "Vinculo do colhedor"
         numeric litros "Litros colhidos"
         double_precision latitude "GPS fix"
@@ -510,7 +538,7 @@ erDiagram
 
     DESPESAS {
         uuid id PK "UUID client-generated"
-        uuid usuario_id FK "Proprietario do lancamento"
+        uuid usuario_id FK "Proprietario do lancamento (PROFILES)"
         text descricao "Motivo da despesa"
         numeric valor "Valor financeiro"
         text categoria "Categoria da despesa"
@@ -545,15 +573,10 @@ USING (auth.uid() = usuario_id)
 WITH CHECK (auth.uid() = usuario_id);
 
 -- 3. Políticas para a tabela APONTAMENTOS
-CREATE POLICY "Operadores manipulam apontamentos de seus trabalhadores"
+CREATE POLICY "Operadores gerenciam seus proprios apontamentos"
 ON apontamentos FOR ALL
-USING (
-  EXISTS (
-    SELECT 1 FROM trabalhadores t 
-    WHERE t.id = apontamentos.trabalhador_id 
-    AND t.usuario_id = auth.uid()
-  )
-);
+USING (auth.uid() = usuario_id)
+WITH CHECK (auth.uid() = usuario_id);
 
 -- 4. Políticas para a tabela DESPESAS
 CREATE POLICY "Operadores gerenciam suas proprias despesas"
@@ -585,6 +608,12 @@ O diagrama a seguir retrata um instantâneo do sistema em campo: um colhedor cad
 
 ```mermaid
 classDiagram
+    class apontadorJoao {
+        id = "user-operador-01"
+        nome = "João Apontador"
+        email = "pesquisador@ecofield.app"
+    }
+
     class trabMaria {
         id = "trab-002"
         nome = "Maria de Souza"
@@ -596,6 +625,7 @@ classDiagram
 
     class apontNovo {
         id = "apont-771"
+        apontadorId = "user-operador-01"
         trabalhadorId = "trab-002"
         litros = 60.0
         latitude = -21.7542
@@ -606,6 +636,7 @@ classDiagram
 
     class despGasolina {
         id = "desp-301"
+        apontadorId = "user-operador-01"
         descricao = "Combustivel para motosserra"
         valor = "R$ 95,50"
         categoria = "Combustivel"
@@ -629,7 +660,9 @@ classDiagram
         status = "pending"
     }
 
-    trabMaria -- apontNovo : executou
+    apontadorJoao -- apontNovo : registrou
+    apontadorJoao -- despGasolina : lancou
+    trabMaria -- apontNovo : executou colheita em
     apontNovo -- itemFilaOutbox : gerou
     despGasolina *-- fotoReciboLocal : anexou
 ```
@@ -728,35 +761,50 @@ Em sistemas móveis Offline-First, operações de escrita devem responder com su
 sequenceDiagram
     autonumber
     actor Apontador
-    participant UI as ApontamentoScreen (UI)
-    participant QR as CameraGateway (Hardware)
-    participant GPS as LocationGateway (Hardware)
-    participant UC as RegistrarApontamento (Control)
-    participant Ent as Apontamento (Entity)
+    participant UI as ApontamentoScreen (UI View)
+    participant Hook as useApontamento (Presentation Adapter)
+    participant QR as CameraGateway (Hardware Adapter)
+    participant GPS as LocationGateway (Hardware Adapter)
+    participant UC as RegistrarApontamento (Use Case Control)
+    participant Ent as Apontamento (Domain Entity)
     participant DB as ApontamentoRepo (SQLite)
     participant Outbox as SyncQueueRepo (SQLite)
     participant Net as NetworkGateway (NetInfo)
     participant Cloud as SyncGateway (Supabase)
 
-    Apontador ->> UI: Preenche quantidade e aciona leitura de crachá
-    UI ->> QR: escanearCodigoCracha()
-    QR -->> UI: Retorna código "TRAB-002"
-    UI ->> GPS: obterLocalizacaoAtual() [Compulsório]
-    GPS -->> UI: Retorna { latitude: -21.75, longitude: -43.35 }
-    UI ->> UC: execute(dto, coordenadas)
-    UC ->> Ent: new Apontamento(id, trabalhadorId, litros, coords)
+    Apontador ->> UI: Informa litros e toca em "Ler Crachá"
+    UI ->> Hook: iniciarLeituraCracha()
+    Hook ->> QR: escanearCodigoCracha()
+    QR -->> Hook: Retorna código "TRAB-002"
+    Hook -->> UI: Preenche trabalhador identificado na tela
+
+    Apontador ->> UI: Toca em "Salvar Apontamento"
+    UI ->> Hook: submeterApontamento(dadosFormulario)
+    
+    Note over Hook,GPS: Hook invoca gateway de hardware antes de montar o DTO da aplicação
+    Hook ->> GPS: obterLocalizacaoAtual() [Compulsório sob demanda]
+    GPS -->> Hook: Retorna Coordinates { latitude: -21.75, longitude: -43.35 }
+    
+    Note over Hook,UC: Repassa DTO completo com apontadorId, trabalhadorId, litros e coordenadas
+    Hook ->> UC: execute(RegistrarApontamentoDTO)
+    
+    Note over UC,Ent: O Caso de Uso orquestra entidades e regras puras sem tocar em SDKs nativos
+    UC ->> DB: findTrabalhadorById(dto.trabalhadorId)
+    DB -->> UC: Trabalhador válido confirmado
+    UC ->> Ent: new Apontamento(id, apontadorId, trabalhadorId, litrosVO, coordsVO)
     Ent -->> UC: Instância válida (status="pending")
     UC ->> DB: save(apontamento)
-    DB -->> UC: Confirma gravação no SQLite
+    DB -->> UC: Confirmação de persistência no SQLite
     UC ->> Outbox: enqueue(itemOutbox)
-    Outbox -->> UC: Confirma enfileiramento
-    UC -->> UI: Apontamento registrado com sucesso
-    UI -->> Apontador: Exibe feedback visual "Salvo localmente!"
+    Outbox -->> UC: Confirmação de enfileiramento na Outbox
+    UC -->> Hook: Retorna Apontamento gravado
+    Hook -->> UI: Estado atualizado para sucesso
+    UI -->> Apontador: Exibe feedback visual "Salvo localmente com sucesso!"
 
     par Processamento em Segundo Plano (Quando Conectado)
         Outbox ->> Net: isConnected()
         alt Sem Conexão
-            Net -->> Outbox: false (Mantém na fila e aguarda evento de rede)
+            Net -->> Outbox: false (Mantém na fila e aguarda reconexão)
         else Com Conexão
             Net -->> Outbox: true
             Outbox ->> Cloud: push(dadosApontamento)
@@ -955,6 +1003,10 @@ flowchart TB
     S_Map --> F_Maps
 ```
 
+> [!NOTE]
+> **Nota de Arquitetura e Ambiente sobre Mapas:**  
+> O componente `MapaLavoura.native.tsx` faz uso de `react-native-maps`, que requer compilação nativa com vinculação de bibliotecas de sistema (Google Play Services no Android e Apple Maps no iOS). Por essa razão arquitetural, sua execução plena é suportada exclusivamente via **Expo Dev Client** (`npx expo run:android` ou `npx expo prebuild`), não rodando no ambiente limitado do Expo Go padrão.
+
 ---
 
 ## 13. Mapeamento DDD (Domain-Driven Design)
@@ -965,11 +1017,11 @@ O SafraCafé adota a **Linguagem Ubíqua** autêntica da cafeicultura brasileira
 
 | Aggregate Root | Entidades Internas | Value Objects | Contrato de Repositório | Gateways Envolvidos | Invariantes de Negócio Asseguradas |
 |---|---|---|---|---|---|
+| **Apontador** | `Session` | `Email` | `ApontadorRepository` *(ou cache local; autoritativo no Supabase Auth)* | `AuthGateway`, `SessionStorage` | Operador autenticado com credencial ativa; rastreabilidade de todas as coletas em campo. |
 | **Trabalhador** | — | `ValorMonetario` (diária), `SyncStatus` | `TrabalhadorRepository` | `SyncGateway`, `NetworkGateway` | CPF com exatamente 11 dígitos numéricos; código de crachá único e não vazio; diária ≥ R$ 0,00. |
-| **Apontamento** | — (referência `trabalhadorId`) | `QuantidadeBalaio`, `Coordinates`, `SyncStatus` | `ApontamentoRepository` | `CameraGateway` (QR), `LocationGateway` (GPS), `SyncGateway` | O colhedor deve existir na base; quantidade > 0 litros; coordenadas geográficas válidas (lat -90..90, lng -180..180); data > 0. |
-| **Despesa** | `FotoRecibo` (composição 0..1) | `ValorMonetario`, `Coordinates`, `CategoriaDespesa` (enum), `SyncStatus` | `DespesaRepository` | `CameraGateway` (Foto), `LocationGateway` (GPS), `SyncGateway` | Descrição não vazia; valor ≥ 0; categoria pertencente à lista fechada; URI de foto deve conter scheme `://`. |
+| **Apontamento** | — (referência `trabalhadorId` e `apontadorId`) | `QuantidadeBalaio`, `Coordinates`, `SyncStatus` | `ApontamentoRepository` | `CameraGateway` (QR), `LocationGateway` (GPS), `SyncGateway` | Rastreabilidade do operador (`apontadorId`); colhedor cadastrado; volume do balaio > 0 litros; coordenadas GPS válidas (lat -90..90, lng -180..180); data > 0. |
+| **Despesa** | `FotoRecibo` (composição 0..1) | `ValorMonetario`, `Coordinates`, `CategoriaDespesa` (enum), `SyncStatus` | `DespesaRepository` | `CameraGateway` (Foto), `LocationGateway` (GPS), `SyncGateway` | Rastreabilidade do operador (`apontadorId`); descrição não vazia; valor monetário ≥ 0; categoria pertencente à lista fechada; URI de foto deve conter scheme `://`. |
 | **SyncQueueItem** | — (entidade da infraestrutura de sync) | `SyncStatus`, `SyncQueueOperation` (`INSERT\|UPDATE\|DELETE`) | `SyncQueueRepository` | `SyncGateway`, `NetworkGateway` | Operação permitida; `updatedAt >= createdAt`; número de retentativas consistente. |
-| **User** | `Session` | `Email` | *(Cache local; autoritativo no Supabase)* | `AuthGateway`, `SessionStorage` | E-mail bem formado; credenciais cifradas. |
 
 ### 13.2 Serviço de Domínio (Domain Service)
 - **`SincronizacaoService`**:

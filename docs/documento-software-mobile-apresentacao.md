@@ -2,7 +2,7 @@
 
 > **Projeto:** SafraCafé — Gestão e Controle de Colheita de Café no Eito da Lavoura  
 > **Objetivo deste documento:** Versão executiva e enxuta para apresentação oral e defesa perante a banca acadêmica.  
-> **Stack:** Expo SDK 57 (Expo Go / Dev Client) · SQLite (Drizzle ORM) · Supabase (PostgreSQL, Auth, Storage) · GPS & Câmera Nativos.  
+> **Stack:** Expo SDK 54 (Dev Client) · SQLite (Drizzle ORM) · Supabase (PostgreSQL, Auth, Storage) · GPS & Câmera Nativos.  
 > **Arquitetura:** Clean Architecture + Domain-Driven Design (DDD) + Test-Driven Development (TDD). 100% Offline-First.
 
 ---

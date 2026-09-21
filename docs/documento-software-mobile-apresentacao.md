@@ -29,7 +29,7 @@
 | **RF01/02** | Cadastrar e Listar Trabalhadores | Apontador | CPF com 11 dígitos, diária $\ge 0$, crachá único. |
 | **RF03** | Leitura de QR Code de Crachás | Apontador / Câmera | Preenchimento automático do colhedor na tela. |
 | **RF04/05** | Registro de Apontamento + GPS | Apontador / GPS | Volume $> 0$ litros; **bloqueio absoluto sem coordenadas GPS fixadas**. |
-| **RF06** | Lançamento de Despesas de Campo | Apontador / Câmera | Categorias fechadas, foto do recibo opcional, GPS do local. |
+| **RF06/07** | Lançamento de Despesas + Foto | Apontador / Câmera | Categorias fechadas, foto do recibo opcional, GPS do local. |
 | **RF08/09** | Mapa da Lavoura & Rotas | Apontador / GPS | Marcadores locais, itinerário percorrido no talhão e rotas viárias. |
 | **RF10** | Autenticação & Sessão | Apontador / Supabase | Sessão persistida em hardware seguro (`SecureStore`). |
 | **RF11/12** | Fila Outbox & Conflitos | Sistema de Sync | Fila local transitória; desempate *Last-Write-Wins* via `updatedAt`. |
@@ -40,6 +40,8 @@
 * **RNF02 (Sincronização Resiliente):** Lotes de até 50 registros sincronizam em $< 30\text{s}$ com retentativas exponenciais (*exponential backoff*).
 * **RNF03 (Permissões Contextualizadas):** Câmera e Localização solicitadas apenas na ação de uso, nunca no cold start.
 * **RNF04 (Bateria & GPS sob Demanda):** GPS acionado exclusivamente no instante do clique de gravação (1 fixação por registro; sem tracking de fundo).
+* **RNF05 (Persistência Local Confiável):** Transações atômicas com SQLite local garantindo integridade ACID em modo offline.
+* **RNF06 (Desempenho & Fluidez):** Tempo de inicialização a frio $< 2\text{s}$ e resposta de tela $< 100\text{ms}$ em aparelhos intermediários.
 * **RNF07 (Segurança & Multitenancy):** Credenciais no `expo-secure-store` e isolamento no PostgreSQL via *Row Level Security* (`auth.uid() = usuario_id`).
 * **RNF08 (Compatibilidade de Ambiente):** Android 10+ e iOS 15+.
   > [!IMPORTANT]
@@ -145,6 +147,7 @@ classDiagram
         -String apontadorId
         -String descricao
         -ValorMonetario valor
+        -CategoriaDespesa categoria
         -Coordinates coordenadas
         -String fotoUri
         -SyncStatus syncStatus
@@ -235,6 +238,7 @@ erDiagram
         text id PK "UUID cliente"
         text apontador_id FK "Operador ativo"
         text descricao "Motivo"
+        text categoria "Refeição|Combustível|etc"
         real valor "R$"
         real latitude "GPS"
         real longitude "GPS"
@@ -282,6 +286,8 @@ erDiagram
     DESPESAS {
         uuid id PK "UUID cliente"
         uuid usuario_id FK "PROFILES (Operador)"
+        text descricao "Motivo"
+        text categoria "Categoria"
         numeric valor "R$"
         text storage_path "URL Supabase Storage"
         timestamptz updated_at "LWW"
@@ -531,7 +537,88 @@ A modelagem reflete o vocabulário fidedigno da colheita cafeeira:
 
 ---
 
-## 🏗️ 12. Ponto Único de Wiring: `container.ts` (IoC Container)
+## 📂 12. Estrutura e Organização das Pastas (Clean Architecture)
+
+A árvore do projeto separa rigidamente a interface móvel, o núcleo de negócio agnóstico e a infraestrutura técnica:
+
+```text
+PROJETOMOBILE/
+├── app/                               # Camada de Apresentação & Telas (Expo Router)
+│   ├── _layout.tsx                    # Layout Raiz (Provedores Globais, AuthContext, Safe Area)
+│   ├── index.tsx                      # Tela de Autenticação / Login do Apontador
+│   ├── modal.tsx                      # Modais utilitários do sistema
+│   └── (drawer)/                      # Navegação Lateral (Drawer Navigator)
+│       ├── _layout.tsx                # Drawer customizado (perfil e ação de logout)
+│       └── (tabs)/                    # Navegação Inferior (Bottom Tabs Navigator)
+│           ├── _layout.tsx            # Barra de abas com ícones contextuais
+│           ├── index.tsx              # Tela Principal: Registro de Apontamento + QR Scanner
+│           ├── trabalhadores.tsx      # Gestão de Colhedores (Listar, Cadastrar, Editar)
+│           ├── despesas.tsx           # Lançamento e Histórico de Custos de Campo com Foto
+│           └── mapas.tsx              # Mapa Georreferenciado dos Talhões e Rotas de Café
+│
+├── src/                               # Núcleo da Aplicação (Core Agnóstico a Frameworks)
+│   ├── domain/                        # Camada de Domínio Puro (Zero dependências externas)
+│   │   ├── entities/                  # Entidades (Trabalhador, Apontamento, Despesa, Apontador, SyncQueueItem)
+│   │   ├── value-objects/             # VOs imutáveis e auto-validados (Coordinates, QuantidadeBalaio, etc.)
+│   │   ├── repositories/              # Portas de Persistência (Interfaces TypeScript)
+│   │   ├── gateways/                  # Portas de Hardware e Nuvem (Camera, Location, Auth, Network, Sync)
+│   │   └── services/                  # Serviços de Domínio (SincronizacaoService - Last-Write-Wins)
+│   │
+│   ├── usecases/                      # Camada de Aplicação (Orquestração e Regras de Negócio)
+│   │   ├── CadastrarTrabalhador.ts    # Cadastro com validação de CPF e crachá único
+│   │   ├── EditarTrabalhador.ts       # Atualização cadastral de colhedor
+│   │   ├── ExcluirTrabalhador.ts      # Exclusão com integridade referencial
+│   │   ├── ListarTrabalhadores.ts     # Listagem e filtragem de trabalhadores
+│   │   ├── RegistrarApontamento.ts    # Gravação atômica: Apontamento + GPS + Fila Outbox
+│   │   ├── ListarApontamentos.ts      # Consulta da colheita diária e por trabalhador
+│   │   ├── RegistrarDespesa.ts        # Registro de custo com GPS e recibo fotográfico
+│   │   ├── ListarDespesas.ts          # Consulta de despesas por categoria
+│   │   ├── AuthenticateUser.ts        # Autenticação de operador no BaaS
+│   │   ├── RestoreSession.ts          # Restauração offline de sessão segura
+│   │   ├── SignOut.ts                 # Logout e descarte seguro de sessão
+│   │   └── SyncPendingQueue.ts        # Sincronização em lote da Outbox com backoff e LWW
+│   │
+│   ├── adapters/                      # Adaptadores de Interface
+│   │   └── auth/                      # Contexto React (AuthContext) e SessionStorage (SecureStore)
+│   │
+│   ├── features/                      # Componentes Especializados de Interface
+│   │   └── mapas/                     # Componente de Mapa de Lavoura (.native com MapView / .web fallback)
+│   │
+│   ├── infra/                         # Frameworks & Drivers (Implementações Concretas)
+│   │   ├── inMemoryApontamentoRepository.ts  # Repositórios concretos em memória/SQLite
+│   │   ├── inMemoryTrabalhadorRepository.ts
+│   │   ├── inMemoryDespesaRepository.ts
+│   │   ├── inMemorySyncQueueRepository.ts
+│   │   ├── inMemoryAuthGateway.ts
+│   │   ├── inMemoryNetworkGateway.ts
+│   │   └── inMemorySyncGateway.ts
+│   │
+│   ├── factory/                       # Inversão de Controle (IoC) & Wiring
+│   │   └── container.ts               # Container Singleton (Composição central de dependências)
+│   │
+│   └── shared/                        # Tipos e utilitários globais
+│
+├── tests/                             # Pirâmide de Testes Automatizados (Jest + RTL)
+│   ├── domain/                        # Testes unitários puros de Entidades e VOs (sem mocks)
+│   ├── usecases/                      # Testes de casos de uso com Fakes in-memory
+│   ├── adapters/                      # Testes de integração de autenticação e sessão segura
+│   ├── screens/                       # Testes de componentes visuais (@testing-library/react-native)
+│   ├── mocks/                         # Mocks de sensores nativos (expo-camera, expo-location)
+│   └── setup.ts                       # Setup global do ambiente Jest
+│
+└── docs/                              # Especificações Técnicas e Manuais de Defesa
+    ├── documento-software-mobile.md               # Especificação completa em 15 seções
+    └── documento-software-mobile-apresentacao.md  # Versão resumida e executiva
+```
+
+> **Princípio de Isolamento das Camadas:**
+> 1. `domain/` **nunca** importa de nenhuma camada externa (`usecases`, `adapters`, `infra`, `app`).
+> 2. `usecases/` conhecem apenas `domain/` e recebem repositórios e gateways via **Injeção de Dependência** no construtor.
+> 3. As telas em `app/` obtêm os casos de uso exclusivamente através do `Container.getInstance()`.
+
+---
+
+## 🏗️ 13. Ponto Único de Wiring: `container.ts` (IoC Container)
 
 Garante o **Princípio da Inversão de Dependência**. É a única classe que instancia os adapters concretos e os injeta nos construtores dos casos de uso como Singletons:
 
@@ -540,21 +627,30 @@ Garante o **Princípio da Inversão de Dependência**. É a única classe que in
 export class Container {
   private static instance: Container;
 
+  // Portas de Repositório e Gateways
+  public readonly trabalhadorRepository: InMemoryTrabalhadorRepository;
+  public readonly apontamentoRepository: InMemoryApontamentoRepository;
+  public readonly despesaRepository: InMemoryDespesaRepository;
+  public readonly syncQueueRepository: InMemorySyncQueueRepository;
+
+  // Casos de Uso
   public readonly cadastrarTrabalhador: CadastrarTrabalhador;
   public readonly registrarApontamento: RegistrarApontamento;
   public readonly registrarDespesa: RegistrarDespesa;
   public readonly syncPendingQueue: SyncPendingQueue;
 
   private constructor() {
-    // 1. Instancia Repositórios SQLite
-    const trabalhadorRepo = SQLiteTrabalhadorRepository.getInstance();
-    const apontamentoRepo = SQLiteApontamentoRepository.getInstance();
-    const syncQueueRepo = SQLiteSyncQueueRepository.getInstance();
+    // 1. Instancia Repositórios (Singletons)
+    this.trabalhadorRepository = InMemoryTrabalhadorRepository.getInstance();
+    this.apontamentoRepository = InMemoryApontamentoRepository.getInstance();
+    this.despesaRepository = InMemoryDespesaRepository.getInstance();
+    this.syncQueueRepository = InMemorySyncQueueRepository.getInstance();
 
     // 2. Injeta via Construtor nos Casos de Uso
-    this.cadastrarTrabalhador = new CadastrarTrabalhador(trabalhadorRepo, syncQueueRepo);
-    this.registrarApontamento = new RegistrarApontamento(apontamentoRepo, trabalhadorRepo, syncQueueRepo);
-    this.syncPendingQueue = new SyncPendingQueue(syncQueueRepo, new SyncGatewaySupabase(), new NetworkGatewayNetInfo());
+    this.cadastrarTrabalhador = new CadastrarTrabalhador(this.trabalhadorRepository, this.syncQueueRepository);
+    this.registrarApontamento = new RegistrarApontamento(this.apontamentoRepository, this.trabalhadorRepository, this.syncQueueRepository);
+    this.registrarDespesa = new RegistrarDespesa(this.despesaRepository, this.syncQueueRepository);
+    this.syncPendingQueue = new SyncPendingQueue(this.syncQueueRepository, InMemorySyncGateway.getInstance(), InMemoryNetworkGateway.getInstance(), new SincronizacaoService());
   }
 
   public static getInstance(): Container {
@@ -566,7 +662,7 @@ export class Container {
 
 ---
 
-## 🧪 13. Estratégia de Testes TDD (Pirâmide de Testes)
+## 🧪 14. Estratégia de Testes TDD (Pirâmide de Testes)
 
 O ecossistema conta com **25 suítes de testes e 92 testes automatizados** com **100% de aprovação**:
 
@@ -591,10 +687,11 @@ O ecossistema conta com **25 suítes de testes e 92 testes automatizados** com *
 
 ---
 
-## 📌 Checklist Rápido para a Apresentação na Banca
+## 📌 15. Checklist Rápido para a Apresentação na Banca
 
 - [x] **1. Problema e Solução:** Explicado em 1 slide (eito sem sinal $\rightarrow$ app 100% offline-first).
 - [x] **2. Rastreabilidade:** Demonstrada do RF ao Caso de Uso, Entidade, Tabela SQLite e Teste Jest.
 - [x] **3. Clean Architecture:** Nenhuma dependência nativa vazando para o domínio ou aplicação.
-- [x] **4. Resiliência de Sincronização:** Outbox pattern explicado visualmente com tolerância a falhas e Last-Write-Wins.
-- [x] **5. Demonstração dos Testes:** `npm test` executando 92 testes em ~6 segundos.
+- [x] **4. Organização das Pastas:** Camadas claramente isoladas (`domain`, `usecases`, `infra`, `app`).
+- [x] **5. Resiliência de Sincronização:** Outbox pattern explicado visualmente com tolerância a falhas e Last-Write-Wins.
+- [x] **6. Demonstração dos Testes:** `npm test` executando 92 testes em ~6 segundos.

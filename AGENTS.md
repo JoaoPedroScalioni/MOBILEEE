@@ -1,6 +1,6 @@
 # SafraCafé — Guia de Agentes, Steering e Fluxo SDD
 
-> Leia as docs do Expo sempre na versão correta: https://docs.expo.dev/versions/v54.0.0/
+> Leia as docs do Expo sempre na versão correta: https://docs.expo.dev/versions/v57.0.0/
 
 ---
 

@@ -1,11 +1,11 @@
 # SafraCafé — Gestão Offline-First da Colheita Cafeeira
 
-Aplicativo mobile **offline-first** construído com **Expo SDK 54 / React Native** para a **gestão
+Aplicativo mobile **offline-first** construído com **Expo SDK 57 / React Native** para a **gestão
 operacional e financeira da colheita cafeeira**: cadastro de trabalhadores (QR Code no crachá),
 apontamento diário de balaios georreferenciado, registro de despesas com foto do recibo e
 visualização da lavoura em mapa com rota traçada. Arquitetado com **DDD + Clean Architecture + TDD**.
 
-Expo SDK 54 • React Native 0.81 • Expo Router v6 • TypeScript 5.9 • Jest + jest-expo + RNTL
+Expo SDK 57 • React Native 0.86 • Expo Router • TypeScript 6.0 • Jest + jest-expo + RNTL
 
 ---
 

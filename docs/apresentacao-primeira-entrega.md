@@ -11,7 +11,7 @@ footer: "SafraCafé — Desenvolvimento Mobile | CEFET-MG"
 # SafraCafé
 ## Gestão Offline-First da Colheita Cafeeira
 
-**Expo SDK 54 · React Native · TypeScript · Clean Architecture + DDD + TDD**
+**Expo SDK 57 · React Native · TypeScript · Clean Architecture + DDD + TDD**
 
 Primeira Entrega — Desenvolvimento Mobile (CEFET-MG)
 
@@ -425,6 +425,6 @@ Referências:
 
 - Documento de especificação: `docs/documento-software-mobile.md`
 - Guia de arquitetura: `guia.md` e `README.md`
-- Expo SDK 54: https://docs.expo.dev/versions/v54.0.0/
+- Expo SDK 57: https://docs.expo.dev/versions/v57.0.0/
 
 <!-- Speaker: abrir para perguntas. -->

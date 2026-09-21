@@ -91,56 +91,59 @@ Os casos de uso representam todas as interações dos atores humanos, sensores d
 
 ```mermaid
 flowchart LR
-    subgraph Atores
-        Visitante((Visitante))
-        Apontador((Apontador))
-        CameraGPS((Camera / GPS))
-        SupabaseSys((Supabase BaaS))
-        Sync((Sistema de Sync))
-    end
+    %% Atores Humanos e de Sistema (Esquerda)
+    Visitante((Visitante))
+    Apontador((Apontador))
+    Sync((Sistema de Sync))
 
     Apontador -.->|herda de| Visitante
 
-    subgraph CasosDeUso["Casos de Uso — SafraCafé"]
-        UC10([UC10 Fazer Login])
-        UC11([UC11 Restaurar Sessão])
-        UC09([UC09 Fazer Logout])
-        
-        UC01([UC01 Cadastrar Trabalhador])
-        UC02([UC02 Listar Trabalhadores])
-        UC03([UC03 Registrar Apontamento])
-        UC04([UC04 Capturar GPS sob Demanda])
-        UC05([UC05 Ler QR do Crachá])
-        UC06([UC06 Registrar Despesa])
-        UC07([UC07 Anexar Foto do Recibo])
-        UC08([UC08 Visualizar Mapa e Rotas])
-        UC12([UC12 Sincronizar Fila Outbox])
-        UC13([UC13 Resolver Conflito LWW])
-    end
+    %% Casos de Uso (Centro)
+    UC10([UC10 Fazer Login])
+    UC11([UC11 Restaurar Sessão])
+    UC09([UC09 Fazer Logout])
+    UC01([UC01 Cadastrar Trabalhador])
+    UC02([UC02 Listar Trabalhadores])
+    UC03([UC03 Registrar Apontamento])
+    UC04([UC04 Capturar GPS sob Demanda])
+    UC05([UC05 Ler QR do Crachá])
+    UC06([UC06 Registrar Despesa])
+    UC07([UC07 Anexar Foto do Recibo])
+    UC08([UC08 Visualizar Mapa e Rotas])
+    UC12([UC12 Sincronizar Fila Outbox])
+    UC13([UC13 Resolver Conflito LWW])
 
+    %% Hardware e Serviços Externos (Direita)
+    CameraGPS((Câmera / GPS))
+    SupabaseSys((Supabase BaaS))
+
+    %% Conexões de Autenticação
     Visitante --> UC10
     Visitante --> UC11
     Apontador --> UC09
-    
+    UC10 --- SupabaseSys
+
+    %% Conexões Operacionais do Apontador
     Apontador --> UC01
     Apontador --> UC02
     Apontador --> UC03
     Apontador --> UC06
     Apontador --> UC08
 
+    %% Relacionamentos include e extend
     UC03 -.->|include| UC04
     UC05 -.->|extend| UC03
     UC06 -.->|include| UC04
     UC07 -.->|extend| UC06
+    UC12 -.->|include| UC13
 
+    %% Conexões com Sensores e Nuvem
     UC04 --- CameraGPS
     UC05 --- CameraGPS
     UC07 --- CameraGPS
 
     Sync --> UC12
-    UC12 -.->|include| UC13
     UC12 --- SupabaseSys
-    UC10 --- SupabaseSys
 ```
 
 ### 2.2 Notação Textual Estruturada dos Casos de Uso
@@ -755,7 +758,11 @@ flowchart LR
 
 ## 10. Diagrama de Sequência (Escrita Síncrona + Sync Assíncrono)
 
-Em sistemas móveis Offline-First, operações de escrita devem responder com sucesso imediato ao usuário no momento da gravação local. A sincronização remota ocorre em bloco assíncrono independente:
+Em sistemas móveis Offline-First, as operações de escrita são divididas em **dois momentos desacoplados**: (1) gravação local síncrona com resposta imediata ao operador; e (2) processamento assíncrono em segundo plano condicionado à conectividade. Para máxima clareza e legibilidade, o fluxo é apresentado em dois diagramas complementares.
+
+### 10.1 Registro Síncrono Local (UI $\rightarrow$ Hook $\rightarrow$ Gateways $\rightarrow$ Use Case $\rightarrow$ SQLite $\rightarrow$ Outbox)
+
+Demonstra a coleta dos dados em campo, a invocação dos sensores nativos pelos adapters, a orquestração do Caso de Uso e a persistência na base local SQLite e fila Outbox, culminando no feedback visual imediato:
 
 ```mermaid
 sequenceDiagram
@@ -769,8 +776,6 @@ sequenceDiagram
     participant Ent as Apontamento (Domain Entity)
     participant DB as ApontamentoRepo (SQLite)
     participant Outbox as SyncQueueRepo (SQLite)
-    participant Net as NetworkGateway (NetInfo)
-    participant Cloud as SyncGateway (Supabase)
 
     Apontador ->> UI: Informa litros e toca em "Ler Crachá"
     UI ->> Hook: iniciarLeituraCracha()
@@ -800,24 +805,52 @@ sequenceDiagram
     UC -->> Hook: Retorna Apontamento gravado
     Hook -->> UI: Estado atualizado para sucesso
     UI -->> Apontador: Exibe feedback visual "Salvo localmente com sucesso!"
+```
 
-    par Processamento em Segundo Plano (Quando Conectado)
-        Outbox ->> Net: isConnected()
-        alt Sem Conexão
-            Net -->> Outbox: false (Mantém na fila e aguarda reconexão)
-        else Com Conexão
-            Net -->> Outbox: true
-            Outbox ->> Cloud: push(dadosApontamento)
-            alt Gravação Confirmada e Sem Conflitos (HTTP 200)
-                Cloud -->> Outbox: { success: true, serverUpdatedAt }
-                Outbox ->> DB: marcarSincronizado(apontamento.id)
-                Outbox ->> Outbox: delete(itemOutbox.id)
-            else Conflito de Versão (Servidor com timestamp mais recente)
-                Cloud -->> Outbox: { conflict: true, serverUpdatedAt > localUpdatedAt }
-                Outbox ->> Outbox: delete(itemOutbox.id) [LWW: Versão da nuvem prevalece]
-            else Falha Transitória de Rede / 500
-                Cloud -->> Outbox: Erro / Timeout
-                Outbox ->> Outbox: marcarErro() e agendar backoff exponencial
+### 10.2 Processamento Assíncrono da Outbox (Outbox $\rightarrow$ NetInfo $\rightarrow$ SyncGateway $\rightarrow$ Supabase)
+
+Demonstra a rotina de segundo plano responsável pela leitura da fila, verificação de conectividade, envio dos lotes, resolução de conflitos *Last-Write-Wins* (LWW) e agendamento de retentativas com backoff exponencial:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Worker as SyncEngine (Background Worker)
+    participant Outbox as SyncQueueRepo (SQLite)
+    participant Net as NetworkGateway (NetInfo)
+    participant Cloud as SyncGateway (Supabase BaaS)
+    participant SVC as SincronizacaoService (Domain LWW)
+    participant DB as ApontamentoRepo (SQLite)
+
+    Worker ->> Outbox: carregarItensPendentes()
+    Outbox -->> Worker: Retorna lista [item1, item2, ...]
+    
+    Worker ->> Net: isConnected()
+    alt Sem Conexão de Rede
+        Net -->> Worker: false
+        Worker ->> Worker: Suspende ciclo e aguarda evento de conectividade
+    else Com Conexão de Rede Ativa
+        Net -->> Worker: true
+        loop Para cada item pendente na fila
+            Worker ->> Cloud: push(item.payload)
+            alt Gravação Confirmada pelo Servidor (HTTP 200)
+                Cloud -->> Worker: { success: true, serverUpdatedAt }
+                Worker ->> DB: marcarSincronizado(item.entityId)
+                Worker ->> Outbox: delete(item.id)
+            else Conflito de Versão Concorrente Detectado
+                Cloud -->> Worker: { conflict: true, serverUpdatedAt }
+                Worker ->> SVC: resolverConflito(localUpdatedAt, serverUpdatedAt)
+                alt Versão Remota Vence (LWW: serverUpdatedAt > localUpdatedAt)
+                    SVC -->> Worker: "MANTER_REMOTA"
+                    Worker ->> Outbox: delete(item.id) [Descarta sem sobrescrever]
+                else Versão Local Vence (LWW: localUpdatedAt >= serverUpdatedAt)
+                    SVC -->> Worker: "SOBRESCREVER_REMOTA"
+                    Worker ->> Cloud: forcePush(item.payload)
+                    Worker ->> Outbox: delete(item.id)
+                end
+            else Falha Transitória de Rede ou Servidor (HTTP 5xx)
+                Cloud -->> Worker: Erro de Rede / Timeout
+                Worker ->> Outbox: marcarErro(item.id)
+                Worker ->> Worker: Agenda retentativa com Backoff Exponencial
             end
         end
     end
@@ -830,48 +863,46 @@ sequenceDiagram
 O fluxo operacional do registro de colheita evidencia os dois pontos centrais de desvio em dispositivos móveis: a concessão/bloqueio de permissões nativas de hardware e a presença/ausência de conectividade de rede.
 
 ```mermaid
-flowchart TD
-    Start((Início)) --> Form[Apontador abre tela de colheita]
-    Form --> DecisaoIdentificacao{Como identificar o colhedor?}
+flowchart LR
+    Start((Início)) --> DecisaoIdentificacao{Identificar Colhedor?}
     
-    DecisaoIdentificacao -- QR Code --> CheckPermCam{Permissão de Câmera concedida?}
-    CheckPermCam -- Não --> PedirCam[Solicitar permissão de câmera contextualizada]
-    PedirCam --> PermCamResult{Liberada?}
-    PermCamResult -- Não --> AvisoCam[Avisar usuário e alternar para seleção manual] --> ListaManual[Selecionar colhedor na lista local]
-    PermCamResult -- Sim --> ScanQR[Escanear crachá do trabalhador] --> AchouTrab{Encontrado no SQLite?}
-    AchouTrab -- Não --> AlertaNaoEncontrado[Exibir crachá não cadastrado] --> ListaManual
-    AchouTrab -- Sim --> PreencheCampos[Preencher colhedor automaticamente]
+    %% Ramo Leitura QR Code
+    DecisaoIdentificacao -- QR Code --> CheckPermCam{Permissão Câmera?}
+    CheckPermCam -- Não --> PedirCam[Solicitar Permissão] --> PermCamResult{Liberada?}
+    PermCamResult -- Não --> ListaManual[Selecionar na Lista]
+    PermCamResult -- Sim --> ScanQR[Escanear Crachá] --> AchouTrab{Cadastrado?}
+    AchouTrab -- Não --> AlertaQR[Avisar 'Não Encontrado'] --> ListaManual
+    AchouTrab -- Sim --> PreencheCampos[Preencher Colhedor]
     
+    %% Ramo Seleção Manual
     DecisaoIdentificacao -- Manual --> ListaManual --> PreencheCampos
 
-    PreencheCampos --> InformaLitros[Digitar quantidade colhida em litros]
-    InformaLitros --> BotaoSalvar[Tocar em Salvar Apontamento]
+    %% Entrada de Volume e Captura Compulsória de GPS
+    PreencheCampos --> InformaLitros[Digitar Volume Litros] --> BotaoSalvar[Tocar em Salvar]
+    BotaoSalvar --> CheckPermGPS{Permissão GPS?}
+    CheckPermGPS -- Não --> PedirGPS[Solicitar GPS] --> PermGPSResult{Liberada?}
+    PermGPSResult -- Não --> ErroGPSBloqueante[Bloquear: GPS Compulsório] --> Start
     
-    BotaoSalvar --> CheckPermGPS{Permissão de GPS concedida?}
-    CheckPermGPS -- Não --> PedirGPS[Solicitar permissão de GPS contextualizada]
-    PedirGPS --> PermGPSResult{Liberada?}
-    PermGPSResult -- Não --> ErroGPSBloqueante[Bloquear salvamento: GPS é compulsório na colheita] --> Start
+    CheckPermGPS -- Sim --> CapturaGPS[Capturar Coordenadas]
+    PermGPSResult -- Sim --> CapturaGPS
+    CapturaGPS --> GPSValido{GPS Fixado?}
+    GPSValido -- Não --> RetryGPS[Avisar e Retentar Fixação] --> CapturaGPS
     
-    PermGPSResult -- Sim --> CapturaGPS[Obter coordenadas satelitais sob demanda]
-    CapturaGPS --> GPSValido{Coordenadas obtidas?}
-    GPSValido -- Não --> RetryGPS[Avisar 'Aguarde fixação do sinal GPS' e retentar] --> CapturaGPS
+    %% Validação e Gravação Local
+    GPSValido -- Sim --> ValidaDominio{Invariantes Válidas?}
+    ValidaDominio -- Não --> ErroValidacao[Exibir Erro de Domínio] --> InformaLitros
+    ValidaDominio -- Sim --> SalvaSQLite[Persistir no SQLite]
+    SalvaSQLite --> GeraOutbox[Enfileirar na sync_queue]
+    GeraOutbox --> FeedbackSucesso[Feedback 'Salvo Localmente!']
     
-    GPSValido -- Sim --> ValidaDominio{Invariantes de domínio válidas?}
-    ValidaDominio -- Não --> ErroValidacao[Exibir mensagem de validação] --> InformaLitros
-    
-    ValidaDominio -- Sim --> SalvaSQLite[Persistir Apontamento no SQLite local]
-    SalvaSQLite --> GeraOutbox[Gerar registro INSERT na sync_queue]
-    GeraOutbox --> FeedbackSucesso[Exibir confirmação 'Salvo Localmente!']
-    
-    FeedbackSucesso --> ChecaRede{Dispositivo conectado à internet?}
-    ChecaRede -- Não --> EsperaNet[Aguardar evento de reconexão via NetInfo] --> ChecaRede
-    
-    ChecaRede -- Sim --> DespachaFila[SyncEngine envia lote ao Supabase]
-    DespachaFila --> RespostaSupabase{Servidor confirmou recebimento?}
-    
-    RespostaSupabase -- Sim --> ConfirmaSync[Atualizar status para 'synced' e purgar fila] --> Fim((Fim))
-    RespostaSupabase -- Conflito LWW --> ResolveConflito[Preservar registro com maior updatedAt] --> Fim
-    RespostaSupabase -- Falha/Erro --> AgendaBackoff[Marcar erro e agendar retry exponencial] --> EsperaNet
+    %% Sincronização Assíncrona em Segundo Plano
+    FeedbackSucesso --> ChecaRede{Rede Conectada?}
+    ChecaRede -- Não --> EsperaNet[Aguardar Reconexão NetInfo] --> ChecaRede
+    ChecaRede -- Sim --> DespachaFila[SyncEngine Envia Lote]
+    DespachaFila --> RespostaSupabase{Servidor Confirmou?}
+    RespostaSupabase -- Sim HTTP 200 --> ConfirmaSync[Marcar 'synced' e Purgar Fila] --> Fim((Fim))
+    RespostaSupabase -- Conflito LWW --> ResolveConflito[Preservar Maior updatedAt] --> Fim
+    RespostaSupabase -- Falha/Erro --> AgendaBackoff[Agendar Retry Backoff] --> EsperaNet
 ```
 
 ---
@@ -883,124 +914,66 @@ A estrutura arquitetural do SafraCafé estabelece que as dependências fluem **s
 ```mermaid
 flowchart TB
     subgraph LayerUI["1. Interface Adapters — Entrada (UI / Expo Router)"]
-        S_Apont[ApontamentoScreen]
-        S_Trab[TrabalhadoresScreen]
-        S_Desp[DespesasScreen]
-        S_Map[MapaScreen]
-        S_Auth[LoginScreen]
+        direction TB
+        Screens["Screens (Apontamento, Trabalhadores, Despesas, Mapa, Login)"]
+        Hooks["Presentation Hooks (useApontamento, useAuth, useTrabalhadores)"]
+        Screens --> Hooks
     end
 
     subgraph LayerApp["2. Application Layer — Use Cases"]
-        UC_Trab[CadastrarTrabalhador]
-        UC_Apont[RegistrarApontamento]
-        UC_Desp[RegistrarDespesa]
-        UC_ListTrab[ListarTrabalhadores]
-        UC_ListApont[ListarApontamentos]
-        UC_Sync[SyncPendingQueue]
-        UC_Auth[AuthenticateUser]
+        direction TB
+        UC_Op["Casos de Uso de Campo (CadastrarTrabalhador, RegistrarApontamento, RegistrarDespesa)"]
+        UC_Query["Casos de Uso de Consulta (ListarTrabalhadores, ListarApontamentos, ListarDespesas)"]
+        UC_Support["Casos de Uso de Suporte (AuthenticateUser, RestoreSession, SyncPendingQueue)"]
     end
 
     subgraph LayerDomain["3. Domain Layer — Core de Negócio (Puro, Zero SDKs)"]
-        subgraph Entidades
-            E_Trab[Trabalhador]
-            E_Apont[Apontamento]
-            E_Desp[Despesa]
-            E_Queue[SyncQueueItem]
+        direction TB
+        subgraph Sub_Modelos["Entidades & Value Objects"]
+            Entidades["Entidades (Trabalhador, Apontamento, Despesa, Apontador, SyncQueueItem)"]
+            VOs["Value Objects (Coordinates, QuantidadeBalaio, ValorMonetario, SyncStatus)"]
         end
-        subgraph ValueObjects
-            VO_Coord[Coordinates]
-            VO_Balaio[QuantidadeBalaio]
-            VO_Moeda[ValorMonetario]
-            VO_Status[SyncStatus]
+        subgraph Sub_Portas["Contratos de Portas (Interfaces)"]
+            P_Repos[[Portas de Repositório: Trabalhador, Apontamento, Despesa, SyncQueue]]
+            P_Gateways[[Portas de Gateway: Camera, Location, Network, Sync, Auth, Storage]]
         end
-        subgraph PortasRepositorios["Ports: Repositórios"]
-            P_RepoTrab[[TrabalhadorRepository]]
-            P_RepoApont[[ApontamentoRepository]]
-            P_RepoDesp[[DespesaRepository]]
-            P_RepoQueue[[SyncQueueRepository]]
-        end
-        subgraph PortasGateways["Ports: Gateways"]
-            P_GWCam[[CameraGateway]]
-            P_GWLoc[[LocationGateway]]
-            P_GWNet[[NetworkGateway]]
-            P_GWSync[[SyncGateway]]
-            P_GWAuth[[AuthGateway]]
-            P_GWStore[[SessionStorage]]
-        end
-        subgraph ServicosDominio
-            SVC_Sync[SincronizacaoService]
-        end
+        SVC_Sync[Domain Service: SincronizacaoService LWW]
     end
 
     subgraph LayerAdapters["4. Interface Adapters — Saída (Implementações)"]
-        A_RepoSQLite[SQLite Drizzle Repositories]
-        A_GWCamExpo[CameraGatewayExpo]
-        A_GWLocExpo[LocationGatewayExpo]
-        A_GWNetInfo[NetworkGatewayNetInfo]
-        A_GWSupabase[SyncGatewaySupabase]
-        A_GWAuthSB[AuthGatewaySupabase]
-        A_GWStoreSec[SessionStorageSecureStore]
+        direction TB
+        A_Repos["Implementações SQLite (Drizzle ORM Repositories)"]
+        A_Hardware["Hardware Gateways (CameraGatewayExpo, LocationGatewayExpo)"]
+        A_Cloud["BaaS Gateways (SyncGatewaySupabase, AuthGatewaySupabase)"]
+        A_Security["Security & Net Gateways (SessionStorageSecureStore, NetworkGatewayNetInfo)"]
     end
 
     subgraph LayerInfra["5. Frameworks & Drivers (Borda Externa)"]
-        F_ExpoSQLite[(expo-sqlite)]
-        F_Drizzle[(drizzle-orm)]
-        F_Camera[expo-camera / expo-image-picker]
-        F_Location[expo-location]
-        F_NetInfo[@react-native-community/netinfo]
-        F_SupabaseClient[@supabase/supabase-js]
-        F_SecureStore[expo-secure-store]
-        F_Maps[react-native-maps]
+        direction TB
+        F_LocalDB[(expo-sqlite + drizzle-orm)]
+        F_Hardware[expo-camera + expo-image-picker + expo-location]
+        F_Cloud[@supabase/supabase-js — Auth, Postgres, Storage]
+        F_NativeLibs[expo-secure-store + NetInfo + react-native-maps*]
     end
 
-    %% Relações de Chamada (UI -> Use Cases)
-    S_Apont --> UC_Apont
-    S_Trab --> UC_Trab
-    S_Trab --> UC_ListTrab
-    S_Desp --> UC_Desp
-    S_Map --> UC_ListApont
-    S_Auth --> UC_Auth
+    %% Relações de Chamada Limpas (Entrada -> Use Cases -> Domínio)
+    Hooks --> LayerApp
+    LayerApp --> Sub_Modelos
+    LayerApp --> Sub_Portas
+    LayerApp --> SVC_Sync
 
-    %% Use Cases -> Domínio
-    UC_Trab --> E_Trab
-    UC_Trab --> P_RepoTrab
-    UC_Trab --> P_RepoQueue
+    %% Inversão de Dependência (Adapters implementam Portas do Domínio)
+    A_Repos -.->|implementa| P_Repos
+    A_Hardware -.->|implementa| P_Gateways
+    A_Cloud -.->|implementa| P_Gateways
+    A_Security -.->|implementa| P_Gateways
 
-    UC_Apont --> E_Apont
-    UC_Apont --> P_RepoApont
-    UC_Apont --> P_RepoTrab
-    UC_Apont --> P_RepoQueue
-    UC_Apont --> P_GWLoc
-    UC_Apont --> P_GWCam
-
-    UC_Sync --> P_RepoQueue
-    UC_Sync --> P_GWSync
-    UC_Sync --> P_GWNet
-    UC_Sync --> SVC_Sync
-
-    %% Implementação de Portas (Adapters -.-> Ports)
-    A_RepoSQLite -.->|implementa| P_RepoTrab
-    A_RepoSQLite -.->|implementa| P_RepoApont
-    A_RepoSQLite -.->|implementa| P_RepoDesp
-    A_RepoSQLite -.->|implementa| P_RepoQueue
-
-    A_GWCamExpo -.->|implementa| P_GWCam
-    A_GWLocExpo -.->|implementa| P_GWLoc
-    A_GWNetInfo -.->|implementa| P_GWNet
-    A_GWSupabase -.->|implementa| P_GWSync
-    A_GWAuthSB -.->|implementa| P_GWAuth
-    A_GWStoreSec -.->|implementa| P_GWStore
-
-    %% Adapters -> Frameworks Externos
-    A_RepoSQLite --> F_ExpoSQLite
-    A_RepoSQLite --> F_Drizzle
-    A_GWCamExpo --> F_Camera
-    A_GWLocExpo --> F_Location
-    A_GWNetInfo --> F_NetInfo
-    A_GWSupabase --> F_SupabaseClient
-    A_GWAuthSB --> F_SupabaseClient
-    A_GWStoreSec --> F_SecureStore
-    S_Map --> F_Maps
+    %% Conexões em Bloco aos Drivers Externos
+    A_Repos --> F_LocalDB
+    A_Hardware --> F_Hardware
+    A_Cloud --> F_Cloud
+    A_Security --> F_NativeLibs
+    Screens -.->|renderiza mapa nativo*| F_NativeLibs
 ```
 
 > [!NOTE]

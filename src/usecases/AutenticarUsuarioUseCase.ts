@@ -15,7 +15,11 @@ export class AutenticarUsuarioUseCase {
 
     const session = await this.authGateway.signIn(credenciais);
     if (this.sessionStorage) {
-      await this.sessionStorage.saveSession(session);
+      if (typeof this.sessionStorage.saveSession === 'function') {
+        await this.sessionStorage.saveSession(session);
+      } else {
+        await this.sessionStorage.salvar(session);
+      }
     }
 
     return session;

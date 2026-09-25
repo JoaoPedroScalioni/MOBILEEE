@@ -59,13 +59,21 @@ export default function Apontamento() {
     }, [carregarDados]),
   );
 
-  useEffect(() => {
-    async function carregarLocalizacao() {
+  const [atualizandoGps, setAtualizandoGps] = useState(false);
+
+  const carregarLocalizacao = useCallback(async () => {
+    setAtualizandoGps(true);
+    try {
       const loc = await obterLocalizacaoSegura(4000);
       setLocationResult(loc);
+    } finally {
+      setAtualizandoGps(false);
     }
-    carregarLocalizacao();
   }, []);
+
+  useEffect(() => {
+    carregarLocalizacao();
+  }, [carregarLocalizacao]);
 
   function selecionarPorCracha(codigo: string) {
     const cracha = codigo.trim();
@@ -246,17 +254,27 @@ export default function Apontamento() {
       </View>
 
       {/* Tag de GPS */}
-      <View style={styles.locationTag}>
+      <TouchableOpacity
+        style={styles.locationTag}
+        onPress={carregarLocalizacao}
+        disabled={atualizandoGps}
+        activeOpacity={0.7}
+      >
         <Ionicons
-          name={locationResult.isFallback ? 'warning-outline' : 'location'}
+          name={atualizandoGps ? 'sync-outline' : locationResult.isFallback ? 'warning-outline' : 'location'}
           size={16}
           color={locationResult.isFallback ? '#d97706' : '#2d6a4f'}
         />
         <Text style={styles.coords}>
-          {locationResult.latitude.toFixed(4)}, {locationResult.longitude.toFixed(4)}
-          {locationResult.isFallback ? ' (ref. Sul de MG)' : ' (GPS ativo)'}
+          {atualizandoGps
+            ? 'Obtendo satélites...'
+            : `${locationResult.latitude.toFixed(4)}, ${locationResult.longitude.toFixed(4)} ${
+                locationResult.isFallback
+                  ? '(ref. Sul de MG · toque p/ atualizar)'
+                  : '(GPS ativo · toque p/ atualizar)'
+              }`}
         </Text>
-      </View>
+      </TouchableOpacity>
 
       {/* Botão Registrar */}
       <TouchableOpacity

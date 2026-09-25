@@ -56,4 +56,16 @@ export class SessionStorageSecureStore implements SessionStorage {
             // Silencioso
         }
     }
+
+    async saveSession(session: Session): Promise<void> {
+        return this.salvar(session);
+    }
+
+    async getSession(): Promise<Session | null> {
+        return this.carregar();
+    }
+
+    async clearSession(): Promise<void> {
+        return this.limpar();
+    }
 }

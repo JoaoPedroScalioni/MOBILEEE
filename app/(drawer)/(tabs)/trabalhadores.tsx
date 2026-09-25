@@ -185,8 +185,14 @@ export default function Trabalhadores() {
           <View style={styles.emptyContainer}>
             <Ionicons name="people-outline" size={48} color="#bbb" />
             <Text style={styles.empty}>
-              {busca ? 'Nenhum trabalhador encontrado na busca.' : 'Nenhum trabalhador cadastrado.'}
+              {busca ? 'Nenhum trabalhador encontrado na busca.' : 'Nenhum trabalhador cadastrado ainda.'}
             </Text>
+            {!busca && (
+              <TouchableOpacity style={styles.emptyAddButton} onPress={abrirModalCadastro}>
+                <Ionicons name="add-circle-outline" size={20} color="#fff" style={{ marginRight: 6 }} />
+                <Text style={styles.emptyAddButtonText}>Cadastrar Trabalhador</Text>
+              </TouchableOpacity>
+            )}
           </View>
         }
         renderItem={({ item }) => (
@@ -509,5 +515,19 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.6,
+  },
+  emptyAddButton: {
+    marginTop: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2d6a4f',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 24,
+  },
+  emptyAddButtonText: {
+    color: '#ffffff',
+    fontWeight: '700',
+    fontSize: 14,
   },
 });

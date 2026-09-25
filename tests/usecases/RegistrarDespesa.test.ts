@@ -17,6 +17,9 @@ class FakeDespesaRepository implements DespesaRepository {
     async findAll() {
         return [...this.itens];
     }
+    async delete(id: string) {
+        this.itens = this.itens.filter((d) => d.id !== id);
+    }
 }
 
 class FakeSyncQueueRepository implements SyncQueueRepository {

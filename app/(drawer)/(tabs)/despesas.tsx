@@ -98,6 +98,30 @@ export default function Despesas() {
     }
   }
 
+  function confirmarExclusao(item: Despesa) {
+    Alert.alert(
+      'Excluir Despesa',
+      `Deseja realmente excluir a despesa "${item.descricao}" no valor de ${item.valor.formatar()}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await container.excluirDespesa.execute({ id: item.id });
+              const res = await container.listarDespesas.execute();
+              setList(res);
+              Alert.alert('Sucesso', 'Despesa excluída com sucesso!');
+            } catch (err: any) {
+              Alert.alert('Erro', err?.message || 'Não foi possível excluir a despesa.');
+            }
+          },
+        },
+      ],
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -131,6 +155,13 @@ export default function Despesas() {
                 {item.coordenadas.latitude.toFixed(4)}, {item.coordenadas.longitude.toFixed(4)}
               </Text>
             </View>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => confirmarExclusao(item)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="trash-outline" size={20} color="#e63946" />
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -349,5 +380,12 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: '#fff',
     fontWeight: '600',
+  },
+  deleteButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#fff0f0',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

@@ -2,7 +2,7 @@ import { Despesa } from '../domain/entities/Despesa';
 import { DespesaRepository } from '../domain/repositories/DespesaRepository';
 
 export class InMemoryDespesaRepository implements DespesaRepository {
-    private readonly despesas: Despesa[] = [];
+    private despesas: Despesa[] = [];
     private static instance: InMemoryDespesaRepository;
 
     private constructor() {}
@@ -15,7 +15,12 @@ export class InMemoryDespesaRepository implements DespesaRepository {
     }
 
     async save(despesa: Despesa): Promise<void> {
-        this.despesas.push(despesa);
+        const index = this.despesas.findIndex((d) => d.id === despesa.id);
+        if (index >= 0) {
+            this.despesas[index] = despesa;
+        } else {
+            this.despesas.push(despesa);
+        }
     }
 
     async findById(id: string): Promise<Despesa | null> {
@@ -24,5 +29,13 @@ export class InMemoryDespesaRepository implements DespesaRepository {
 
     async findAll(): Promise<Despesa[]> {
         return [...this.despesas];
+    }
+
+    async delete(id: string): Promise<void> {
+        this.despesas = this.despesas.filter((d) => d.id !== id);
+    }
+
+    public clear(): void {
+        this.despesas = [];
     }
 }

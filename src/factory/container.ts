@@ -19,6 +19,7 @@ import { RegistrarApontamento } from "../usecases/RegistrarApontamento";
 import { ListarApontamentos } from "../usecases/ListarApontamentos";
 import { RegistrarDespesa } from "../usecases/RegistrarDespesa";
 import { ListarDespesas } from "../usecases/ListarDespesas";
+import { ExcluirDespesa } from "../usecases/ExcluirDespesa";
 
 // Novos repositórios, gateways e casos de uso de Estágio / Período de Avaliação
 import { InMemoryPeriodoAvaliacaoRepository } from "../infra/InMemoryPeriodoAvaliacaoRepository";
@@ -59,6 +60,7 @@ class Container {
     public readonly listarApontamentos: ListarApontamentos;
     public readonly registrarDespesa: RegistrarDespesa;
     public readonly listarDespesas: ListarDespesas;
+    public readonly excluirDespesa: ExcluirDespesa;
     public readonly authenticateUser: AuthenticateUser;
     public readonly restoreSession: RestoreSession;
     public readonly signOut: SignOut;
@@ -118,6 +120,10 @@ class Container {
             this.syncQueueRepository,
         );
         this.listarDespesas = new ListarDespesas(this.despesaRepository);
+        this.excluirDespesa = new ExcluirDespesa(
+            this.despesaRepository,
+            this.syncQueueRepository,
+        );
         this.authenticateUser = new AuthenticateUser(this.authGateway);
         this.restoreSession = new RestoreSession(this.sessionStorage);
         this.signOut = new SignOut(this.authGateway, this.sessionStorage);

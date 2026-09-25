@@ -1,5 +1,5 @@
 import { CameraView, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
@@ -206,17 +206,29 @@ export default function Apontamento() {
       {!selecionado && (
         <View>
           <Text style={styles.label}>Ou escolha manualmente</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-            {trabalhadores.map((t) => (
-              <TouchableOpacity
-                key={t.id}
-                style={styles.chip}
-                onPress={() => setSelecionado(t)}
-              >
-                <Text style={styles.chipText}>{t.nome}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+          {trabalhadores.length === 0 ? (
+            <TouchableOpacity
+              style={styles.emptyWorkerShortcut}
+              onPress={() => router.push('/(drawer)/(tabs)/trabalhadores')}
+            >
+              <Ionicons name="person-add-outline" size={18} color="#2d6a4f" style={{ marginRight: 8 }} />
+              <Text style={styles.emptyWorkerShortcutText}>
+                Nenhum trabalhador cadastrado. Toque aqui para adicionar.
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+              {trabalhadores.map((t) => (
+                <TouchableOpacity
+                  key={t.id}
+                  style={styles.chip}
+                  onPress={() => setSelecionado(t)}
+                >
+                  <Text style={styles.chipText}>{t.nome}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
         </View>
       )}
 
@@ -614,5 +626,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
+  },
+  emptyWorkerShortcut: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e7f3ee',
+    borderWidth: 1,
+    borderColor: '#b7dfce',
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginTop: 4,
+    marginBottom: 8,
+  },
+  emptyWorkerShortcutText: {
+    color: '#2d6a4f',
+    fontSize: 13,
+    fontWeight: '600',
+    flex: 1,
   },
 });

@@ -34,18 +34,34 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 4rem 2rem;
-            border-bottom: 1px solid #1f2937;
+            padding: 5rem 1.5rem 3rem 1.5rem;
+            border-bottom: 1px solid #1e293b;
         }
+        /* Container de código otimizado para visibilidade total sem rolagem lateral */
         .code-container {
-            max-height: 52vh;
+            max-height: 66vh;
             overflow-y: auto;
-            border-radius: 0.5rem;
+            overflow-x: hidden !important; /* Elimina rolagem horizontal */
+            border-radius: 0.6rem;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
         }
-        pre { margin: 0 !important; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
+        /* Quebra de linha suave e fonte nítida */
+        pre {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+        }
+        pre code {
+            white-space: pre-wrap !important;       /* Quebra de linha automática */
+            word-break: break-word !important;      /* Evita overflow horizontal */
+            font-size: var(--code-font-size, 0.84rem) !important;
+            line-height: 1.48 !important;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Courier New', monospace !important;
+            display: block !important;
+            padding: 1rem !important;
+        }
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #10b981; }
         .tab-btn.active {
@@ -58,117 +74,125 @@
 <body class="bg-slate-950 text-slate-200 font-sans antialiased selection:bg-emerald-500 selection:text-white">
 
     <!-- Barra de Navegação Flutuante Superior -->
-    <header class="fixed top-0 left-0 right-0 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 z-50 px-6 py-3 flex items-center justify-between">
+    <header class="fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 z-50 px-6 py-2.5 flex items-center justify-between shadow-lg">
         <div class="flex items-center space-x-3">
             <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
             <span class="font-bold text-white tracking-wide text-sm md:text-base">SafraCafé — Defesa Técnica</span>
-            <span class="text-xs bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full font-mono">100% Mock / 81.74% Cobertura</span>
+            <span class="text-xs bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full font-mono font-semibold">100% Mock / 81.74% Cobertura</span>
         </div>
-        <div class="text-xs text-slate-400 hidden sm:flex items-center space-x-4">
-            <span>Use <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-300">↓</kbd> <kbd class="px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-300">↑</kbd> para navegar</span>
-            <a href="#slide13" class="hover:text-emerald-400 transition font-semibold text-emerald-400">Ver Métricas (170 Testes) ➔</a>
+        <div class="flex items-center space-x-3 text-xs">
+            <!-- Controle de Zoom da Fonte dos Códigos -->
+            <div class="flex items-center bg-slate-800 rounded-lg p-0.5 border border-slate-700">
+                <span class="px-2 text-slate-400 font-mono text-[11px]">Fonte do Código:</span>
+                <button onclick="changeFontSize(-1)" class="px-2 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-slate-200 font-mono font-bold" title="Diminuir fonte">A-</button>
+                <button onclick="changeFontSize(1)" class="px-2 py-0.5 ml-1 bg-slate-700 hover:bg-slate-600 rounded text-slate-200 font-mono font-bold" title="Aumentar fonte">A+</button>
+            </div>
+            <a href="#slide13" class="hidden sm:inline-block px-3 py-1 bg-emerald-950 border border-emerald-800 text-emerald-400 font-semibold rounded-lg hover:bg-emerald-900 transition">Métricas (170 Testes) ➔</a>
         </div>
     </header>
 
     <!-- Indicador Lateral Fixo de Slides -->
-    <nav class="fixed top-1/2 right-4 transform -translate-y-1/2 flex flex-col space-y-2 z-50 hidden xl:flex bg-slate-900/60 p-2 rounded-full border border-slate-800 backdrop-blur-sm">
-        <a href="#slide1" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="1. Visão Geral"></a>
-        <a href="#slide2" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="2. Value Objects"></a>
-        <a href="#slide3" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="3. Entidades & Agregados"></a>
-        <a href="#slide4" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="4. Domain Services"></a>
-        <a href="#slide5" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="5. Contratos e DIP"></a>
-        <a href="#slide6" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="6. Casos de Uso"></a>
-        <a href="#slide7" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="7. Câmera e GPS"></a>
-        <a href="#slide8" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="8. Persistência & Sync"></a>
-        <a href="#slide9" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="9. Context API & Hooks"></a>
-        <a href="#slide10" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="10. Telas RNTL"></a>
-        <a href="#slide11" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="11. Sessão Segura"></a>
-        <a href="#slide12" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="12. Isolamento 100% Mock"></a>
-        <a href="#slide13" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="13. Métricas e Testes"></a>
-        <a href="#slide14" class="nav-dot w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="14. Fundamentos Finais"></a>
+    <nav class="fixed top-1/2 right-3 transform -translate-y-1/2 flex flex-col space-y-2 z-50 hidden 2xl:flex bg-slate-900/80 p-2 rounded-full border border-slate-800 backdrop-blur-sm">
+        <a href="#slide1" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="1. Visão Geral"></a>
+        <a href="#slide2" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="2. Value Objects"></a>
+        <a href="#slide3" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="3. Entidades & Agregados"></a>
+        <a href="#slide4" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="4. Domain Services"></a>
+        <a href="#slide5" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="5. Contratos e DIP"></a>
+        <a href="#slide6" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="6. Casos de Uso"></a>
+        <a href="#slide7" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="7. Câmera e GPS"></a>
+        <a href="#slide8" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="8. Persistência & Sync"></a>
+        <a href="#slide9" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="9. Context API & Hooks"></a>
+        <a href="#slide10" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="10. Telas RNTL"></a>
+        <a href="#slide11" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="11. Sessão Segura"></a>
+        <a href="#slide12" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="12. Isolamento 100% Mock"></a>
+        <a href="#slide13" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="13. Métricas e Testes"></a>
+        <a href="#slide14" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="14. Fundamentos Finais"></a>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+    <!-- Container Principal Amplo para Máxima Visibilidade -->
+    <div class="w-full max-w-[94rem] mx-auto px-4 sm:px-6 lg:px-8">
 
         <!-- SLIDE 1: CAPA & VISÃO GERAL -->
         <section id="slide1">
-            <div class="text-center mb-10">
+            <div class="text-center mb-8">
                 <span class="inline-block py-1 px-3 rounded-full text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800 uppercase tracking-widest mb-3">Defesa Técnica de Engenharia de Software</span>
                 <h1 class="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight">Fase: "Domínio e Interface Primeiro"</h1>
-                <p class="mt-4 text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">
+                <p class="mt-3 text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">
                     Projeto <span class="text-emerald-400 font-semibold">SafraCafé</span> — Sistema de Avaliação de Estágio e Registro de Atividades Desacoplado
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
                 <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 hover:border-slate-700 transition">
                     <div class="text-emerald-400 font-mono text-sm uppercase font-bold mb-2">01. Arquitetura Pura</div>
                     <h3 class="text-xl font-bold text-white mb-2">Clean Architecture + DDD</h3>
-                    <p class="text-sm text-slate-400">O domínio é 100% puro e não possui imports de React, Expo ou bancos físicos. As regras sobrevivem a qualquer tecnologia externa.</p>
+                    <p class="text-sm text-slate-400 leading-relaxed">O domínio é 100% puro e não possui imports de React, Expo ou bancos físicos. As regras sobrevivem a qualquer tecnologia externa.</p>
                 </div>
                 <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 hover:border-slate-700 transition">
                     <div class="text-emerald-400 font-mono text-sm uppercase font-bold mb-2">02. Isolamento Total</div>
                     <h3 class="text-xl font-bold text-white mb-2">100% Mock & In-Memory</h3>
-                    <p class="text-sm text-slate-400">Zero conexões físicas com SQLite ou Supabase. Repositórios com <code>Map&lt;string, T&gt;</code> e gateways simulados para máxima velocidade.</p>
+                    <p class="text-sm text-slate-400 leading-relaxed">Zero conexões físicas com SQLite ou Supabase. Repositórios operam com <code>Map&lt;string, T&gt;</code> para velocidade máxima.</p>
                 </div>
                 <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 hover:border-slate-700 transition">
                     <div class="text-emerald-400 font-mono text-sm uppercase font-bold mb-2">03. Qualidade Comprovada</div>
                     <h3 class="text-xl font-bold text-white mb-2">81.74% de Cobertura</h3>
-                    <p class="text-sm text-slate-400"><strong>52 Test Suites</strong> e <strong>170 testes passando com 100% de sucesso</strong> em apenas 8.4 segundos, com testes de regras puras e RNTL.</p>
+                    <p class="text-sm text-slate-400 leading-relaxed"><strong>52 Test Suites</strong> e <strong>170 testes aprovados (100% pass)</strong> em ~8.4 segundos, abrangendo regras puras e componentes RNTL.</p>
                 </div>
             </div>
 
             <div class="mt-8 bg-slate-900/80 p-5 rounded-xl border border-slate-800">
                 <h4 class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2 text-center">Pipeline de Construção Incremental</h4>
                 <div class="flex flex-wrap items-center justify-center gap-2 text-xs md:text-sm font-mono text-emerald-300">
-                    <span class="bg-slate-800 px-2.5 py-1 rounded border border-slate-700">Value Objects</span>➔
-                    <span class="bg-slate-800 px-2.5 py-1 rounded border border-slate-700">Entities & Aggregates</span>➔
-                    <span class="bg-slate-800 px-2.5 py-1 rounded border border-slate-700">Domain Services</span>➔
-                    <span class="bg-slate-800 px-2.5 py-1 rounded border border-slate-700">Interfaces DIP</span>➔
-                    <span class="bg-slate-800 px-2.5 py-1 rounded border border-slate-700">Use Cases</span>➔
-                    <span class="bg-slate-800 px-2.5 py-1 rounded border border-slate-700">Context & Hooks</span>➔
-                    <span class="bg-slate-800 px-2.5 py-1 rounded border border-slate-700">Telas RNTL</span>➔
-                    <span class="bg-emerald-950 px-2.5 py-1 rounded border border-emerald-700 text-emerald-400 font-bold">170 Testes</span>
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Value Objects</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Entities & Aggregates</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Domain Services</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Interfaces DIP</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Use Cases</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Context & Hooks</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Telas RNTL</span>➔
+                    <span class="bg-emerald-950 px-3 py-1 rounded border border-emerald-700 text-emerald-400 font-bold">170 Testes</span>
                 </div>
             </div>
         </section>
 
         <!-- SLIDE 2: VALUE OBJECTS -->
         <section id="slide2" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-5">
-                <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 1</span>
-                <h2 class="text-3xl font-extrabold text-white mt-1 mb-4">Value Objects (Imutáveis)</h2>
-                <p class="text-sm text-slate-300 mb-4">
-                    Objetos sem identidade própria, definidos unicamente pelos seus atributos. Se auto-validam de forma defensiva no construtor.
-                </p>
-                <div class="space-y-3">
+            <div class="lg:col-span-4 space-y-4">
+                <div>
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 1</span>
+                    <h2 class="text-3xl font-extrabold text-white mt-1">Value Objects (Imutáveis)</h2>
+                    <p class="text-sm text-slate-300 mt-2">
+                        Objetos sem identidade própria definidos apenas por seus valores. São imutáveis e se auto-validam de forma defensiva no construtor.
+                    </p>
+                </div>
+                <div class="space-y-2.5">
                     <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
                         <strong class="text-white text-sm">Criterio:</strong>
-                        <span class="text-xs text-slate-400 block">Valida nota de 0 a 10 e classifica em MB (>=8.5), B (>=7.0), R (>=5.0) e F.</span>
+                        <span class="text-xs text-slate-400 block mt-0.5">Valida nota entre 0 e 10 e classifica em MB (>=8.5), B (>=7.0), R (>=5.0) e F.</span>
                     </div>
                     <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
                         <strong class="text-white text-sm">Coordenada:</strong>
-                        <span class="text-xs text-slate-400 block">Latitude [-90, 90], Longitude [-180, 180] e timestamp UTC.</span>
+                        <span class="text-xs text-slate-400 block mt-0.5">Latitude [-90, 90], Longitude [-180, 180] e timestamp UTC.</span>
                     </div>
                     <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
                         <strong class="text-white text-sm">Assinatura:</strong>
-                        <span class="text-xs text-slate-400 block">String base64 criptográfica, papel ('aluno' | 'supervisor') e data/hora.</span>
+                        <span class="text-xs text-slate-400 block mt-0.5">Payload base64 criptográfico, papel ('aluno' | 'supervisor') e data/hora.</span>
                     </div>
                     <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
                         <strong class="text-white text-sm">CargaHoraria:</strong>
-                        <span class="text-xs text-slate-400 block">Validação de horas totais, horas mínimas obrigatórias e saldo do período.</span>
+                        <span class="text-xs text-slate-400 block mt-0.5">Validação de horas totais, horas mínimas obrigatórias e saldo do período.</span>
                     </div>
                 </div>
             </div>
-            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                     <div class="flex space-x-2">
-                        <button onclick="switchTab('vo', 'code')" id="vo-btn-code" class="tab-btn active text-xs font-mono px-3 py-1 rounded border border-slate-700">src/domain/value-objects/Criterio.ts</button>
-                        <button onclick="switchTab('vo', 'test')" id="vo-btn-test" class="tab-btn text-xs font-mono px-3 py-1 rounded border border-slate-700">tests/domain/Criterio.test.ts</button>
+                        <button onclick="switchTab('vo', 'code')" id="vo-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/domain/value-objects/Criterio.ts</button>
+                        <button onclick="switchTab('vo', 'test')" id="vo-btn-test" class="tab-btn text-xs font-mono px-3 py-1.5 rounded border border-slate-700">tests/domain/Criterio.test.ts</button>
                     </div>
-                    <span class="text-xs text-emerald-400 font-mono">Cobertura: 98.96%</span>
+                    <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 98.96%</span>
                 </div>
-                <div id="vo-tab-code" class="code-container bg-slate-950 p-3">
+                <div id="vo-tab-code" class="code-container bg-slate-950">
 <pre><code class="language-typescript">export type FaixaCriterio = 'MB' | 'B' | 'R' | 'F';
 
 export class Criterio {
@@ -189,6 +213,14 @@ export class Criterio {
     this.nota = Math.round(nota * 10) / 10;
   }
 
+  public getNome(): string {
+    return this.nome;
+  }
+
+  public getNota(): number {
+    return this.nota;
+  }
+
   public getFaixa(): FaixaCriterio {
     if (this.nota >= 8.5) return 'MB';
     if (this.nota >= 7.0) return 'B';
@@ -202,8 +234,8 @@ export class Criterio {
   }
 }</code></pre>
                 </div>
-                <div id="vo-tab-test" class="code-container bg-slate-950 p-3 hidden">
-<pre><code class="language-typescript">describe('Criterio Value Object', () => {
+                <div id="vo-tab-test" class="code-container bg-slate-950 hidden">
+<pre><code class="language-typescript">describe('Criterio Value Object (TDD)', () => {
   it('deve classificar faixas de conceito corretamente: MB, B, R, F', () => {
     expect(new Criterio('Assiduidade', 9.5).getFaixa()).toBe('MB');
     expect(new Criterio('Proatividade', 7.5).getFaixa()).toBe('B');
@@ -215,6 +247,12 @@ export class Criterio {
     expect(() => new Criterio('Teste', -1)).toThrow('A nota do critério deve estar entre 0 e 10.');
     expect(() => new Criterio('Teste', 10.5)).toThrow('A nota do critério deve estar entre 0 e 10.');
   });
+
+  it('deve validar igualdade estrutural com equals()', () => {
+    const c1 = new Criterio('Iniciativa', 8.0);
+    const c2 = new Criterio('Iniciativa', 8.0);
+    expect(c1.equals(c2)).toBe(true);
+  });
 });</code></pre>
                 </div>
             </div>
@@ -222,33 +260,38 @@ export class Criterio {
 
         <!-- SLIDE 3: ENTIDADES E AGREGADOS -->
         <section id="slide3" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-5">
-                <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 2</span>
-                <h2 class="text-3xl font-extrabold text-white mt-1 mb-4">Entidades & Aggregate Roots</h2>
-                <p class="text-sm text-slate-300 mb-4">
-                    O <strong>PeriodoAvaliacao</strong> é a Raiz de Agregação. Ele gerencia o ciclo de vida das atividades, avaliações e assinaturas, garantindo as <strong>invariantes de negócio</strong>.
-                </p>
-                <div class="space-y-2 text-sm text-slate-300">
-                    <div class="p-3 bg-slate-900 rounded border border-slate-800">
-                        <strong class="text-emerald-400">Invariante 1:</strong> Bloqueia alteração/adição de avaliações após o período estar como <code>APROVADO</code>.
+            <div class="lg:col-span-4 space-y-4">
+                <div>
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 2</span>
+                    <h2 class="text-3xl font-extrabold text-white mt-1">Entidades & Agregados</h2>
+                    <p class="text-sm text-slate-300 mt-2">
+                        O <strong>PeriodoAvaliacao</strong> é a Raiz de Agregação. Controla o ciclo de vida e protege as <strong>invariantes de negócio</strong> contra estados ilegais.
+                    </p>
+                </div>
+                <div class="space-y-2.5 text-xs text-slate-300">
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">Invariante 1: Bloqueio de Edição</strong>
+                        Não permite adicionar ou modificar avaliações em um período com status <code>APROVADO</code>.
                     </div>
-                    <div class="p-3 bg-slate-900 rounded border border-slate-800">
-                        <strong class="text-emerald-400">Invariante 2:</strong> Aprovação só permitida com todas as partes: atividades + avaliação supervisor + autoavaliação + ambas assinaturas.
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">Invariante 2: Aprovação Consistente</strong>
+                        Exige atividades registradas, avaliação do supervisor, autoavaliação do aluno e assinaturas de ambas as partes.
                     </div>
-                    <div class="p-3 bg-slate-900 rounded border border-slate-800">
-                        <strong class="text-emerald-400">Invariante 3 (podeGerarPdf):</strong> Exige simultaneamente: status <code>APROVADO</code>, 2 assinaturas válidas e <code>assinaturasSincronizadas === true</code>.
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">Invariante 3: podeGerarPdf()</strong>
+                        Exige status <code>APROVADO</code>, ambas as assinaturas presentes e confirmação <code>assinaturasSincronizadas === true</code>.
                     </div>
                 </div>
             </div>
-            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                     <div class="flex space-x-2">
-                        <button onclick="switchTab('entity', 'code')" id="entity-btn-code" class="tab-btn active text-xs font-mono px-3 py-1 rounded border border-slate-700">src/domain/entities/PeriodoAvaliacao.ts</button>
-                        <button onclick="switchTab('entity', 'test')" id="entity-btn-test" class="tab-btn text-xs font-mono px-3 py-1 rounded border border-slate-700">tests/domain/PeriodoAvaliacao.test.ts</button>
+                        <button onclick="switchTab('entity', 'code')" id="entity-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/domain/entities/PeriodoAvaliacao.ts</button>
+                        <button onclick="switchTab('entity', 'test')" id="entity-btn-test" class="tab-btn text-xs font-mono px-3 py-1.5 rounded border border-slate-700">tests/domain/PeriodoAvaliacao.test.ts</button>
                     </div>
-                    <span class="text-xs text-emerald-400 font-mono">Invariantes Blindadas</span>
+                    <span class="text-xs text-emerald-400 font-mono font-semibold">Invariantes Blindadas</span>
                 </div>
-                <div id="entity-tab-code" class="code-container bg-slate-950 p-3">
+                <div id="entity-tab-code" class="code-container bg-slate-950">
 <pre><code class="language-typescript">export class PeriodoAvaliacao {
   public registrarAvaliacaoSupervisor(avaliacao: AvaliacaoSupervisor): void {
     if (this.status === StatusPeriodo.APROVADO) {
@@ -259,13 +302,20 @@ export class Criterio {
   }
 
   public aprovar(): void {
-    if (!this.atividades) throw new Error('Não é possível aprovar um período sem atividades registradas.');
-    if (!this.avaliacaoSupervisor) throw new Error('Não é possível aprovar sem a avaliação do supervisor.');
-    if (!this.autoAvaliacao) throw new Error('Não é possível aprovar sem a autoavaliação do estagiário.');
+    if (!this.atividades) {
+      throw new Error('Não é possível aprovar um período sem atividades registradas.');
+    }
+    if (!this.avaliacaoSupervisor) {
+      throw new Error('Não é possível aprovar um período sem a avaliação do supervisor.');
+    }
+    if (!this.autoAvaliacao) {
+      throw new Error('Não é possível aprovar um período sem a autoavaliação do estagiário.');
+    }
     if (!this.assinaturaAluno || !this.assinaturaSupervisor) {
       throw new Error('Não é possível aprovar um período sem as assinaturas de ambas as partes.');
     }
     this.status = StatusPeriodo.APROVADO;
+    this.motivoDevolucao = undefined;
   }
 
   public podeGerarPdf(): boolean {
@@ -276,19 +326,22 @@ export class Criterio {
   }
 }</code></pre>
                 </div>
-                <div id="entity-tab-test" class="code-container bg-slate-950 p-3 hidden">
-<pre><code class="language-typescript">it('deve bloquear nova avaliação se o período já estiver aprovado', () => {
-  const periodo = new PeriodoAvaliacao({ id: 'p1', estagioId: 'e1', alunoId: 'a1', numeroPeriodo: 1, ... });
-  periodo.aprovar();
-  expect(() => periodo.registrarAvaliacaoSupervisor(novaAvaliacao)).toThrow(
-    'Não é permitido registrar ou alterar avaliação de supervisor em um período já aprovado.'
-  );
-});
+                <div id="entity-tab-test" class="code-container bg-slate-950 hidden">
+<pre><code class="language-typescript">describe('PeriodoAvaliacao Aggregate Root (TDD)', () => {
+  it('deve bloquear nova avaliação se o período já estiver aprovado', () => {
+    const periodo = criarPeriodoCompletoValido();
+    periodo.aprovar();
+    expect(() => periodo.registrarAvaliacaoSupervisor(novaAvaliacao)).toThrow(
+      'Não é permitido registrar ou alterar avaliação de supervisor em um período já aprovado.'
+    );
+  });
 
-it('deve retornar podeGerarPdf() verdadeiro somente com aprovação e assinaturas sincronizadas', () => {
-  const periodo = new PeriodoAvaliacao({ id: 'p1', estagioId: 'e1', alunoId: 'a1', ... });
-  periodo.marcarAssinaturasSincronizadas(true);
-  expect(periodo.podeGerarPdf()).toBe(true);
+  it('deve retornar podeGerarPdf() verdadeiro somente com aprovação e assinaturas sincronizadas', () => {
+    const periodo = criarPeriodoCompletoValido();
+    periodo.aprovar();
+    periodo.marcarAssinaturasSincronizadas(true);
+    expect(periodo.podeGerarPdf()).toBe(true);
+  });
 });</code></pre>
                 </div>
             </div>
@@ -296,30 +349,35 @@ it('deve retornar podeGerarPdf() verdadeiro somente com aprovação e assinatura
 
         <!-- SLIDE 4: DOMAIN SERVICES -->
         <section id="slide4" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-5">
-                <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 3</span>
-                <h2 class="text-3xl font-extrabold text-white mt-1 mb-4">Domain Services</h2>
-                <p class="text-sm text-slate-300 mb-4">
-                    Regras de negócio que dependem do cruzamento de múltiplas entidades e não pertencem a apenas uma delas.
-                </p>
-                <ul class="space-y-3 text-sm text-slate-300">
-                    <li class="bg-slate-900 p-3 rounded border border-slate-800">
-                        <strong class="text-emerald-400">RegraGeracaoPdfService:</strong> Valida se o relatório atende a todos os critérios antes da orquestração do PDF.
-                    </li>
-                    <li class="bg-slate-900 p-3 rounded border border-slate-800">
-                        <strong class="text-emerald-400">RegraDevolucaoService:</strong> Impede devoluções de períodos aprovados e valida motivo mínimo com justificativa.
-                    </li>
-                    <li class="bg-slate-900 p-3 rounded border border-slate-800">
-                        <strong class="text-emerald-400">SincronizacaoService:</strong> Gerencia precedência e resolução de conflitos da fila offline.
-                    </li>
-                </ul>
+            <div class="lg:col-span-4 space-y-4">
+                <div>
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 3</span>
+                    <h2 class="text-3xl font-extrabold text-white mt-1">Domain Services</h2>
+                    <p class="text-sm text-slate-300 mt-2">
+                        Regras de negócio e validações que cruzam o estado de mais de uma entidade de domínio.
+                    </p>
+                </div>
+                <div class="space-y-3 text-xs text-slate-300">
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">RegraGeracaoPdfService:</strong>
+                        Valida simultaneamente o período e o vínculo com a entidade <code>Estagio</code> antes de acionar a orquestração do documento.
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">RegraDevolucaoService:</strong>
+                        Valida motivos mínimos e impede devoluções inválidas.
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">SincronizacaoService:</strong>
+                        Resolução de conflitos da fila offline-first.
+                    </div>
+                </div>
             </div>
-            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                     <span class="text-xs font-mono text-slate-400">src/domain/services/RegraGeracaoPdfService.ts</span>
-                    <span class="text-xs text-emerald-400 font-mono">Cobertura: 90.32%</span>
+                    <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 90.32%</span>
                 </div>
-                <div class="code-container bg-slate-950 p-3">
+                <div class="code-container bg-slate-950">
 <pre><code class="language-typescript">export class RegraGeracaoPdfService {
   public static validar(periodo: PeriodoAvaliacao, estagio?: Estagio): ValidacaoGeracaoPdfResult {
     const erros: string[] = [];
@@ -350,22 +408,24 @@ it('deve retornar podeGerarPdf() verdadeiro somente com aprovação e assinatura
 
         <!-- SLIDE 5: CONTRATOS & INTERFACES (DIP) -->
         <section id="slide5" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-5">
-                <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 4</span>
-                <h2 class="text-3xl font-extrabold text-white mt-1 mb-4">Contratos e Interfaces (DIP)</h2>
-                <p class="text-sm text-slate-300 mb-4">
-                    O <strong>Princípio da Inversão de Dependência</strong> garante que módulos de alto nível (domínio e casos de uso) nunca dependam de módulos de baixo nível (SQLite, Supabase, Camera Expo).
-                </p>
+            <div class="lg:col-span-4 space-y-4">
+                <div>
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 4</span>
+                    <h2 class="text-3xl font-extrabold text-white mt-1">Contratos e Interfaces (DIP)</h2>
+                    <p class="text-sm text-slate-300 mt-2">
+                        O <strong>Princípio da Inversão de Dependência</strong>: o Domínio dita os contratos (interfaces). A infraestrutura externa apenas cumpre esses contratos.
+                    </p>
+                </div>
                 <div class="p-4 bg-slate-900 rounded-lg border border-slate-800 text-xs font-mono text-slate-300 space-y-2">
-                    <p class="text-emerald-400 font-bold">Direção das Dependências:</p>
-                    <p>Dominio ➔ Interfaces (Contratos)</p>
-                    <p>Infraestrutura / Expo ➔ Implementa Interfaces</p>
-                    <p>Casos de Uso ➔ Consomem Interfaces via Construtor</p>
+                    <p class="text-emerald-400 font-bold uppercase">Regra Unidirecional:</p>
+                    <p class="bg-slate-950 p-2 rounded border border-slate-800">Domínio define Contratos TypeScript</p>
+                    <p class="bg-slate-950 p-2 rounded border border-slate-800">Infraestrutura implementa as Interfaces</p>
+                    <p class="bg-slate-950 p-2 rounded border border-slate-800">Casos de Uso recebem Contratos via Construtor</p>
                 </div>
             </div>
-            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/domain/repositories/PeriodoAvaliacaoRepository.ts</div>
-                <div class="code-container bg-slate-950 p-3">
+                <div class="code-container bg-slate-950">
 <pre><code class="language-typescript">import { PeriodoAvaliacao } from '../entities/PeriodoAvaliacao';
 
 export interface PeriodoAvaliacaoRepository {
@@ -381,13 +441,15 @@ export interface PeriodoAvaliacaoRepository {
 
         <!-- SLIDE 6: CASOS DE USO -->
         <section id="slide6" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-5">
-                <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 5</span>
-                <h2 class="text-3xl font-extrabold text-white mt-1 mb-3">Casos de Uso (Application Layer)</h2>
-                <p class="text-sm text-slate-300 mb-3">
-                    Orquestram a execução do sistema recebendo DTOs e injetando repositórios via construtor.
-                </p>
-                <div class="grid grid-cols-2 gap-2 text-xs text-slate-300">
+            <div class="lg:col-span-4 space-y-4">
+                <div>
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 5</span>
+                    <h2 class="text-3xl font-extrabold text-white mt-1">Casos de Uso (Application Layer)</h2>
+                    <p class="text-sm text-slate-300 mt-2">
+                        Orquestram as operações de negócio recebendo DTOs e injetando repositórios e gateways via construtor.
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 gap-1.5 text-[11px] text-slate-300 font-mono">
                     <span class="p-2 bg-slate-900 rounded border border-slate-800">1. RegistrarAtividades</span>
                     <span class="p-2 bg-slate-900 rounded border border-slate-800">2. AvaliarDesempenho</span>
                     <span class="p-2 bg-slate-900 rounded border border-slate-800">3. RealizarAutoAvaliacao</span>
@@ -400,13 +462,22 @@ export interface PeriodoAvaliacaoRepository {
                     <span class="p-2 bg-slate-900 rounded border border-slate-800">10. AcessarViaToken</span>
                 </div>
             </div>
-            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                     <span class="text-xs font-mono text-slate-400">src/usecases/RegistrarAtividadesUseCase.ts</span>
-                    <span class="text-xs text-emerald-400 font-mono">Cobertura: 94.08%</span>
+                    <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 94.08%</span>
                 </div>
-                <div class="code-container bg-slate-950 p-3">
-<pre><code class="language-typescript">export class RegistrarAtividadesUseCase {
+                <div class="code-container bg-slate-950">
+<pre><code class="language-typescript">export interface RegistrarAtividadesDTO {
+  periodoId: string;
+  descricao: string;
+  horasTotais: number;
+  horasMinimas: number;
+  horasPeriodo: number;
+  capturarLocalizacao?: boolean;
+}
+
+export class RegistrarAtividadesUseCase {
   constructor(
     private readonly periodoRepo: PeriodoAvaliacaoRepository,
     private readonly locationGateway?: LocationGateway
@@ -441,16 +512,16 @@ export interface PeriodoAvaliacaoRepository {
 
         <!-- SLIDE 7: CÂMERA E GPS -->
         <section id="slide7">
-            <div class="text-center mb-8">
+            <div class="text-center mb-6">
                 <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 6</span>
                 <h2 class="text-3xl font-extrabold text-white">Hardware Desacoplado: Câmera & GPS</h2>
-                <p class="text-slate-400 text-sm mt-1">Interfaces no Domínio + Implementação Expo nos Adapters + Fake em Memória para Testes</p>
+                <p class="text-slate-400 text-sm mt-1">Interfaces no Domínio + Implementação Expo nos Adapters + Fakes em Memória nos Testes</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="bg-slate-900 p-5 rounded-xl border border-slate-800">
-                    <h3 class="text-lg font-bold text-emerald-400 mb-2">Câmera Nativa (CameraGateway)</h3>
-                    <p class="text-xs text-slate-300 mb-3">Retorno determinístico imediato de foto em base64 sem abrir hardware ou pedir permissão real.</p>
-                    <div class="code-container bg-slate-950 p-3">
+                    <h3 class="text-base font-bold text-emerald-400 mb-2">Câmera Nativa (CameraGateway)</h3>
+                    <p class="text-xs text-slate-300 mb-3 leading-relaxed">Retorno imediato de imagem base64 simulada nos testes, sem disparar câmera física ou diálogos de permissão.</p>
+                    <div class="code-container bg-slate-950">
 <pre><code class="language-typescript">// src/infra/InMemoryCameraGateway.ts
 export class InMemoryCameraGateway implements CameraGateway {
   private fotoSimulada: FotoCapturada = {
@@ -467,16 +538,16 @@ export class InMemoryCameraGateway implements CameraGateway {
                     </div>
                 </div>
                 <div class="bg-slate-900 p-5 rounded-xl border border-slate-800">
-                    <h3 class="text-lg font-bold text-emerald-400 mb-2">Geolocalização (LocationGateway)</h3>
-                    <p class="text-xs text-slate-300 mb-3">Simula coordenadas de lavoura/empresa fixas sem acionar GPS do celular nos testes.</p>
-                    <div class="code-container bg-slate-950 p-3">
+                    <h3 class="text-base font-bold text-emerald-400 mb-2">Geolocalização (LocationGateway)</h3>
+                    <p class="text-xs text-slate-300 mb-3 leading-relaxed">Injeção de coordenadas determinísticas (latitude, longitude, timestamp) sem acionar a antena de GPS do dispositivo.</p>
+                    <div class="code-container bg-slate-950">
 <pre><code class="language-typescript">// src/infra/InMemoryLocationGateway.ts
 export class InMemoryLocationGateway implements LocationGateway {
-  private coordenadaAtual: Coordenada = new Coordenada(-23.55052, -46.633308, Date.now());
-
-  public setLocalizacaoSimulada(coordenada: Coordenada): void {
-    this.coordenadaAtual = coordenada;
-  }
+  private coordenadaAtual: Coordenada = new Coordenada(
+    -23.55052,
+    -46.633308,
+    Date.now()
+  );
 
   async obterLocalizacaoAtual(): Promise<Coordenada> {
     return this.coordenadaAtual;
@@ -487,29 +558,31 @@ export class InMemoryLocationGateway implements LocationGateway {
             </div>
         </section>
 
-        <!-- SLIDE 8: PERSISTÊNCIA DESACOPLADA (SQLITE & SUPABASE) -->
+        <!-- SLIDE 8: PERSISTÊNCIA OFFLINE-FIRST -->
         <section id="slide8" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-5">
-                <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 7</span>
-                <h2 class="text-3xl font-extrabold text-white mt-1 mb-4">Persistência Offline-First</h2>
-                <div class="space-y-3 text-sm text-slate-300">
-                    <div class="p-3 bg-slate-900 rounded border border-slate-800">
-                        <strong class="text-emerald-400 block mb-1">Por que zero SQLite/Supabase físico agora?</strong>
-                        Persistência é detalhe de I/O em Clean Architecture. Bancos reais deixam testes lentos e não-determinísticos.
+            <div class="lg:col-span-4 space-y-4">
+                <div>
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 7</span>
+                    <h2 class="text-3xl font-extrabold text-white mt-1">Persistência Offline-First</h2>
+                </div>
+                <div class="space-y-3 text-xs text-slate-300">
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">Por que zero banco físico agora?</strong>
+                        Persistência é detalhe de I/O em Clean Architecture. Banco físico acopla o domínio e deixa a suíte de testes lenta.
                     </div>
-                    <div class="p-3 bg-slate-900 rounded border border-slate-800">
-                        <strong class="text-emerald-400 block mb-1">Repositórios Fake em Memória:</strong>
-                        Utilizam <code>Map&lt;string, T&gt;</code> reproduzindo métodos <code>save</code>, <code>findById</code> e <code>findPendentesSincronizacao</code>.
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">Repositórios Fake em Memória:</strong>
+                        Estruturas <code>Map&lt;string, T&gt;</code> reproduzindo métodos <code>save</code>, <code>findById</code> e <code>findPendentesSincronizacao</code>.
                     </div>
-                    <div class="p-3 bg-slate-900 rounded border border-slate-800">
-                        <strong class="text-emerald-400 block mb-1">Fila de Sincronização:</strong>
-                        Status transitam de <code>PENDING</code> para <code>SYNCED</code> ou <code>ERROR</code> via <code>SincronizarFilaUseCase</code>.
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">Fila de Sincronização:</strong>
+                        Status transita de <code>PENDING</code> para <code>SYNCED</code> ou <code>ERROR</code> via <code>SincronizarFilaUseCase</code>.
                     </div>
                 </div>
             </div>
-            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/usecases/SincronizarFilaUseCase.ts</div>
-                <div class="code-container bg-slate-950 p-3">
+                <div class="code-container bg-slate-950">
 <pre><code class="language-typescript">export class SincronizarFilaUseCase {
   constructor(
     private readonly periodoRepo: PeriodoAvaliacaoRepository,
@@ -547,25 +620,34 @@ export class InMemoryLocationGateway implements LocationGateway {
 
         <!-- SLIDE 9: CONTEXT API & HOOKS -->
         <section id="slide9" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-5">
-                <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 8</span>
-                <h2 class="text-3xl font-extrabold text-white mt-1 mb-4">Context API & Custom Hooks</h2>
-                <p class="text-sm text-slate-300 mb-4">
-                    Ponte entre os Casos de Uso e o ciclo de vida dos componentes React Native.
-                </p>
-                <div class="space-y-3 text-sm text-slate-300">
-                    <div class="p-3 bg-slate-900 rounded border border-slate-800">
-                        <strong class="text-emerald-400">AuthContext:</strong> Elimina prop drilling para sessão e papéis (aluno, orientador, coordenador).
+            <div class="lg:col-span-4 space-y-4">
+                <div>
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 8</span>
+                    <h2 class="text-3xl font-extrabold text-white mt-1">Context API & Custom Hooks</h2>
+                    <p class="text-sm text-slate-300 mt-2">
+                        Ponte desacoplada entre os Casos de Uso e o ciclo de vida dos componentes do React Native.
+                    </p>
+                </div>
+                <div class="space-y-3 text-xs text-slate-300">
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">AuthContext:</strong>
+                        Elimina prop drilling disponibilizando o estado da sessão e papéis (aluno, orientador, coordenador) globalmente.
                     </div>
-                    <div class="p-3 bg-slate-900 rounded border border-slate-800">
-                        <strong class="text-emerald-400">useAtividades & useAuth:</strong> Gerenciam estados assíncronos (<code>loading</code>, <code>error</code>, <code>success</code>) mantendo a tela desacoplada.
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">useAtividades & useAuth:</strong>
+                        Mapeiam estados assíncronos (<code>loading</code>, <code>error</code>, <code>success</code>) mantendo as telas limpas de regras de orquestração.
                     </div>
                 </div>
             </div>
-            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/adapters/context/AuthContext.tsx</div>
-                <div class="code-container bg-slate-950 p-3">
-<pre><code class="language-typescript">export function AuthProvider({ children, autenticarUseCase, restoreSessionUseCase, signOutUseCase }: AuthProviderProps) {
+                <div class="code-container bg-slate-950">
+<pre><code class="language-typescript">export function AuthProvider({
+  children,
+  autenticarUseCase,
+  restoreSessionUseCase,
+  signOutUseCase
+}: AuthProviderProps) {
   const auth = autenticarUseCase ?? container.autenticarUsuarioUseCase;
   const restore = restoreSessionUseCase ?? container.restoreSession;
 
@@ -591,26 +673,35 @@ export class InMemoryLocationGateway implements LocationGateway {
 
         <!-- SLIDE 10: TELAS & TESTES RNTL -->
         <section id="slide10" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-5">
-                <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 9</span>
-                <h2 class="text-3xl font-extrabold text-white mt-1 mb-4">Telas e Testes RNTL</h2>
-                <p class="text-sm text-slate-300 mb-4">
-                    Componentes construídos com React Native nativo (<code class="text-emerald-300">View</code>, <code class="text-emerald-300">Text</code>, <code class="text-emerald-300">TouchableOpacity</code>) e testados via <strong>React Native Testing Library</strong> simulando toques reais sem emulador.
-                </p>
-                <div class="p-3 bg-slate-900 rounded border border-slate-800 text-xs text-slate-300 space-y-1">
-                    <p class="font-bold text-emerald-400">Telas Implementadas:</p>
-                    <p>• AssinaturaScreen (Captura de assinatura digital)</p>
-                    <p>• AtividadesFormScreen (Formulário com carga horária)</p>
-                    <p>• HistoricoRelatoriosScreen (Listagem e status do estágio)</p>
+            <div class="lg:col-span-4 space-y-4">
+                <div>
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 9</span>
+                    <h2 class="text-3xl font-extrabold text-white mt-1">Telas e Testes RNTL</h2>
+                    <p class="text-sm text-slate-300 mt-2">
+                        Componentes construídos com React Native nativo (<code class="text-emerald-300">View</code>, <code class="text-emerald-300">Text</code>, <code class="text-emerald-300">TouchableOpacity</code>) testados com <strong>React Native Testing Library</strong> sem necessidade de emulador físico.
+                    </p>
+                </div>
+                <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 text-xs text-slate-300 space-y-1.5">
+                    <p class="font-bold text-emerald-400 uppercase text-[11px]">Telas Validadas:</p>
+                    <p>• <strong>AssinaturaScreen:</strong> Captura e vinculação de assinatura digital.</p>
+                    <p>• <strong>AtividadesFormScreen:</strong> Formulário com validação de horas.</p>
+                    <p>• <strong>HistoricoRelatoriosScreen:</strong> Listagem e status do estágio.</p>
                 </div>
             </div>
-            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">tests/screens/AssinaturaScreen.test.tsx (Teste RNTL)</div>
-                <div class="code-container bg-slate-950 p-3">
+            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">tests/screens/AssinaturaScreen.test.tsx (Teste RNTL com fireEvent)</div>
+                <div class="code-container bg-slate-950">
 <pre><code class="language-typescript">it('deve registrar assinatura digital simulando toque nos botões e inputs', async () => {
   const periodoRepo = InMemoryPeriodoAvaliacaoRepository.getInstance();
   periodoRepo.clear();
-  await periodoRepo.save(new PeriodoAvaliacao({ id: 'p1', estagioId: 'e1', alunoId: 'aluno-01', ... }));
+  await periodoRepo.save(new PeriodoAvaliacao({
+    id: 'p1',
+    estagioId: 'e1',
+    alunoId: 'aluno-01',
+    numeroPeriodo: 1,
+    dataInicio: new Date('2026-01-01'),
+    dataFim: new Date('2026-06-01'),
+  }));
 
   const assinarUseCase = new AssinarRelatorioUseCase(periodoRepo);
   const onConcluidoMock = jest.fn();
@@ -624,7 +715,7 @@ export class InMemoryLocationGateway implements LocationGateway {
     />
   );
 
-  // Simulação de toques reais na interface gráfica
+  // Simulação de eventos reais de toque do usuário
   fireEvent.press(getByTestId('btn-papel-aluno'));
   fireEvent.press(getByTestId('btn-assinar'));
 
@@ -640,20 +731,22 @@ export class InMemoryLocationGateway implements LocationGateway {
 
         <!-- SLIDE 11: SESSÃO SEGURA -->
         <section id="slide11" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-5">
-                <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 10</span>
-                <h2 class="text-3xl font-extrabold text-white mt-1 mb-4">Sessão Segura (Expo SecureStore)</h2>
-                <p class="text-sm text-slate-300 mb-4">
-                    Tokens e credenciais cifrados no hardware nativo do aparelho: <strong>Keychain no iOS</strong> e <strong>Keystore no Android</strong>.
-                </p>
-                <div class="p-3 bg-slate-900 rounded border border-slate-800 text-xs text-slate-300">
-                    <strong class="text-emerald-400 block mb-1">Virtualizado no Ambiente de Testes:</strong>
+            <div class="lg:col-span-4 space-y-4">
+                <div>
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 10</span>
+                    <h2 class="text-3xl font-extrabold text-white mt-1">Sessão Segura (Expo SecureStore)</h2>
+                    <p class="text-sm text-slate-300 mt-2">
+                        Armazenamento criptografado no hardware nativo do aparelho: <strong>Keychain no iOS</strong> e <strong>Keystore no Android</strong>.
+                    </p>
+                </div>
+                <div class="p-3.5 bg-slate-900 rounded-lg border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                    <strong class="text-emerald-400 block font-semibold mb-1">Virtualizado no Ambiente de Testes:</strong>
                     Em <code class="text-emerald-300">tests/setup.ts</code>, o SecureStore é interceptado por um Map em memória, garantindo isolamento total de hardware físico.
                 </div>
             </div>
-            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/adapters/auth/SessionStorageSecureStore.ts</div>
-                <div class="code-container bg-slate-950 p-3">
+                <div class="code-container bg-slate-950">
 <pre><code class="language-typescript">import * as SecureStore from 'expo-secure-store';
 import { SessionStorage } from '../../domain/gateways/SessionStorage';
 
@@ -673,7 +766,11 @@ export class SessionStorageSecureStore implements SessionStorage {
     const raw = await SecureStore.getItemAsync(CHAVE_SESSAO);
     if (!raw) return null;
     const json = JSON.parse(raw);
-    return new Session(json.token, new User(json.user.id, json.user.name, json.user.email), json.expiresAt);
+    return new Session(
+      json.token,
+      new User(json.user.id, json.user.name, json.user.email),
+      json.expiresAt
+    );
   }
 
   async limpar(): Promise<void> {
@@ -686,43 +783,45 @@ export class SessionStorageSecureStore implements SessionStorage {
 
         <!-- SLIDE 12: COMPROVAÇÃO DE ISOLAMENTO 100% MOCK -->
         <section id="slide12">
-            <div class="text-center mb-10">
+            <div class="text-center mb-8">
                 <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 11</span>
                 <h2 class="text-4xl font-black text-white">Comprovação de Isolamento (100% Mock)</h2>
                 <p class="text-slate-400 text-sm mt-1">Conformidade estrita com a fase "Domínio e Interface Primeiro"</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 text-center">
-                    <div class="w-10 h-10 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full flex items-center justify-center mx-auto mb-3 text-lg font-bold">✓</div>
-                    <h3 class="font-bold text-white mb-1">Zero SQLite</h3>
-                    <p class="text-xs text-slate-400">Nenhum arquivo .db ou query SQL em disco. Tudo operando via repositórios In-Memory na RAM.</p>
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 text-center hover:border-emerald-700 transition">
+                    <div class="w-12 h-12 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">✓</div>
+                    <h3 class="font-bold text-white text-base mb-1">Zero SQLite</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Nenhum arquivo .db ou query SQL em disco. Toda persistência opera via estruturas <code>Map&lt;string, T&gt;</code> na memória RAM.</p>
                 </div>
-                <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 text-center">
-                    <div class="w-10 h-10 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full flex items-center justify-center mx-auto mb-3 text-lg font-bold">✓</div>
-                    <h3 class="font-bold text-white mb-1">Zero Supabase</h3>
-                    <p class="text-xs text-slate-400">Zero chamadas de rede ou APIs remotas nos testes. Gateway remoto mockado e síncrono.</p>
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 text-center hover:border-emerald-700 transition">
+                    <div class="w-12 h-12 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">✓</div>
+                    <h3 class="font-bold text-white text-base mb-1">Zero Supabase</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Zero chamadas de rede ou APIs remotas nos testes. Gateway remoto mockado opera de forma determinística e síncrona.</p>
                 </div>
-                <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 text-center">
-                    <div class="w-10 h-10 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full flex items-center justify-center mx-auto mb-3 text-lg font-bold">✓</div>
-                    <h3 class="font-bold text-white mb-1">Zero Hardware</h3>
-                    <p class="text-xs text-slate-400">Câmera e GPS simulados por Gateways fakes que respondem instantaneamente.</p>
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 text-center hover:border-emerald-700 transition">
+                    <div class="w-12 h-12 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">✓</div>
+                    <h3 class="font-bold text-white text-base mb-1">Zero Hardware</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Câmera e GPS simulados por Gateways fakes que respondem instantaneamente sem abrir recursos do dispositivo.</p>
                 </div>
-                <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 text-center">
-                    <div class="w-10 h-10 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full flex items-center justify-center mx-auto mb-3 text-lg font-bold">✓</div>
-                    <h3 class="font-bold text-white mb-1">~8.4 Segundos</h3>
-                    <p class="text-xs text-slate-400">Tempo de execução dos 170 testes provando a ausência de I/O em disco ou latência de rede.</p>
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 text-center hover:border-emerald-700 transition">
+                    <div class="w-12 h-12 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">✓</div>
+                    <h3 class="font-bold text-white text-base mb-1">~8.4 Segundos</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Tempo de execução dos 170 testes provando a ausência de I/O em disco ou latência de requisições externas.</p>
                 </div>
             </div>
         </section>
 
         <!-- SLIDE 13: MÉTRICAS E TESTES AO VIVO -->
         <section id="slide13" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-5">
-                <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 12</span>
-                <h2 class="text-3xl font-extrabold text-white mt-1 mb-4">Métricas e Cobertura Oficial</h2>
-                <div class="p-4 bg-slate-900 rounded-lg border border-slate-800 mb-4 font-mono text-xs">
+            <div class="lg:col-span-4 space-y-4">
+                <div>
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 12</span>
+                    <h2 class="text-3xl font-extrabold text-white mt-1">Métricas e Cobertura Oficial</h2>
+                </div>
+                <div class="p-4 bg-slate-900 rounded-lg border border-slate-800 font-mono text-xs">
                     <p class="text-slate-400 mb-1"># Execução Geral no Terminal:</p>
-                    <p class="text-emerald-400 font-bold">npm test -- --coverage</p>
+                    <p class="text-emerald-400 font-bold text-sm">npm test -- --coverage</p>
                 </div>
                 <div class="space-y-2 text-xs text-slate-300">
                     <p>• <strong>52 Test Suites:</strong> 100% aprovadas (52/52)</p>
@@ -731,7 +830,7 @@ export class SessionStorageSecureStore implements SessionStorage {
                     <p>• <strong>Tempo:</strong> 8.449 segundos</p>
                 </div>
             </div>
-            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left text-slate-300">
                         <thead class="text-xs uppercase bg-slate-800 text-slate-400 font-mono">
@@ -823,8 +922,9 @@ export class SessionStorageSecureStore implements SessionStorage {
 
     </div>
 
-    <!-- Script de Alternância de Abas Interativas (Código vs Teste) -->
+    <!-- Scripts de Controle -->
     <script>
+        // Alternância de Abas Interativas (Código vs Teste)
         function switchTab(prefix, tab) {
             const codeEl = document.getElementById(prefix + '-tab-code');
             const testEl = document.getElementById(prefix + '-tab-test');
@@ -842,6 +942,13 @@ export class SessionStorageSecureStore implements SessionStorage {
                 btnTest.classList.add('active');
                 btnCode.classList.remove('active');
             }
+        }
+
+        // Controle do Tamanho da Fonte dos Códigos (A- / A+)
+        let currentFontSize = 0.84;
+        function changeFontSize(delta) {
+            currentFontSize = Math.min(Math.max(currentFontSize + (delta * 0.06), 0.70), 1.15);
+            document.documentElement.style.setProperty('--code-font-size', currentFontSize.toFixed(2) + 'rem');
         }
 
         // Navegação por teclado (Seta para cima e Seta para baixo)

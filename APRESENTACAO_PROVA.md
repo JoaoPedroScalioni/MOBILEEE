@@ -445,7 +445,20 @@ export class SessionStorageSecureStore implements SessionStorage {
 
 ---
 
-## 📑 Slide 12: Execução da Suíte de Testes e Métricas de Cobertura
+## 📑 Slide 12: Comprovação de Isolamento (100% Mock / Zero Conexão Externa)
+
+### Checklist de Conformidade com a Fase "Domínio e Interface Primeiro"
+* **Zero Conexão com SQLite:** Não há arquivos `.db`, drivers nativos ou migrações ativas em execução. Todos os repositórios operam sobre estruturas `Map<string, T>` em memória RAM.
+* **Zero Chamadas de Rede / Supabase:** Nenhuma requisição HTTP ou WebSocket é disparada nos testes. O gateway de sincronização (`RemoteSyncGateway`) opera de forma síncrona/mockada.
+* **Zero Dependência de Sensores Físicos:**
+  * Câmera: Retorno imediato de payload simulado em base64 (`InMemoryCameraGateway`).
+  * GPS: Coordenadas fixas e determinísticas injetadas em memória (`InMemoryLocationGateway`).
+* **Sessão Segura Virtualizada:** Chamadas do `expo-secure-store` são interceptadas no arquivo de setup de testes por um `Map` local (`tests/setup.ts`), sem acesso ao Keychain/Keystore do sistema operacional.
+* **Evidência Temporal de Isolamento:** A execução de **170 testes em apenas ~8.4 segundos** comprova a ausência total de bloqueios de I/O em disco ou latência de requisições de rede.
+
+---
+
+## 📑 Slide 13: Execução da Suíte de Testes e Métricas de Cobertura
 
 ### Comandos de Validação Automatizada
 ```bash
@@ -473,7 +486,7 @@ npx jest tests/adapters/     # Sessão segura e Context API
 
 ---
 
-## 📑 Slide 13: Fundamentos e Decisões de Arquitetura
+## 📑 Slide 14: Fundamentos e Decisões de Arquitetura
 
 ### 1. Separação de Persistência e Domínio
 A camada de domínio e a camada de aplicação são estritamente agnósticas quanto ao mecanismo de persistência. A substituição de repositórios em memória por SQLite ou Supabase ocorre unicamente na camada de infraestrutura via contratos já estabelecidos, sem alteração de lógica de negócio.
@@ -483,6 +496,14 @@ A integridade dos dados é assegurada no núcleo do modelo através da Raiz de A
 
 ### 3. Autenticação e Acesso Externo
 Usuários com credenciais fixas utilizam autenticação padrão com armazenamento criptografado no dispositivo. O acesso externo de supervisores é operado por tokens temporários autorreferenciados (`TokenSupervisor`), dispensando credenciais prévias no sistema de identidade.
+
+### 4. Ponto Único de Composição de Dependências (`container.ts`)
+A montagem do grafo de dependências da aplicação é centralizada no Singleton [`src/factory/container.ts`](file:///c:/PROJETOMOBILE/src/factory/container.ts). Casos de uso e adaptadores não instanciam repositórios concretos diretamente, respeitando o Princípio da Inversão de Controle (IoC).
+
+### 5. Conformidade Estrita com Clean Architecture
+* `src/domain/`: Não importa nenhuma dependência de infraestrutura, aplicação ou bibliotecas de UI (`react`, `react-native`, `expo`).
+* `src/usecases/`: Dependem exclusivamente de abstrações e entidades do domínio.
+* `src/adapters/`: Atuam como tradutores entre o ciclo de vida do framework móvel e os casos de uso.
 
 ---
 *Documento de Defesa Técnica — Fase 'Domínio e Interface Primeiro'.*

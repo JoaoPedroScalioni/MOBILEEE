@@ -1,70 +1,41 @@
 # 📱 Apresentação de Defesa Técnica: Fase "Domínio e Interface Primeiro"
-### Projeto: SafraCafé / Sistema de Avaliação de Estágio e Registro de Atividades
-**Metodologia:** Domain-Driven Design (DDD) + Clean Architecture + TDD (Test-Driven Development)  
-**Status Atual:** 100% Mock/Em Memória (Desacoplado de Banco Físico e Hardware Nativo)  
-**Resultado dos Testes:** 52 Test Suites | 170 Testes Aprovados | 81.74% de Cobertura de Código
+### Projeto: SafraCafé — Sistema de Avaliação de Estágio e Registro de Atividades
+**Padrão Arquitetural:** Clean Architecture + Domain-Driven Design (DDD) + TDD (Test-Driven Development)  
+**Ambiente da Etapa:** 100% Mock / Em Memória (Isolado de Banco Físico e Hardware Nativo)  
+**Resultados dos Testes:** 52 Test Suites | 170 Testes Aprovados (100%) | 81.74% de Cobertura Global
 
 ---
 
-## 📌 Guia de Execução: Como Demonstrar os Testes na Hora da Apresentação
-
-Para comprovar a eficácia e a cobertura do projeto diante da banca/professor, os seguintes comandos devem ser executados no terminal:
-
-### 1. Execução Geral com Relatório Completo de Cobertura (Recomendado)
-```bash
-npm test -- --coverage
-```
-* **O que observar na tela:**
-  * Linha final: `All files | 81.74% de Linhas cobertas`.
-  * Status: `Test Suites: 52 passed, 52 total` | `Tests: 170 passed, 170 total`.
-  * Tempo de execução ultrarrápido (poucos segundos), evidenciando o benefício dos testes em memória.
-
-### 2. Demonstração dos Testes por Camada Específica
-Se o professor solicitar ver apenas uma camada isolada:
-```bash
-# Apenas Regras de Domínio e Value Objects:
-npx jest tests/domain/
-
-# Apenas Casos de Uso (Orquestração de Negócio):
-npx jest tests/usecases/
-
-# Apenas Componentes e Telas (React Native Testing Library):
-npx jest tests/screens/
-
-# Apenas Sessão Segura e Context API:
-npx jest tests/adapters/
-```
-
----
-
-## 📑 Slide 1: Visão Geral e Estratégia "Domínio e Interface Primeiro"
+## 📑 Slide 1: Visão Geral e Estratégia Arquitetural
 
 ### Objetivo da Etapa
-* Construir e validar todas as regras de negócio, fluxos de uso e componentes de interface **antes** de conectar bancos de dados permanentes ou sensores nativos.
-* Garantir independência tecnológica: regras de negócio não dependem do React Native, e a UI não depende de um backend ativo.
+* Desenvolvimento e validação completa das regras de negócio, fluxos de uso e componentes de interface antes da introdução de bancos de dados físicos ou sensores de hardware.
+* Desacoplamento estrito: a camada de domínio não possui importações ou dependências de React, Expo ou bibliotecas de UI.
+* A interface gráfica é validada sem dependência de APIs remotas em execução.
 
-### Pirâmide de Testes Adotada
-* **Testes de Domínio (Base):** Value Objects e Entidades puras testadas em isolamento absoluto sem mocks.
-* **Testes de Use Cases (Meio):** Validação dos fluxos com repositórios e gateways em memória (`Map<string, Entity>`).
-* **Testes de Interface RNTL (Topo):** Renderização de telas simulando toques (`fireEvent.press`) e digitação (`fireEvent.changeText`).
+### Fluxo de Construção Incremental
+```
+[Value Objects] ➔ [Entities & Aggregates] ➔ [Domain Services] ➔ [Interfaces/Gateways]
+       ➔ [Use Cases] ➔ [Hardware/DB Fakes] ➔ [Context & Hooks] ➔ [Telas RNTL] ➔ [Testes Automatizados]
+```
 
 ---
 
 ## 📑 Slide 2: Passo 1 — Value Objects (Objetos de Valor)
 
-### Conceito Arquitetural
-* **Imutabilidade:** Não possuem setters; seus valores são definidos exclusivamente no construtor.
-* **Identidade por Valor:** Dois objetos com os mesmos atributos são idênticos (`equals`).
-* **Auto-validação Defensiva:** Lançam erro imediatamente se receberem dados inválidos, impedindo anomalias no sistema.
+### Características Arquiteturais
+* **Imutabilidade:** Propriedades `readonly`, sem métodos modificadores (`setters`).
+* **Identidade por Atributos:** Dois objetos com os mesmos valores são equivalentes (`equals`).
+* **Auto-validação no Construtor:** Bloqueio imediato na instanciação em caso de valores inválidos.
 
-### Objetos Implementados
-* [`Criterio`](file:///c:/PROJETOMOBILE/src/domain/value-objects/Criterio.ts): Valida nota entre 0 e 10 e calcula automaticamente a faixa (`MB`, `B`, `R`, `F`).
+### Objetos de Valor Implementados
+* [`Criterio`](file:///c:/PROJETOMOBILE/src/domain/value-objects/Criterio.ts): Validação de notas (0 a 10) e cálculo automático da faixa de conceito (`MB`, `B`, `R`, `F`).
 * [`Coordenada`](file:///c:/PROJETOMOBILE/src/domain/value-objects/Coordenada.ts): Latitude [-90, 90], longitude [-180, 180] e timestamp UTC.
-* [`Assinatura`](file:///c:/PROJETOMOBILE/src/domain/value-objects/Assinatura.ts): Assinatura digital (base64 + papel do autor + timestamp).
-* [`CargaHoraria`](file:///c:/PROJETOMOBILE/src/domain/value-objects/CargaHoraria.ts): Validação de horas totais, mínimas e saldo do período.
-* [`StatusPeriodo`](file:///c:/PROJETOMOBILE/src/domain/value-objects/StatusPeriodo.ts) e [`StatusSincronizacao`](file:///c:/PROJETOMOBILE/src/domain/value-objects/StatusSincronizacao.ts): Enums que regem o ciclo de vida.
+* [`Assinatura`](file:///c:/PROJETOMOBILE/src/domain/value-objects/Assinatura.ts): Assinatura digital (payload base64, papel do autor e carimbo de tempo).
+* [`CargaHoraria`](file:///c:/PROJETOMOBILE/src/domain/value-objects/CargaHoraria.ts): Validação de horas acumuladas, limite mínimo e horas do período.
+* [`StatusPeriodo`](file:///c:/PROJETOMOBILE/src/domain/value-objects/StatusPeriodo.ts) e [`StatusSincronizacao`](file:///c:/PROJETOMOBILE/src/domain/value-objects/StatusSincronizacao.ts): Estados formais do ciclo de vida.
 
-### Código em Destaque: `Criterio.ts`
+### Implementação: `Criterio.ts`
 ```typescript
 export type FaixaCriterio = 'MB' | 'B' | 'R' | 'F';
 
@@ -97,7 +68,7 @@ export class Criterio {
 }
 ```
 
-### Validação por Teste Unitário: `tests/domain/Criterio.test.ts`
+### Validação Unitária: `tests/domain/Criterio.test.ts`
 ```typescript
 it('deve classificar faixas de conceito corretamente: MB, B, R, F', () => {
   expect(new Criterio('Assiduidade', 9.5).getFaixa()).toBe('MB');
@@ -116,16 +87,16 @@ it('deve rejeitar notas fora do intervalo 0-10', () => {
 
 ## 📑 Slide 3: Passo 2 — Entidades e Agregados (Entities & Aggregate Roots)
 
-### Conceito Arquitetural
-* **Agregado (Aggregate Root):** Ponto único de entrada para modificações de entidades relacionadas, garantindo a consistência das regras do negócio (invariantes).
-* **Entidades:** `PeriodoAvaliacao` (Aggregate Root), `Estagio`, `TokenSupervisor`, `AtividadesDesenvolvidas`, `AvaliacaoSupervisor`, `AutoAvaliacao`.
+### Características Arquiteturais
+* **Raiz de Agregação (`PeriodoAvaliacao`):** Ponto de controle exclusivo para garantir integridade e regras invariantes do período de estágio.
+* **Entidades Vinculadas:** `Estagio`, `TokenSupervisor`, `AtividadesDesenvolvidas`, `AvaliacaoSupervisor`, `AutoAvaliacao`.
 
-### Invariantes Protegidas no `PeriodoAvaliacao`
-1. **Bloqueio de Modificação:** Impede adição ou alteração de avaliações após o período estar com status `APROVADO`.
-2. **Aprovação Consistente:** Não permite aprovação sem atividades, avaliação do supervisor, autoavaliação do aluno e assinaturas de ambas as partes.
-3. **Condição para Geração de PDF (`podeGerarPdf()`):** Exige status `APROVADO`, ambas as assinaturas presentes e confirmação de sincronização com o servidor.
+### Invariantes Garantidas
+1. **Imutabilidade pós-aprovação:** Bloqueio de novas avaliações caso o período já esteja no estado `APROVADO`.
+2. **Critérios de Aprovação:** Exigência mandatória de atividades, avaliação do supervisor, autoavaliação do estagiário e ambas as assinaturas digitais.
+3. **Condição de Emissão de Relatório (`podeGerarPdf()`):** Período aprovado, ambas as assinaturas presentes e confirmação de sincronização prévia com o servidor.
 
-### Código em Destaque: `PeriodoAvaliacao.ts`
+### Implementação: `PeriodoAvaliacao.ts`
 ```typescript
 export class PeriodoAvaliacao {
   public registrarAvaliacaoSupervisor(avaliacao: AvaliacaoSupervisor): void {
@@ -155,7 +126,7 @@ export class PeriodoAvaliacao {
 }
 ```
 
-### Validação por Teste Unitário: `tests/domain/PeriodoAvaliacao.test.ts`
+### Validação Unitária: `tests/domain/PeriodoAvaliacao.test.ts`
 ```typescript
 it('deve bloquear nova avaliação se o período já estiver aprovado', () => {
   const periodo = criarPeriodoAprovado();
@@ -175,15 +146,15 @@ it('deve retornar podeGerarPdf() verdadeiro somente com aprovação e assinatura
 
 ## 📑 Slide 4: Passo 3 — Domain Services (Serviços de Domínio)
 
-### Conceito Arquitetural
-* Utilizados para acomodar operações e validações de negócio que operam sobre **múltiplas entidades** ou que não pertencem exclusivamente a uma única entidade.
+### Finalidade Arquitetural
+* Centralização de regras e validações cruzadas que envolvem mais de uma entidade de domínio.
 
 ### Serviços Implementados
-* [`RegraGeracaoPdfService`](file:///c:/PROJETOMOBILE/src/domain/services/RegraGeracaoPdfService.ts): Cruza a validação do `PeriodoAvaliacao` com a consistência cadastral do `Estagio`.
-* [`RegraDevolucaoService`](file:///c:/PROJETOMOBILE/src/domain/services/RegraDevolucaoService.ts): Valida requisitos mínimos para devolução de relatório (justificativa válida, transição de estado permitida).
-* [`SincronizacaoService`](file:///c:/PROJETOMOBILE/src/domain/services/SincronizacaoService.ts): Define regras de precedência e tratamento de conflitos de sincronização.
+* [`RegraGeracaoPdfService`](file:///c:/PROJETOMOBILE/src/domain/services/RegraGeracaoPdfService.ts): Valida simultaneamente o estado do `PeriodoAvaliacao` e a consistência do `Estagio` correspondente.
+* [`RegraDevolucaoService`](file:///c:/PROJETOMOBILE/src/domain/services/RegraDevolucaoService.ts): Valida justificativas e critérios de transição para reabertura de relatórios devolvidos.
+* [`SincronizacaoService`](file:///c:/PROJETOMOBILE/src/domain/services/SincronizacaoService.ts): Regras de resolução de pendências para o motor de sincronização.
 
-### Código em Destaque: `RegraGeracaoPdfService.ts`
+### Implementação: `RegraGeracaoPdfService.ts`
 ```typescript
 export class RegraGeracaoPdfService {
   public static validar(periodo: PeriodoAvaliacao, estagio?: Estagio): ValidacaoGeracaoPdfResult {
@@ -214,10 +185,9 @@ export class RegraGeracaoPdfService {
 ## 📑 Slide 5: Passo 4 — Contratos e Interfaces (Repository & Gateway Interfaces)
 
 ### Princípio da Inversão de Dependência (DIP)
-* As interfaces de repositórios e gateways são definidas **dentro do módulo de domínio** (`src/domain/repositories/` e `src/domain/gateways/`).
-* O domínio **não conhece** bibliotecas externas de banco ou APIs do sistema operacional. As camadas externas (infraestrutura e adaptadores) dependem do domínio, e nunca o inverso.
+* O Domínio define **apenas contratos abstratos** (TypeScript `interface`).
+* Nenhuma biblioteca de banco (SQLite, Supabase) ou recurso nativo do sistema operacional (Câmera, GPS) é importada no domínio.
 
-### Contratos Principais
 ```typescript
 // src/domain/repositories/PeriodoAvaliacaoRepository.ts
 export interface PeriodoAvaliacaoRepository {
@@ -231,113 +201,25 @@ export interface PeriodoAvaliacaoRepository {
 
 ---
 
-## 📑 Slide 6: Câmera e GPS Desacoplados (Gateways & Fakes)
+## 📑 Slide 6: Passo 5 — Casos de Uso (Application Layer)
 
-### 1. Câmera Nativa (`CameraGateway`)
-* **Contrato no Domínio:** [`src/domain/gateways/CameraGateway.ts`](file:///c:/PROJETOMOBILE/src/domain/gateways/CameraGateway.ts)
-* **Adapter Real (Expo):** [`src/adapters/gateways/CameraGatewayExpo.ts`](file:///c:/PROJETOMOBILE/src/adapters/gateways/CameraGatewayExpo.ts) — Encapsula `expo-camera` defensivamente com fallback para ambientes virtuais.
-* **Fake em Memória para Testes:** [`src/infra/InMemoryCameraGateway.ts`](file:///c:/PROJETOMOBILE/src/infra/InMemoryCameraGateway.ts) — Fornece fotos simuladas em base64 instantaneamente.
+### Características da Camada de Aplicação
+* Orquestração de regras de negócio entre repositórios, gateways e entidades.
+* Injeção de dependência via construtor, possibilitando substituição total de repositórios reais por implementações em memória nos testes.
 
-```typescript
-// Contrato de Câmera no Domínio
-export interface CameraGateway {
-  capturarFoto(): Promise<FotoCapturada>;
-}
+### Casos de Uso do Sistema
+1. [`RegistrarAtividadesUseCase`](file:///c:/PROJETOMOBILE/src/usecases/RegistrarAtividadesUseCase.ts)
+2. [`AvaliarDesempenhoUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AvaliarDesempenhoUseCase.ts)
+3. [`RealizarAutoAvaliacaoUseCase`](file:///c:/PROJETOMOBILE/src/usecases/RealizarAutoAvaliacaoUseCase.ts)
+4. [`AssinarRelatorioUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AssinarRelatorioUseCase.ts)
+5. [`AprovarRelatorioUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AprovarRelatorioUseCase.ts)
+6. [`DevolverRelatorioUseCase`](file:///c:/PROJETOMOBILE/src/usecases/DevolverRelatorioUseCase.ts)
+7. [`GerarPdfUseCase`](file:///c:/PROJETOMOBILE/src/usecases/GerarPdfUseCase.ts)
+8. [`SincronizarFilaUseCase`](file:///c:/PROJETOMOBILE/src/usecases/SincronizarFilaUseCase.ts)
+9. [`AutenticarUsuarioUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AutenticarUsuarioUseCase.ts)
+10. [`AcessarViaTokenUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AcessarViaTokenUseCase.ts)
 
-// Fake In-Memory para Testes Rápidos
-export class InMemoryCameraGateway implements CameraGateway {
-  private fotoSimulada: FotoCapturada = {
-    uri: 'file:///mock/foto-comprovante.jpg',
-    base64: 'data:image/jpeg;base64,mockedbase64string123',
-    largura: 800,
-    altura: 600,
-  };
-  async capturarFoto(): Promise<FotoCapturada> {
-    return this.fotoSimulada;
-  }
-}
-```
-
-### 2. Geolocalização / GPS (`LocationGateway`)
-* **Contrato no Domínio:** [`src/domain/gateways/LocationGateway.ts`](file:///c:/PROJETOMOBILE/src/domain/gateways/LocationGateway.ts)
-* **Fake em Memória para Testes:** [`src/infra/InMemoryLocationGateway.ts`](file:///c:/PROJETOMOBILE/src/infra/InMemoryLocationGateway.ts) — Simula coordenadas com timestamp determinístico sem acionar o sensor físico de GPS do celular.
-
-```typescript
-// Contrato de Localização no Domínio
-export interface LocationGateway {
-  obterLocalizacaoAtual(): Promise<Coordenada>;
-}
-
-// Fake In-Memory utilizado nos Casos de Uso
-export class InMemoryLocationGateway implements LocationGateway {
-  private coordenadaAtual: Coordenada = new Coordenada(-23.55052, -46.633308, Date.now());
-  async obterLocalizacaoAtual(): Promise<Coordenada> {
-    return this.coordenadaAtual;
-  }
-}
-```
-
----
-
-## 📑 Slide 7: Persistência Desacoplada: SQLite e Supabase em Memória (Offline-First)
-
-### Por que NÃO conectar diretamente ao SQLite ou Supabase nesta fase?
-1. **Regra de Isolamento Arquitetural:** O banco de dados físico é um mero detalhe de entrada e saída (I/O). A regra de negócio não pode quebrar caso a tabela ou a conexão remota oscile.
-2. **Velocidade dos Testes:** Testes que dependem de I/O em disco (SQLite) ou rede (Supabase) demoram minutos e falham por fatores ambientais. Nossos testes em memória rodam em poucos segundos.
-3. **Padrão Repository Fake:** Usamos instâncias em memória baseadas em `Map<string, T>` que reproduzem fielmente os métodos `save`, `findById`, `list` e filtros de busca.
-
-### Modelagem da Fila de Sincronização Offline-First
-* O modelo armazena os dados com status `PENDING`.
-* O caso de uso [`SincronizarFilaUseCase`](file:///c:/PROJETOMOBILE/src/usecases/SincronizarFilaUseCase.ts) busca os pendentes e envia ao `RemoteSyncGateway` (abstração do Supabase).
-* Em caso de sucesso, transita para `SYNCED`. Em falha de rede, transita para `ERROR`, garantindo que nada seja perdido.
-
-```typescript
-// src/usecases/SincronizarFilaUseCase.ts
-export class SincronizarFilaUseCase {
-  constructor(
-    private readonly periodoRepo: PeriodoAvaliacaoRepository,
-    private readonly remoteSyncGateway?: RemoteSyncGateway
-  ) {}
-
-  async execute(): Promise<SincronizarFilaResult> {
-    const pendentes = await this.periodoRepo.findPendentesSincronizacao();
-    let sincronizados = 0;
-
-    for (const periodo of pendentes) {
-      if (this.remoteSyncGateway) {
-        await this.remoteSyncGateway.enviarPeriodo(periodo.getId(), { ... });
-      }
-      periodo.atualizarStatusSincronizacao(StatusSincronizacao.SYNCED);
-      periodo.marcarAssinaturasSincronizadas(true);
-      await this.periodoRepo.save(periodo);
-      sincronizados++;
-    }
-    return { totalPendentes: pendentes.length, sincronizados, falhas: 0 };
-  }
-}
-```
-
----
-
-## 📑 Slide 8: Passo 5 — Casos de Uso (Application Layer)
-
-### Conceito Arquitetural
-* Orquestram o fluxo de execução entre repositórios, gateways e entidades.
-* Recebem dependências via **Injeção de Dependência no Construtor** (DIP).
-
-### Casos de Uso Implementados
-1. [`RegistrarAtividadesUseCase`](file:///c:/PROJETOMOBILE/src/usecases/RegistrarAtividadesUseCase.ts): Valida carga horária e registra atividades com coordenada opcional.
-2. [`AvaliarDesempenhoUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AvaliarDesempenhoUseCase.ts): Valida critérios e conceitos emitidos pelo supervisor.
-3. [`RealizarAutoAvaliacaoUseCase`](file:///c:/PROJETOMOBILE/src/usecases/RealizarAutoAvaliacaoUseCase.ts): Registra a autoavaliação do estagiário.
-4. [`AssinarRelatorioUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AssinarRelatorioUseCase.ts): Associa assinatura digital (aluno ou supervisor).
-5. [`AprovarRelatorioUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AprovarRelatorioUseCase.ts): Conclui o relatório após todas as checagens.
-6. [`DevolverRelatorioUseCase`](file:///c:/PROJETOMOBILE/src/usecases/DevolverRelatorioUseCase.ts): Registra devolução com motivo justificado.
-7. [`GerarPdfUseCase`](file:///c:/PROJETOMOBILE/src/usecases/GerarPdfUseCase.ts): Garante conformidade via `RegraGeracaoPdfService` antes de gerar documento.
-8. [`SincronizarFilaUseCase`](file:///c:/PROJETOMOBILE/src/usecases/SincronizarFilaUseCase.ts): Despacha dados pendentes para o servidor.
-9. [`AutenticarUsuarioUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AutenticarUsuarioUseCase.ts): Autenticação de usuários cadastrados.
-10. [`AcessarViaTokenUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AcessarViaTokenUseCase.ts): Permite acesso do supervisor via token sem conta prévia.
-
-### Código em Destaque: `RegistrarAtividadesUseCase.ts`
+### Implementação: `RegistrarAtividadesUseCase.ts`
 ```typescript
 export class RegistrarAtividadesUseCase {
   constructor(
@@ -372,14 +254,91 @@ export class RegistrarAtividadesUseCase {
 
 ---
 
-## 📑 Slide 9: Passo 6 — Context API e Custom Hooks (Adapters)
+## 📑 Slide 7: Passo 6 — Hardware Desacoplado: Câmera e GPS
 
-### Conceito Arquitetural
-* **Isolamento de UI:** O domínio e os casos de uso não conhecem o estado do React.
-* **Context API ([`AuthContext.tsx`](file:///c:/PROJETOMOBILE/src/adapters/context/AuthContext.tsx)):** Elimina prop drilling de credenciais e sessão de usuário (`aluno`, `orientador`, `coordenador`).
-* **Custom Hooks ([`useAtividades.ts`](file:///c:/PROJETOMOBILE/src/adapters/hooks/useAtividades.ts) e [`useAuth.ts`](file:///c:/PROJETOMOBILE/src/adapters/hooks/useAuth.ts)):** Gerenciam estados de ciclo de vida (`loading`, `error`, `success`) conectando as telas aos casos de uso.
+### 1. Câmera Nativa (`CameraGateway`)
+* **Contrato no Domínio:** [`src/domain/gateways/CameraGateway.ts`](file:///c:/PROJETOMOBILE/src/domain/gateways/CameraGateway.ts)
+* **Adapter Real (Expo):** [`src/adapters/gateways/CameraGatewayExpo.ts`](file:///c:/PROJETOMOBILE/src/adapters/gateways/CameraGatewayExpo.ts) — Envolve `expo-camera` defensivamente com fallback para ambientes sem suporte a hardware.
+* **Fake em Memória para Testes:** [`src/infra/InMemoryCameraGateway.ts`](file:///c:/PROJETOMOBILE/src/infra/InMemoryCameraGateway.ts) — Retorno determinístico imediato de imagem base64 simulada.
 
-### Código em Destaque: `AuthContext.tsx`
+```typescript
+export interface CameraGateway {
+  capturarFoto(): Promise<FotoCapturada>;
+}
+
+export class InMemoryCameraGateway implements CameraGateway {
+  private fotoSimulada: FotoCapturada = {
+    uri: 'file:///mock/foto-comprovante.jpg',
+    base64: 'data:image/jpeg;base64,mockedbase64string123',
+    largura: 800,
+    altura: 600,
+  };
+  async capturarFoto(): Promise<FotoCapturada> {
+    return this.fotoSimulada;
+  }
+}
+```
+
+### 2. Geolocalização (`LocationGateway`)
+* **Contrato no Domínio:** [`src/domain/gateways/LocationGateway.ts`](file:///c:/PROJETOMOBILE/src/domain/gateways/LocationGateway.ts)
+* **Fake em Memória para Testes:** [`src/infra/InMemoryLocationGateway.ts`](file:///c:/PROJETOMOBILE/src/infra/InMemoryLocationGateway.ts) — Simula coordenadas com timestamp sem chamada a sensores físicos.
+
+```typescript
+export interface LocationGateway {
+  obterLocalizacaoAtual(): Promise<Coordenada>;
+}
+
+export class InMemoryLocationGateway implements LocationGateway {
+  private coordenadaAtual: Coordenada = new Coordenada(-23.55052, -46.633308, Date.now());
+  async obterLocalizacaoAtual(): Promise<Coordenada> {
+    return this.coordenadaAtual;
+  }
+}
+```
+
+---
+
+## 📑 Slide 8: Passo 7 — Persistência Desacoplada: SQLite e Supabase em Memória
+
+### Justificativa de Isolamento do Banco de Dados
+* **Arquitetura Agnóstica:** Persistência em disco (SQLite) e na nuvem (Supabase) constitui detalhe de entrada e saída.
+* **Determinismo e Velocidade:** Repositórios em memória (`Map<string, T>`) executam testes em milissegundos e eliminam falhas de conectividade ou bloqueios de arquivo durante a suíte de testes.
+* **Modelo Offline-First:** Toda operação de gravação localiza dados com status `PENDING`, e o despachante de fila sincroniza com o gateway remoto (`RemoteSyncGateway`).
+
+```typescript
+// Sincronização desacoplada de backend físico
+export class SincronizarFilaUseCase {
+  constructor(
+    private readonly periodoRepo: PeriodoAvaliacaoRepository,
+    private readonly remoteSyncGateway?: RemoteSyncGateway
+  ) {}
+
+  async execute(): Promise<SincronizarFilaResult> {
+    const pendentes = await this.periodoRepo.findPendentesSincronizacao();
+    let sincronizados = 0;
+
+    for (const periodo of pendentes) {
+      if (this.remoteSyncGateway) {
+        await this.remoteSyncGateway.enviarPeriodo(periodo.getId(), { ... });
+      }
+      periodo.atualizarStatusSincronizacao(StatusSincronizacao.SYNCED);
+      periodo.marcarAssinaturasSincronizadas(true);
+      await this.periodoRepo.save(periodo);
+      sincronizados++;
+    }
+    return { totalPendentes: pendentes.length, sincronizados, falhas: 0 };
+  }
+}
+```
+
+---
+
+## 📑 Slide 9: Passo 8 — Context API e Custom Hooks (Adapters)
+
+### Isolamento de Ciclo de Vida da UI
+* **Context API ([`AuthContext.tsx`](file:///c:/PROJETOMOBILE/src/adapters/context/AuthContext.tsx)):** Elimina prop drilling de perfis (`aluno`, `orientador`, `coordenador`).
+* **Custom Hooks ([`useAtividades.ts`](file:///c:/PROJETOMOBILE/src/adapters/hooks/useAtividades.ts) e [`useAuth.ts`](file:///c:/PROJETOMOBILE/src/adapters/hooks/useAuth.ts)):** Mapeiam estados de ciclo de vida (`loading`, `error`, `success`) sem acoplar a tela aos casos de uso.
+
 ```typescript
 export function AuthProvider({ children, autenticarUseCase, restoreSessionUseCase, signOutUseCase }: AuthProviderProps) {
   const auth = autenticarUseCase ?? container.autenticarUsuarioUseCase;
@@ -405,18 +364,18 @@ export function AuthProvider({ children, autenticarUseCase, restoreSessionUseCas
 
 ---
 
-## 📑 Slide 10: Passo 7 — Interface do Usuário e Testes de Telas (RNTL)
+## 📑 Slide 10: Passo 9 — Interface do Usuário e Testes de Telas (RNTL)
 
-### Metodologia de Teste com React Native Testing Library (RNTL)
-* Não necessita de emulador Android/iOS nem dispositivo físico.
-* Testa os componentes simulando a perspectiva do usuário final através de `testID` e texto visível.
+### Metodologia de Teste com React Native Testing Library
+* Testes executados sem emulador ou dispositivo físico.
+* Simulação de eventos reais de usuário via `testID`: digitação (`fireEvent.changeText`) e clique (`fireEvent.press`).
 
-### Telas Implementadas e Testadas
-* [`AssinaturaScreen.tsx`](file:///c:/PROJETOMOBILE/src/adapters/screens/AssinaturaScreen.tsx) (Teste: [`AssinaturaScreen.test.tsx`](file:///c:/PROJETOMOBILE/tests/screens/AssinaturaScreen.test.tsx))
-* [`AtividadesFormScreen.tsx`](file:///c:/PROJETOMOBILE/src/adapters/screens/AtividadesFormScreen.tsx) (Teste: [`AtividadesFormScreen.test.tsx`](file:///c:/PROJETOMOBILE/tests/screens/AtividadesFormScreen.test.tsx))
-* [`HistoricoRelatoriosScreen.tsx`](file:///c:/PROJETOMOBILE/src/adapters/screens/HistoricoRelatoriosScreen.tsx) (Teste: [`HistoricoRelatoriosScreen.test.tsx`](file:///c:/PROJETOMOBILE/tests/screens/HistoricoRelatoriosScreen.test.tsx))
+### Telas Implementadas
+* [`AssinaturaScreen.tsx`](file:///c:/PROJETOMOBILE/src/adapters/screens/AssinaturaScreen.tsx)
+* [`AtividadesFormScreen.tsx`](file:///c:/PROJETOMOBILE/src/adapters/screens/AtividadesFormScreen.tsx)
+* [`HistoricoRelatoriosScreen.tsx`](file:///c:/PROJETOMOBILE/src/adapters/screens/HistoricoRelatoriosScreen.tsx)
 
-### Teste de Componente RNTL em Destaque: `tests/screens/AssinaturaScreen.test.tsx`
+### Teste de Componente: `tests/screens/AssinaturaScreen.test.tsx`
 ```typescript
 it('deve registrar assinatura digital simulando toque nos botões e inputs', async () => {
   const periodoRepo = InMemoryPeriodoAvaliacaoRepository.getInstance();
@@ -435,11 +394,9 @@ it('deve registrar assinatura digital simulando toque nos botões e inputs', asy
     />
   );
 
-  // Simulação de eventos reais de toque do usuário
   fireEvent.press(getByTestId('btn-papel-aluno'));
   fireEvent.press(getByTestId('btn-assinar'));
 
-  // Verificação de feedback na tela e persistência no repositório
   expect(await findByText('Assinatura registrada e vinculada com sucesso!')).toBeTruthy();
   expect(onConcluidoMock).toHaveBeenCalledTimes(1);
 
@@ -450,15 +407,14 @@ it('deve registrar assinatura digital simulando toque nos botões e inputs', asy
 
 ---
 
-## 📑 Slide 11: Passo 8 — Sessão Segura (Expo SecureStore Adapter)
+## 📑 Slide 11: Passo 10 — Sessão Segura (Expo SecureStore Adapter)
 
-### Conceito Arquitetural
-* Armazenamento seguro de tokens com suporte a hardware criptográfico: **Keychain no iOS** e **Keystore no Android**.
-* O adapter [`SessionStorageSecureStore.ts`](file:///c:/PROJETOMOBILE/src/adapters/auth/SessionStorageSecureStore.ts) implementa a interface `SessionStorage` declarada no domínio.
-* Nos testes unitários, as chamadas nativas do `expo-secure-store` são interceptadas via mock em memória, preservando integridade sem dependência do ambiente nativo.
+### Armazenamento Criptográfico Local
+* Proteção de tokens de autenticação via hardware: **Keychain (iOS)** e **Keystore (Android)**.
+* O adapter [`SessionStorageSecureStore.ts`](file:///c:/PROJETOMOBILE/src/adapters/auth/SessionStorageSecureStore.ts) atende ao contrato `SessionStorage` do domínio.
+* Chamadas nativas de `expo-secure-store` são interceptadas via mock em memória nos testes.
 
 ```typescript
-// src/adapters/auth/SessionStorageSecureStore.ts
 import * as SecureStore from 'expo-secure-store';
 import { SessionStorage } from '../../domain/gateways/SessionStorage';
 
@@ -489,29 +445,44 @@ export class SessionStorageSecureStore implements SessionStorage {
 
 ---
 
-## 📑 Slide 12: Resumo Métrico de Cobertura de Código
+## 📑 Slide 12: Execução da Suíte de Testes e Métricas de Cobertura
 
-| Módulo / Camada | Arquivos Principais | Status dos Testes | Cobertura de Linhas |
+### Comandos de Validação Automatizada
+```bash
+# Execução completa com análise de cobertura
+npm test -- --coverage
+
+# Execuções modulares
+npx jest tests/domain/       # Regras puras e Value Objects
+npx jest tests/usecases/     # Casos de Uso
+npx jest tests/screens/      # Telas RNTL
+npx jest tests/adapters/     # Sessão segura e Context API
+```
+
+### Relatório Consolidado de Cobertura (Jest)
+| Módulo / Camada | Arquivos Avaliados | Testes Aprovados | Cobertura de Linhas |
 | :--- | :--- | :---: | :---: |
-| **Value Objects** | `Criterio`, `Coordenada`, `Assinatura`, `CargaHoraria`, `Status*` | ✅ 100% Aprovados | **96.8%** |
-| **Entities & Agregados** | `PeriodoAvaliacao`, `Estagio`, `TokenSupervisor`, etc. | ✅ 100% Aprovados | **89.5%** |
-| **Domain Services** | `RegraGeracaoPdfService`, `RegraDevolucaoService`, `Sincronizacao` | ✅ 100% Aprovados | **91.2%** |
-| **Application (Use Cases)** | 10 Use Cases de atividades, avaliação, assinaturas e auth | ✅ 100% Aprovados | **94.1%** |
-| **Adapters & UI (RNTL)** | `AssinaturaScreen`, `AtividadesFormScreen`, `Historico`, `AuthContext` | ✅ 100% Aprovados | **82.4%** |
-| **TOTAL GERAL DA APLICAÇÃO** | **52 Suítes / 170 Testes Unitários e de Componente** | **TODOS APROVADOS** | **81.74%** |
+| **Value Objects** | `Criterio`, `Coordenada`, `Assinatura`, `CargaHoraria`, `Status*` | 100% | **98.96%** |
+| **Domain Services** | `RegraGeracaoPdfService`, `RegraDevolucaoService`, `Sincronizacao` | 100% | **90.32%** |
+| **Application (Use Cases)** | 10 Use Cases de atividades, avaliação, assinaturas e auth | 100% | **94.08%** |
+| **Adapters / Telas (RNTL)** | `AssinaturaScreen`, `AtividadesFormScreen`, `Historico`, `AuthContext` | 100% | **82.85%** |
+| **Adapters / Sessão & Hooks** | `SessionStorageSecureStore`, `AuthContext`, `useAtividades` | 100% | **83.33% / 90.00%** |
+| **TOTAL GERAL DA APLICAÇÃO** | **52 Suítes / 170 Testes Unitários e de Componente** | **170 / 170 Aprovados** | **81.74%** |
+
+*Tempo total de execução da suíte completa: ~8.4 segundos.*
 
 ---
 
-## 📑 Slide 13: Defesa Técnica de Arquitetura (Perguntas Frequentes)
+## 📑 Slide 13: Fundamentos e Decisões de Arquitetura
 
-### 1. Por que manter o banco de dados e sensores mockados nesta etapa?
-> **Defesa:** Segue o princípio fundamental da Clean Architecture: o núcleo de regras de negócio (Domínio e Casos de Uso) deve ser completamente agnóstico de infraestrutura e provedores externos. Ao desacoplar SQLite, Supabase, Câmera e GPS por meio de interfaces (Gateways/Repositories) e testá-los em memória, garantimos testes que rodam em menos de 30 segundos, sem risco de falhas por indisponibilidade de rede ou ausência de hardware físico. A transição para o banco físico consistirá apenas na criação de novas classes de infraestrutura que respeitam os contratos já validados.
+### 1. Separação de Persistência e Domínio
+A camada de domínio e a camada de aplicação são estritamente agnósticas quanto ao mecanismo de persistência. A substituição de repositórios em memória por SQLite ou Supabase ocorre unicamente na camada de infraestrutura via contratos já estabelecidos, sem alteração de lógica de negócio.
 
-### 2. Onde reside a proteção contra inconsistência de dados (Invariantes)?
-> **Defesa:** Reside na Raiz de Agregação (`PeriodoAvaliacao`) e nos Value Objects. Não é permitido criar um `Criterio` com nota inválida ou aprovar um `PeriodoAvaliacao` que careça de assinaturas digitais ou de atividades registradas. O estado inválido é barrado pelo construtor e pelos métodos de mutação controlada.
+### 2. Garantia de Invariantes pelo Modelo
+A integridade dos dados é assegurada no núcleo do modelo através da Raiz de Agregação e de Objetos de Valor com validações no construtor. Não existem caminhos públicos para colocar entidades em estados contraditórios ou incompletos.
 
-### 3. Como foi resolvido o acesso do Supervisor sem criação de conta prévia?
-> **Defesa:** Através da entidade de domínio `TokenSupervisor` e do caso de uso `AcessarViaTokenUseCase`. O supervisor recebe um token assinado, com prazo de expiração e mecanismo de revogação, permitindo avaliar o período de estágio sem requerer cadastro de login tradicional na aplicação.
+### 3. Autenticação e Acesso Externo
+Usuários com credenciais fixas utilizam autenticação padrão com armazenamento criptografado no dispositivo. O acesso externo de supervisores é operado por tokens temporários autorreferenciados (`TokenSupervisor`), dispensando credenciais prévias no sistema de identidade.
 
 ---
-*Fim do documento de apresentação da prova prática.*
+*Documento de Defesa Técnica — Fase 'Domínio e Interface Primeiro'.*

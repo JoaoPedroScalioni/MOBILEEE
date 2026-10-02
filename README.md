@@ -75,3 +75,5 @@ Suíte com **85 testes em 23 arquivos**, organizada na pirâmide:
 
 Documentação completa de engenharia em [`docs/documento-software-mobile.md`](docs/documento-software-mobile.md).
 Slides da primeira apresentação em [`docs/apresentacao-primeira-entrega.md`](docs/apresentacao-primeira-entrega.md).
+
+<!-- safra-cafe -->

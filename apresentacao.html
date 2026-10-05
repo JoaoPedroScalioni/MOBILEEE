@@ -884,18 +884,18 @@ export class Criterio {
                         O <strong>PeriodoAvaliacao</strong> é a Raiz de Agregação. Controla o ciclo de vida e protege as <strong>invariantes de negócio</strong> contra estados ilegais.
                     </p>
                 </div>
-                <div class="space-y-2.5 text-xs text-slate-300">
-                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-1">Invariante 1: Bloqueio de Edição</strong>
-                        Não permite adicionar ou modificar avaliações em um período com status <code>APROVADO</code>.
+                <div class="space-y-2 text-xs text-slate-300">
+                    <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">PeriodoAvaliacao (Aggregate Root)</strong>
+                        Gerencia <code>AtividadesDesenvolvidas</code>, <code>AvaliacaoSupervisor</code>, <code>AutoAvaliacao</code> e assinaturas. Bloqueia alterações se aprovado e valida <code>podeGerarPdf()</code> com assinaturas sincronizadas.
                     </div>
-                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-1">Invariante 2: Aprovação Consistente</strong>
-                        Exige atividades registradas, avaliação do supervisor, autoavaliação do aluno e assinaturas de ambas as partes.
+                    <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">Estagio & TokenSupervisor (Raízes Próprias)</strong>
+                        Supervisor externo acessa via token com prazo de expiração e revogação, sem necessitar de conta ou autenticação padrão.
                     </div>
-                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-1">Invariante 3: podeGerarPdf()</strong>
-                        Exige status <code>APROVADO</code>, ambas as assinaturas presentes e confirmação <code>assinaturasSincronizadas === true</code>.
+                    <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">Invariantes de Negócio Blindadas</strong>
+                        Impossível registrar 2ª avaliação após aprovação; bloqueia geração de PDF se faltar qualquer assinatura digital sincronizada.
                     </div>
                 </div>
             </div>
@@ -1032,11 +1032,12 @@ export class Criterio {
                         O <strong>Princípio da Inversão de Dependência</strong>: o Domínio dita os contratos (interfaces). A infraestrutura externa apenas cumpre esses contratos.
                     </p>
                 </div>
-                <div class="p-4 bg-slate-900 rounded-lg border border-slate-800 text-xs font-mono text-slate-300 space-y-2">
-                    <p class="text-emerald-400 font-bold uppercase">Regra Unidirecional:</p>
-                    <p class="bg-slate-950 p-2 rounded border border-slate-800">Domínio define Contratos TypeScript</p>
-                    <p class="bg-slate-950 p-2 rounded border border-slate-800">Infraestrutura implementa as Interfaces</p>
-                    <p class="bg-slate-950 p-2 rounded border border-slate-800">Casos de Uso recebem Contratos via Construtor</p>
+                <div class="p-3.5 bg-slate-900 rounded-lg border border-slate-800 text-xs font-mono text-slate-300 space-y-1.5">
+                    <p class="text-emerald-400 font-bold uppercase text-[11px]">Contratos Essenciais Declarados no Domínio:</p>
+                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>PeriodoAvaliacaoRepository:</strong> Persistência abstrata</p>
+                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>CameraGateway:</strong> Captura de fotos/comprovantes</p>
+                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>LocationGateway:</strong> Telemetria de campo e GPS</p>
+                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>AuthGateway:</strong> Autenticação de credenciais</p>
                 </div>
             </div>
             <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
@@ -1065,17 +1066,20 @@ export interface PeriodoAvaliacaoRepository {
                         Orquestram as operações de negócio recebendo DTOs e injetando repositórios e gateways via construtor.
                     </p>
                 </div>
-                <div class="grid grid-cols-2 gap-1.5 text-[11px] text-slate-300 font-mono">
-                    <span class="p-2 bg-slate-900 rounded border border-slate-800">1. RegistrarAtividades</span>
-                    <span class="p-2 bg-slate-900 rounded border border-slate-800">2. AvaliarDesempenho</span>
-                    <span class="p-2 bg-slate-900 rounded border border-slate-800">3. RealizarAutoAvaliacao</span>
-                    <span class="p-2 bg-slate-900 rounded border border-slate-800">4. AssinarRelatorio</span>
-                    <span class="p-2 bg-slate-900 rounded border border-slate-800">5. AprovarRelatorio</span>
-                    <span class="p-2 bg-slate-900 rounded border border-slate-800">6. DevolverRelatorio</span>
-                    <span class="p-2 bg-slate-900 rounded border border-slate-800">7. GerarPdf</span>
-                    <span class="p-2 bg-slate-900 rounded border border-slate-800">8. SincronizarFila</span>
-                    <span class="p-2 bg-slate-900 rounded border border-slate-800">9. AutenticarUsuario</span>
-                    <span class="p-2 bg-slate-900 rounded border border-slate-800">10. AcessarViaToken</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10.5px] text-slate-300 font-mono">
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="RegistrarAtividadesUseCase">1. RegistrarAtividadesUseCase</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AvaliarDesempenhoUseCase">2. AvaliarDesempenhoUseCase</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="RealizarAutoAvaliacaoUseCase">3. RealizarAutoAvaliacaoUseCase</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AssinarRelatorioUseCase">4. AssinarRelatorioUseCase</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AprovarRelatorioUseCase">5. AprovarRelatorioUseCase</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="DevolverRelatorioUseCase">6. DevolverRelatorioUseCase</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="GerarPdfUseCase">7. GerarPdfUseCase</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="SincronizarFilaUseCase">8. SincronizarFilaUseCase</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AutenticarUsuarioUseCase">9. AutenticarUsuarioUseCase</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AcessarViaTokenUseCase">10. AcessarViaTokenUseCase</span>
+                </div>
+                <div class="p-2.5 bg-slate-900/90 rounded-lg border border-slate-800 text-[11px] text-slate-400">
+                    <strong class="text-emerald-400">Testes com Fakes In-Memory:</strong> Validados via TDD com <code>PeriodoAvaliacaoRepositoryFake</code> (utilizando <code>Map</code>), cobrindo caminho feliz, erros e permissões.
                 </div>
             </div>
             <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
@@ -1135,8 +1139,8 @@ export class RegistrarAtividadesUseCase {
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="bg-slate-900 p-5 rounded-xl border border-slate-800">
-                    <h3 class="text-base font-bold text-emerald-400 mb-2">Câmera Nativa (CameraGateway)</h3>
-                    <p class="text-xs text-slate-300 mb-3 leading-relaxed">Retorno imediato de imagem base64 simulada nos testes, sem disparar câmera física ou diálogos de permissão.</p>
+                    <h3 class="text-base font-bold text-emerald-400 mb-1">Câmera Nativa (CameraGateway)</h3>
+                    <p class="text-xs text-slate-300 mb-3 leading-relaxed">Em produção, <strong>CameraGatewayExpo</strong> embrulha <code>expo-camera</code> atrás da interface do domínio. Nos testes, <strong>InMemoryCameraGateway</strong> retorna foto base64 instantânea sem acionar hardware.</p>
                     <div class="code-container bg-slate-950">
 <pre><code class="language-typescript">// src/infra/InMemoryCameraGateway.ts
 export class InMemoryCameraGateway implements CameraGateway {
@@ -1244,14 +1248,18 @@ export class InMemoryLocationGateway implements LocationGateway {
                         Ponte desacoplada entre os Casos de Uso e o ciclo de vida dos componentes do React Native.
                     </p>
                 </div>
-                <div class="space-y-3 text-xs text-slate-300">
+                <div class="space-y-2.5 text-xs text-slate-300">
                     <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-1">AuthContext:</strong>
-                        Elimina prop drilling disponibilizando o estado da sessão e papéis (aluno, orientador, coordenador) globalmente.
+                        <strong class="text-emerald-400 block font-semibold mb-1">Localização Arquitetural: Adapters/UI</strong>
+                        O domínio e os casos de uso <strong>nunca importam Context API</strong>. Apenas as telas consom o <code>AuthProvider</code> via <code>useContext</code>.
                     </div>
                     <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-1">useAtividades & useAuth:</strong>
-                        Mapeiam estados assíncronos (<code>loading</code>, <code>error</code>, <code>success</code>) mantendo as telas limpas de regras de orquestração.
+                        <strong class="text-emerald-400 block font-semibold mb-1">AuthContext (Sem Prop Drilling):</strong>
+                        Disponibiliza sessão e papéis (<em>Aluno</em>, <em>Orientador</em>, <em>Coordenação</em>) globalmente na raiz da aplicação.
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">Custom Hooks de Ponte (useAuth, useAtividades):</strong>
+                        Fronteira com as telas, adaptando os Use Cases ao ciclo de vida e gerenciando estados: <code>idle</code>, <code>salvando</code> e <code>salvo</code>.
                     </div>
                 </div>
             </div>
@@ -1298,10 +1306,10 @@ export class InMemoryLocationGateway implements LocationGateway {
                     </p>
                 </div>
                 <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 text-xs text-slate-300 space-y-1.5">
-                    <p class="font-bold text-emerald-400 uppercase text-[11px]">Telas Validadas:</p>
-                    <p>• <strong>AssinaturaScreen:</strong> Captura e vinculação de assinatura digital.</p>
-                    <p>• <strong>AtividadesFormScreen:</strong> Formulário com validação de horas.</p>
-                    <p>• <strong>HistoricoRelatoriosScreen:</strong> Listagem e status do estágio.</p>
+                    <p class="font-bold text-emerald-400 uppercase text-[11px]">Navegação & Telas Validadas:</p>
+                    <p>• <strong>Expo Router (app/):</strong> Fronteira Boundary (ex.: <code>app/login.tsx</code>, <code>app/(aluno)/atividades.tsx</code>).</p>
+                    <p>• <strong>Layouts Nativos:</strong> <code>&lt;View&gt;</code>, <code>&lt;Text&gt;</code>, <code>StyleSheet</code> e Flexbox (<code>flexDirection: column</code> padrão).</p>
+                    <p>• <strong>Telas RNTL:</strong> <code>LoginScreen</code>, <code>AssinaturaScreen</code>, <code>AtividadesFormScreen</code> e <code>HistoricoRelatoriosScreen</code> testadas com <code>render()</code>, <code>fireEvent.press</code> e <code>fireEvent.changeText</code>.</p>
                 </div>
             </div>
             <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">

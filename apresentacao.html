@@ -69,6 +69,58 @@
             color: #34d399;
             border-color: #10b981;
         }
+        /* Estilos dos Mockups Mobile */
+        .phone-mockup {
+            position: relative;
+            border: 8px solid #1e293b;
+            border-radius: 2.6rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 35px -5px rgba(16, 185, 129, 0.15);
+            background: #020617;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .phone-mockup:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: #334155;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(16, 185, 129, 0.35), 0 0 45px -5px rgba(16, 185, 129, 0.3);
+        }
+        .phone-island {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 16px;
+            background: #090d16;
+            border-radius: 10px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+        }
+        .phone-island-cam {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #1e293b;
+            box-shadow: inset 0 0 2px #0f172a;
+        }
+        .phone-island-speaker {
+            width: 28px;
+            height: 3px;
+            border-radius: 2px;
+            background: #334155;
+        }
+        .modal-fade {
+            animation: fadeIn 0.2s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 font-sans antialiased selection:bg-emerald-500 selection:text-white">
@@ -80,33 +132,47 @@
             <span class="font-bold text-white tracking-wide text-sm md:text-base">SafraCafé — Defesa Técnica</span>
             <span class="text-xs bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full font-mono font-semibold">100% Mock / 81.74% Cobertura</span>
         </div>
-        <div class="flex items-center space-x-3 text-xs">
+        <div class="flex items-center space-x-2 sm:space-x-3 text-xs">
+            <a href="#slide2" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg shadow-sm transition flex items-center space-x-1">
+                <span>📱 Telas do App</span>
+            </a>
+            <a href="#slide8" class="hidden md:inline-block px-3 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-medium rounded-lg transition">
+                <span>💻 Códigos & DDD</span>
+            </a>
             <!-- Controle de Zoom da Fonte dos Códigos -->
             <div class="flex items-center bg-slate-800 rounded-lg p-0.5 border border-slate-700">
-                <span class="px-2 text-slate-400 font-mono text-[11px]">Fonte do Código:</span>
+                <span class="px-2 text-slate-400 font-mono text-[11px] hidden lg:inline">Fonte:</span>
                 <button onclick="changeFontSize(-1)" class="px-2 py-0.5 bg-slate-700 hover:bg-slate-600 rounded text-slate-200 font-mono font-bold" title="Diminuir fonte">A-</button>
                 <button onclick="changeFontSize(1)" class="px-2 py-0.5 ml-1 bg-slate-700 hover:bg-slate-600 rounded text-slate-200 font-mono font-bold" title="Aumentar fonte">A+</button>
             </div>
-            <a href="#slide13" class="hidden sm:inline-block px-3 py-1 bg-emerald-950 border border-emerald-800 text-emerald-400 font-semibold rounded-lg hover:bg-emerald-900 transition">Métricas (170 Testes) ➔</a>
+            <a href="#slide19" class="hidden sm:inline-block px-3 py-1 bg-emerald-950 border border-emerald-800 text-emerald-400 font-semibold rounded-lg hover:bg-emerald-900 transition">Métricas (170 Testes) ➔</a>
         </div>
     </header>
 
     <!-- Indicador Lateral Fixo de Slides -->
-    <nav class="fixed top-1/2 right-3 transform -translate-y-1/2 flex flex-col space-y-2 z-50 hidden 2xl:flex bg-slate-900/80 p-2 rounded-full border border-slate-800 backdrop-blur-sm">
-        <a href="#slide1" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="1. Visão Geral"></a>
-        <a href="#slide2" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="2. Value Objects"></a>
-        <a href="#slide3" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="3. Entidades & Agregados"></a>
-        <a href="#slide4" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="4. Domain Services"></a>
-        <a href="#slide5" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="5. Contratos e DIP"></a>
-        <a href="#slide6" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="6. Casos de Uso"></a>
-        <a href="#slide7" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="7. Câmera e GPS"></a>
-        <a href="#slide8" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="8. Persistência & Sync"></a>
-        <a href="#slide9" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="9. Context API & Hooks"></a>
-        <a href="#slide10" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="10. Telas RNTL"></a>
-        <a href="#slide11" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="11. Sessão Segura"></a>
-        <a href="#slide12" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="12. Isolamento 100% Mock"></a>
-        <a href="#slide13" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="13. Métricas e Testes"></a>
-        <a href="#slide14" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="14. Fundamentos Finais"></a>
+    <nav class="fixed top-1/2 right-3 transform -translate-y-1/2 flex flex-col space-y-1.5 z-50 hidden 2xl:flex bg-slate-900/90 p-2 rounded-full border border-slate-800 backdrop-blur-sm shadow-xl">
+        <a href="#slide1" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="1. Capa & Visão Geral"></a>
+        <div class="w-2 h-px bg-slate-800 self-center"></div>
+        <a href="#slide2" class="w-2.5 h-2.5 bg-emerald-500 rounded-full hover:bg-emerald-300 transition" title="2. Telas: Visão Panorâmica"></a>
+        <a href="#slide3" class="w-2.5 h-2.5 bg-emerald-500 rounded-full hover:bg-emerald-300 transition" title="3. Tela 0: Login & Autenticação"></a>
+        <a href="#slide4" class="w-2.5 h-2.5 bg-emerald-500 rounded-full hover:bg-emerald-300 transition" title="4. Tela 1: Apontamento de Colheita"></a>
+        <a href="#slide5" class="w-2.5 h-2.5 bg-emerald-500 rounded-full hover:bg-emerald-300 transition" title="5. Tela 2: Gestão de Trabalhadores"></a>
+        <a href="#slide6" class="w-2.5 h-2.5 bg-emerald-500 rounded-full hover:bg-emerald-300 transition" title="6. Tela 3: Controle de Despesas"></a>
+        <a href="#slide7" class="w-2.5 h-2.5 bg-emerald-500 rounded-full hover:bg-emerald-300 transition" title="7. Tela 4: Mapa & Georreferenciamento"></a>
+        <div class="w-2 h-px bg-slate-800 self-center"></div>
+        <a href="#slide8" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="8. Código: 1. Value Objects"></a>
+        <a href="#slide9" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="9. Código: 2. Entidades & Agregados"></a>
+        <a href="#slide10" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="10. Código: 3. Domain Services"></a>
+        <a href="#slide11" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="11. Código: 4. Contratos e DIP"></a>
+        <a href="#slide12" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="12. Código: 5. Casos de Uso"></a>
+        <a href="#slide13" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="13. Código: 6. Câmera e GPS"></a>
+        <a href="#slide14" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="14. Código: 7. Persistência & Sync"></a>
+        <a href="#slide15" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="15. Código: 8. Context API & Hooks"></a>
+        <a href="#slide16" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="16. Código: 9. Telas RNTL"></a>
+        <a href="#slide17" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="17. Código: 10. Sessão Segura"></a>
+        <a href="#slide18" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="18. Código: 11. Isolamento 100% Mock"></a>
+        <a href="#slide19" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="19. Métricas (170 Testes)"></a>
+        <a href="#slide20" class="w-2.5 h-2.5 bg-slate-600 rounded-full hover:bg-emerald-400 transition" title="20. Fundamentos Finais"></a>
     </nav>
 
     <!-- Container Principal Amplo para Máxima Visibilidade -->
@@ -140,23 +206,573 @@
                 </div>
             </div>
 
+            <!-- Ações Principais de Início da Apresentação -->
+            <div class="mt-7 flex flex-wrap items-center justify-center gap-4">
+                <a href="#slide2" class="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-950/60 flex items-center space-x-2 transition transform hover:-translate-y-0.5 text-sm md:text-base">
+                    <span>📱 Iniciar Apresentação: Telas do App (Ordem de Operação)</span>
+                    <span class="text-emerald-200">➔</span>
+                </a>
+                <a href="#slide8" class="px-5 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-xl border border-slate-700 transition text-sm md:text-base">
+                    <span>Ir direto ao Código (Clean Architecture + DDD)</span> ➔
+                </a>
+            </div>
+
             <div class="mt-8 bg-slate-900/80 p-5 rounded-xl border border-slate-800">
-                <h4 class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2 text-center">Pipeline de Construção Incremental</h4>
+                <h4 class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-2 text-center">Pipeline de Construção e Defesa Técnica</h4>
                 <div class="flex flex-wrap items-center justify-center gap-2 text-xs md:text-sm font-mono text-emerald-300">
-                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Value Objects</span>➔
-                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Entities & Aggregates</span>➔
-                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Domain Services</span>➔
-                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Interfaces DIP</span>➔
-                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Use Cases</span>➔
-                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Context & Hooks</span>➔
-                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">Telas RNTL</span>➔
+                    <span class="bg-emerald-950 text-emerald-300 font-bold px-3 py-1 rounded border border-emerald-700">📱 1. Telas Mobile (Login, Campo...)</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">2. Value Objects</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">3. Entities & Aggregates</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">4. Domain Services</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">5. Interfaces DIP</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">6. Use Cases</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">7. Context & Hooks</span>➔
+                    <span class="bg-slate-800 px-3 py-1 rounded border border-slate-700">8. Telas RNTL</span>➔
                     <span class="bg-emerald-950 px-3 py-1 rounded border border-emerald-700 text-emerald-400 font-bold">170 Testes</span>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 2: VALUE OBJECTS -->
-        <section id="slide2" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- ========================================================================= -->
+        <!-- BLOCO 1: TELAS DO APP (INTERFACE PRIMEIRO, EM ORDEM OPERACIONAL) -->
+        <!-- ========================================================================= -->
+
+        <!-- SLIDE 2: TELAS - VISÃO GERAL PANORÂMICA -->
+        <section id="slide2">
+            <div class="text-center mb-6">
+                <span class="inline-block py-1 px-3 rounded-full text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800 uppercase tracking-widest mb-2">Interface do Aplicativo em Produção</span>
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Experiência Mobile no Cafezal</h2>
+                <p class="mt-2 text-slate-400 text-sm md:text-base max-w-2xl mx-auto">
+                    Fluxo operacional completo da colheita cafeeira — do crachá do apanhador à telemetria de campo em tempo real, 100% offline-first.
+                </p>
+            </div>
+
+            <!-- Grid com as 5 Telas em Destaque (Login Primeiro + 4 Módulos) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 max-w-7xl mx-auto w-full">
+                
+                <!-- Card Tela 0: Login -->
+                <a href="#slide3" class="group bg-slate-900/90 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-3.5 rounded-2xl transition-all duration-300 flex flex-col items-center text-center shadow-lg hover:shadow-emerald-950/40">
+                    <div class="relative w-40 aspect-[460/1024] max-h-64 phone-mockup overflow-hidden mb-2.5 border-[5px]">
+                        <div class="phone-island"><div class="phone-island-cam"></div><div class="phone-island-speaker"></div></div>
+                        <picture>
+                            <source srcset="assets/apresentacao/00-login.webp" type="image/webp">
+                            <img src="assets/apresentacao/00-login.jpg" alt="Tela de Login" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="eager">
+                        </picture>
+                    </div>
+                    <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-800/80 mb-1">Acesso Inicial</span>
+                    <h3 class="text-sm font-bold text-white group-hover:text-emerald-300 transition">Login & Sessão Segura</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">Autenticação offline-first, conta demo e persistência em SecureStore.</p>
+                    <span class="mt-2 text-xs text-emerald-400 font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center">Ver Tela ➔</span>
+                </a>
+                
+                <!-- Card Módulo 1: Apontamento -->
+                <a href="#slide4" class="group bg-slate-900/90 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-3.5 rounded-2xl transition-all duration-300 flex flex-col items-center text-center shadow-lg hover:shadow-emerald-950/40">
+                    <div class="relative w-40 aspect-[460/1024] max-h-64 phone-mockup overflow-hidden mb-2.5 border-[5px]">
+                        <div class="phone-island"><div class="phone-island-cam"></div><div class="phone-island-speaker"></div></div>
+                        <picture>
+                            <source srcset="assets/apresentacao/01-apontamento-topo.webp" type="image/webp">
+                            <img src="assets/apresentacao/01-apontamento-topo.jpg" alt="Tela de Apontamento" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="eager">
+                        </picture>
+                    </div>
+                    <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800/80 mb-1">Módulo 1</span>
+                    <h3 class="text-sm font-bold text-white group-hover:text-emerald-300 transition">Apontamento de Colheita</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">Registro de balaios, leitura de crachá QR Code, litros colhidos e GPS de campo.</p>
+                    <span class="mt-3 text-xs text-emerald-400 font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center">Explorar Tela ➔</span>
+                </a>
+
+                <!-- Card Módulo 2: Trabalhadores -->
+                <a href="#slide5" class="group bg-slate-900/90 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-3.5 rounded-2xl transition-all duration-300 flex flex-col items-center text-center shadow-lg hover:shadow-emerald-950/40">
+                    <div class="relative w-40 aspect-[460/1024] max-h-64 phone-mockup overflow-hidden mb-2.5 border-[5px]">
+                        <div class="phone-island"><div class="phone-island-cam"></div><div class="phone-island-speaker"></div></div>
+                        <picture>
+                            <source srcset="assets/apresentacao/03-trabalhadores.webp" type="image/webp">
+                            <img src="assets/apresentacao/03-trabalhadores.jpg" alt="Tela de Trabalhadores" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="eager">
+                        </picture>
+                    </div>
+                    <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800/80 mb-1">Módulo 2</span>
+                    <h3 class="text-sm font-bold text-white group-hover:text-emerald-300 transition">Gestão de Trabalhadores</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">Cadastro de rurícolas, crachás TRAB-001/002, diária R$ 60,00 e busca reativa.</p>
+                    <span class="mt-3 text-xs text-emerald-400 font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center">Explorar Tela ➔</span>
+                </a>
+
+                <!-- Card Módulo 3: Despesas -->
+                <a href="#slide6" class="group bg-slate-900/90 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-3.5 rounded-2xl transition-all duration-300 flex flex-col items-center text-center shadow-lg hover:shadow-emerald-950/40">
+                    <div class="relative w-40 aspect-[460/1024] max-h-64 phone-mockup overflow-hidden mb-2.5 border-[5px]">
+                        <div class="phone-island"><div class="phone-island-cam"></div><div class="phone-island-speaker"></div></div>
+                        <picture>
+                            <source srcset="assets/apresentacao/04-despesas.webp" type="image/webp">
+                            <img src="assets/apresentacao/04-despesas.jpg" alt="Tela de Despesas" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="eager">
+                        </picture>
+                    </div>
+                    <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800/80 mb-1">Módulo 3</span>
+                    <h3 class="text-sm font-bold text-white group-hover:text-emerald-300 transition">Controle de Despesas</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">Lançamento de custos operacionais (óleo R$ 140), comprovante e geolocalização.</p>
+                    <span class="mt-3 text-xs text-emerald-400 font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center">Explorar Tela ➔</span>
+                </a>
+
+                <!-- Card Módulo 4: Mapa -->
+                <a href="#slide7" class="group bg-slate-900/90 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-3.5 rounded-2xl transition-all duration-300 flex flex-col items-center text-center shadow-lg hover:shadow-emerald-950/40">
+                    <div class="relative w-40 aspect-[460/1024] max-h-64 phone-mockup overflow-hidden mb-2.5 border-[5px]">
+                        <div class="phone-island"><div class="phone-island-cam"></div><div class="phone-island-speaker"></div></div>
+                        <picture>
+                            <source srcset="assets/apresentacao/05-mapa-gps.webp" type="image/webp">
+                            <img src="assets/apresentacao/05-mapa-gps.jpg" alt="Tela de Mapa" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="eager">
+                        </picture>
+                    </div>
+                    <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800/80 mb-1">Módulo 4</span>
+                    <h3 class="text-sm font-bold text-white group-hover:text-emerald-300 transition">Mapa & Georreferenciamento</h3>
+                    <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">Telemetria GPS ativa em tempo real, demarcação de talhões e busca no Sul de MG.</p>
+                    <span class="mt-3 text-xs text-emerald-400 font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center">Explorar Tela ➔</span>
+                </a>
+
+            </div>
+
+            <!-- Barra inferior com status de engenharia -->
+            <div class="mt-6 flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 border border-slate-800 p-3.5 rounded-xl max-w-7xl mx-auto w-full text-xs">
+                <div class="flex items-center space-x-2 text-slate-300">
+                    <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Ordem da Apresentação: <strong>0. Login ➔ 1. Apontamento ➔ 2. Trabalhadores ➔ 3. Despesas ➔ 4. Mapa ➔ 5. Códigos & Arquitetura</strong></span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="#slide3" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition inline-flex items-center space-x-1">
+                        <span>Iniciar Navegação das Telas</span> ➔
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        
+        <!-- SLIDE 3: TELA 0 - LOGIN E AUTENTICAÇÃO -->
+        <section id="slide3" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <!-- Coluna Esquerda: Mockup Mobile do Login -->
+            <div class="lg:col-span-5 flex flex-col items-center">
+                <div class="relative w-64 sm:w-72 aspect-[460/1024] max-h-[580px] phone-mockup cursor-pointer" onclick="openImageModal('assets/apresentacao/00-login.jpg', 'Tela 0: Login e Autenticação Segura — SafraCafé')">
+                    <div class="phone-island"><div class="phone-island-cam"></div><div class="phone-island-speaker"></div></div>
+                    <picture>
+                        <source srcset="assets/apresentacao/00-login.webp" type="image/webp">
+                        <img src="assets/apresentacao/00-login.jpg" alt="Tela de Login" class="w-full h-full object-cover">
+                    </picture>
+                    <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-slate-900/90 backdrop-blur-sm border border-slate-700 text-slate-300 text-[10px] font-mono px-2.5 py-1 rounded-full pointer-events-none opacity-80">
+                        🔍 Toque para ampliar
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Contexto & Regras de Acesso -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950 border border-emerald-800 px-2.5 py-0.5 rounded-full">Acesso Inicial · Porta de Entrada</span>
+                    <span class="text-xs font-mono text-slate-400">Rota: /login</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-black text-white">Autenticação Segura & Offline-First</h2>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Primeira tela do aplicativo ao abrir. Desenhada com foco em usabilidade rápida para operadores agrícolas e com persistência segura de credenciais no chaveiro nativo do dispositivo.
+                </p>
+
+                <!-- Destaques Operacionais -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs">
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center space-x-1.5 mb-1">
+                            <span>⚡</span> <span>Atalho de Demonstração Ágil</span>
+                        </div>
+                        <p class="text-slate-400 leading-relaxed">
+                            Botão dedicado <strong>"Preencher conta demo"</strong> com as credenciais padrão (<code class="text-emerald-300">pesquisador@ecofield.app</code> | <code class="text-emerald-300">123456</code>), agilizando a validação da banca e testes de campo.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center space-x-1.5 mb-1">
+                            <span>🔐</span> <span>Sessão Segura no Hardware</span>
+                        </div>
+                        <p class="text-slate-400 leading-relaxed">
+                            Tokens criptografados armazenados via <strong>Expo SecureStore</strong> (<em>Keychain</em> no iOS e <em>Keystore</em> no Android), impedindo interceptação de credenciais.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center space-x-1.5 mb-1">
+                            <span>📶</span> <span>Resiliência 100% Offline</span>
+                        </div>
+                        <p class="text-slate-400 leading-relaxed">
+                            Não bloqueia o operador na ausência de sinal de internet na lavoura. A sessão ativa permanece válida e permite apontamentos e registros imediatos.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center space-x-1.5 mb-1">
+                            <span>⚙️</span> <span>Menu de Configuração Rápida</span>
+                        </div>
+                        <p class="text-slate-400 leading-relaxed">
+                            Botão flutuante de engrenagem no canto superior direito para alternar entre ambiente Mock em memória e servidores de homologação.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Mapeamento para Arquitetura -->
+                <div class="bg-slate-900/90 border border-emerald-900/50 p-3.5 rounded-xl text-xs space-y-1.5">
+                    <span class="font-mono text-emerald-400 font-bold uppercase tracking-wider text-[11px] block">Mapeamento para Clean Architecture:</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-slate-300 text-[11px]">
+                        <div><strong class="text-slate-400 block">Casos de Uso:</strong> <code>AutenticarUsuario</code>, <code>RestoreSession</code></div>
+                        <div><strong class="text-slate-400 block">Entidades:</strong> <code>Session</code>, <code>TokenSupervisor</code></div>
+                        <div><strong class="text-slate-400 block">Teste de Tela:</strong> <code>LoginScreen.test.tsx</code> (RNTL)</div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <a href="#slide2" class="text-xs text-slate-400 hover:text-white transition">⇤ Voltar à Visão Geral</a>
+                    <a href="#slide4" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition inline-flex items-center space-x-1">
+                        <span>Próxima Tela: Apontamento</span> ➔
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: TELA 1 - APONTAMENTO -->
+        <section id="slide4" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <!-- Coluna Esquerda: Mockup Mobile (com Seletor Topo / Registro) -->
+            <div class="lg:col-span-5 flex flex-col items-center">
+                <!-- Seletor de Visão -->
+                <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 mb-4 shadow-md text-xs font-mono">
+                    <button onclick="switchApontamentoView('topo')" id="btn-apont-topo" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold transition">1. Visão Topo (Crachá & Totais)</button>
+                    <button onclick="switchApontamentoView('reg')" id="btn-apont-reg" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">2. Visão Registro & GPS</button>
+                </div>
+
+                <!-- Mockup de Smartphone Principal -->
+                <div class="relative w-64 sm:w-72 aspect-[460/1024] max-h-[580px] phone-mockup cursor-pointer" onclick="openImageModal(currentApontamentoImg, 'Tela 1: Apontamento de Colheita — SafraCafé')">
+                    <div class="phone-island"><div class="phone-island-cam"></div><div class="phone-island-speaker"></div></div>
+                    
+                    <!-- Imagem 1: Topo -->
+                    <div id="view-apont-topo" class="w-full h-full">
+                        <picture>
+                            <source srcset="assets/apresentacao/01-apontamento-topo.webp" type="image/webp">
+                            <img src="assets/apresentacao/01-apontamento-topo.jpg" alt="Apontamento Topo" class="w-full h-full object-cover">
+                        </picture>
+                    </div>
+
+                    <!-- Imagem 2: Registro -->
+                    <div id="view-apont-reg" class="w-full h-full hidden">
+                        <picture>
+                            <source srcset="assets/apresentacao/02-apontamento-registro.webp" type="image/webp">
+                            <img src="assets/apresentacao/02-apontamento-registro.jpg" alt="Apontamento Registro" class="w-full h-full object-cover">
+                        </picture>
+                    </div>
+
+                    <!-- Overlay de Dica de Zoom -->
+                    <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-slate-900/90 backdrop-blur-sm border border-slate-700 text-slate-300 text-[10px] font-mono px-2.5 py-1 rounded-full pointer-events-none opacity-80">
+                        🔍 Toque para ampliar
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Contexto Operacional & Arquitetura -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950 border border-emerald-800 px-2.5 py-0.5 rounded-full">Módulo 1 · Colheita</span>
+                    <span class="text-xs font-mono text-slate-400">Rota: /apontamento</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-black text-white">Apontamento de Colheita de Café</h2>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    A tela central do operador na lavoura. Substitui as anotações manuais em papel por um fluxo rápido de pesagem/medição de balaios com validação instantânea no dispositivo.
+                </p>
+
+                <!-- Cards com Destaques Operacionais -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center space-x-1.5 mb-1">
+                            <span>📷</span> <span>Leitura de Crachá via QR Code</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Botão <strong>"Ler crachá"</strong> aciona a câmera nativa com leitor óptico. Também permite seleção rápida pelos atalhos em chips (ex.: <em>José da Silva</em>, <em>Maria de Souza</em>).
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center space-x-1.5 mb-1">
+                            <span>📊</span> <span>Métricas Diárias Acumuladas</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Contadores de <strong>"0 Balaios Hoje"</strong> e <strong>"0 L Total Colhido"</strong> atualizados atomicamente para conferência rápida com os apanhadores.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center space-x-1.5 mb-1">
+                            <span>📍</span> <span>Geolocalização Automática</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Captura em background: <code class="text-emerald-300">-21.2488, -44.9998 (ref. Sul de MG)</code>, garantindo a rastreabilidade do talhão onde o café foi colhido.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center space-x-1.5 mb-1">
+                            <span>📜</span> <span>Histórico Local Imediato</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Lista reativa dos <em>"Últimos Balaios Registrados"</em> persistida localmente (offline-first), pronta para auditoria mesmo sem internet na roça.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Conexão com a Arquitetura em Código -->
+                <div class="bg-slate-900/90 border border-emerald-900/50 p-3.5 rounded-xl text-xs space-y-1.5">
+                    <span class="font-mono text-emerald-400 font-bold uppercase tracking-wider text-[11px] block">Mapeamento para Clean Architecture:</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-slate-300 text-[11px]">
+                        <div><strong class="text-slate-400 block">Value Objects:</strong> <code>Litros</code>, <code>Coordenada</code>, <code>CrachaId</code></div>
+                        <div><strong class="text-slate-400 block">Use Cases:</strong> <code>RegistrarApontamento</code></div>
+                        <div><strong class="text-slate-400 block">Gateways:</strong> <code>IQrCodeGateway</code>, <code>IGpsGateway</code></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <a href="#slide3" class="text-xs text-slate-400 hover:text-white transition">⇤ Anterior: Login</a>
+                    <a href="#slide5" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition inline-flex items-center space-x-1">
+                        <span>Próxima Tela: Trabalhadores</span> ➔
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: TELA 2 - TRABALHADORES -->
+        <section id="slide5" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <!-- Coluna Esquerda: Mockup Mobile -->
+            <div class="lg:col-span-5 flex flex-col items-center">
+                <div class="relative w-64 sm:w-72 aspect-[460/1024] max-h-[580px] phone-mockup cursor-pointer" onclick="openImageModal('assets/apresentacao/03-trabalhadores.jpg', 'Tela 2: Gestão de Trabalhadores — SafraCafé')">
+                    <div class="phone-island"><div class="phone-island-cam"></div><div class="phone-island-speaker"></div></div>
+                    <picture>
+                        <source srcset="assets/apresentacao/03-trabalhadores.webp" type="image/webp">
+                        <img src="assets/apresentacao/03-trabalhadores.jpg" alt="Tela de Trabalhadores" class="w-full h-full object-cover">
+                    </picture>
+                    <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-slate-900/90 backdrop-blur-sm border border-slate-700 text-slate-300 text-[10px] font-mono px-2.5 py-1 rounded-full pointer-events-none opacity-80">
+                        🔍 Toque para ampliar
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Contexto & Regras de Negócio -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950 border border-emerald-800 px-2.5 py-0.5 rounded-full">Módulo 2 · RH & Equipe</span>
+                    <span class="text-xs font-mono text-slate-400">Rota: /trabalhadores</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-black text-white">Gestão e Cadastro de Trabalhadores</h2>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Identificação única de cada apanhador de café da propriedade. Garante a transparência dos apontamentos e a correta contabilização financeira de cada diária.
+                </p>
+
+                <!-- Destaques -->
+                <div class="space-y-2.5 pt-1 text-xs">
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-start space-x-3">
+                        <span class="p-2 rounded-lg bg-emerald-950 text-emerald-400 font-bold">🪪</span>
+                        <div>
+                            <strong class="text-white text-sm block">Crachás Únicos e Padronizados (TRAB-001, TRAB-002)</strong>
+                            <p class="text-slate-400 mt-0.5 leading-relaxed">Cada rurícola possui um identificador unívoco serializado no QR Code, permitindo leitura óptica instantânea em campo sem confusão de homônimos.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-start space-x-3">
+                        <span class="p-2 rounded-lg bg-emerald-950 text-emerald-400 font-bold">💵</span>
+                        <div>
+                            <strong class="text-white text-sm block">Controle Transparente de Diária (R$ 60,00/dia)</strong>
+                            <p class="text-slate-400 mt-0.5 leading-relaxed">Valor acordado por jornada cadastrado com precisão monetária (Value Object <code>ValorDiaria</code>), integrando os cálculos de pagamento da safra.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-start space-x-3">
+                        <span class="p-2 rounded-lg bg-emerald-950 text-emerald-400 font-bold">🔍</span>
+                        <div>
+                            <strong class="text-white text-sm block">Busca Instantânea em Tempo Real</strong>
+                            <p class="text-slate-400 mt-0.5 leading-relaxed">Barra superior para filtro reativo imediato por nome ou código do crachá, facilitando a localização de apanhadores mesmo em equipes com dezenas de membros.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-start space-x-3">
+                        <span class="p-2 rounded-lg bg-emerald-950 text-emerald-400 font-bold">✏️</span>
+                        <div>
+                            <strong class="text-white text-sm block">Ações de Edição, Exclusão e Botão Flutuante (+)</strong>
+                            <p class="text-slate-400 mt-0.5 leading-relaxed">Gerenciamento completo do ciclo de vida com CPF validado matematicamente pelo domínio (ex.: CPF 52998224725).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conexão com Domínio -->
+                <div class="bg-slate-900/90 border border-emerald-900/50 p-3 rounded-xl text-xs flex items-center justify-between">
+                    <span class="font-mono text-slate-300 text-[11px]">Entidade Central: <strong class="text-emerald-400">Trabalhador</strong> | Repositório: <strong class="text-emerald-400">TrabalhadorRepository</strong> (Singleton)</span>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <a href="#slide4" class="text-xs text-slate-400 hover:text-white transition">⇤ Anterior: Apontamento</a>
+                    <a href="#slide6" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition inline-flex items-center space-x-1">
+                        <span>Próxima Tela: Despesas</span> ➔
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: TELA 3 - DESPESAS -->
+        <section id="slide6" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <!-- Coluna Esquerda: Mockup Mobile -->
+            <div class="lg:col-span-5 flex flex-col items-center">
+                <div class="relative w-64 sm:w-72 aspect-[460/1024] max-h-[580px] phone-mockup cursor-pointer" onclick="openImageModal('assets/apresentacao/04-despesas.jpg', 'Tela 3: Controle de Despesas — SafraCafé')">
+                    <div class="phone-island"><div class="phone-island-cam"></div><div class="phone-island-speaker"></div></div>
+                    <picture>
+                        <source srcset="assets/apresentacao/04-despesas.webp" type="image/webp">
+                        <img src="assets/apresentacao/04-despesas.jpg" alt="Tela de Despesas" class="w-full h-full object-cover">
+                    </picture>
+                    <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-slate-900/90 backdrop-blur-sm border border-slate-700 text-slate-300 text-[10px] font-mono px-2.5 py-1 rounded-full pointer-events-none opacity-80">
+                        🔍 Toque para ampliar
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Contexto & Regras de Negócio -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950 border border-emerald-800 px-2.5 py-0.5 rounded-full">Módulo 3 · Gestão Financeira</span>
+                    <span class="text-xs font-mono text-slate-400">Rota: /despesas</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-black text-white">Controle e Lançamento de Despesas</h2>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Acompanhamento pontual dos custos operacionais no cafezal: lubrificantes para derriçadoras, ferramentas, adubos e manutenções emergenciais com auditoria física e geográfica.
+                </p>
+
+                <!-- Destaques -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center space-x-1.5 mb-1">
+                            <span>🛠️</span> <span>Item e Categoria Específica</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Lançamento de <strong>"Óleo"</strong> sob a categoria <strong>"Ferramentas"</strong> com valor nominal de <strong>R$ 140,00</strong>, estruturado pelo Value Object <code>ValorMonetario</code>.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center space-x-1.5 mb-1">
+                            <span>📸</span> <span>Comprovante Fotográfico</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Thumbnail com imagem do recibo/cupom fiscal anexado via câmera ou galeria (<code class="text-emerald-300">ICameraGateway</code>), evitando perdas de notas físicas.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center space-x-1.5 mb-1">
+                            <span>📍</span> <span>Georreferenciamento do Gasto</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Registro de data e coordenadas exatas: <code class="text-emerald-300">05/10/2026 · -21.2488, -44.9998</code>, provando a localização do fornecedor ou talhão beneficiado.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center space-x-1.5 mb-1">
+                            <span>➕</span> <span>Lançamento Rápido em Campo</span>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Botão flutuante verde <strong>(+)</strong> de alta visibilidade, desenhado para digitação confortável em smartphones sob luz solar direta.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Conexão com a Arquitetura -->
+                <div class="bg-slate-900/90 border border-emerald-900/50 p-3.5 rounded-xl text-xs space-y-1.5">
+                    <span class="font-mono text-emerald-400 font-bold uppercase tracking-wider text-[11px] block">Mapeamento para Clean Architecture:</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-slate-300 text-[11px]">
+                        <div><strong class="text-slate-400 block">Entidade:</strong> <code>Despesa</code></div>
+                        <div><strong class="text-slate-400 block">Value Objects:</strong> <code>ValorMonetario</code>, <code>Coordenada</code></div>
+                        <div><strong class="text-slate-400 block">Repositório:</strong> <code>DespesaRepository</code></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <a href="#slide5" class="text-xs text-slate-400 hover:text-white transition">⇤ Anterior: Trabalhadores</a>
+                    <a href="#slide7" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition inline-flex items-center space-x-1">
+                        <span>Próxima Tela: Mapa & GPS</span> ➔
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: TELA 4 - MAPA & GEORREFERENCIAMENTO -->
+        <section id="slide7" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <!-- Coluna Esquerda: Mockup Mobile -->
+            <div class="lg:col-span-5 flex flex-col items-center">
+                <div class="relative w-64 sm:w-72 aspect-[460/1024] max-h-[580px] phone-mockup cursor-pointer" onclick="openImageModal('assets/apresentacao/05-mapa-gps.jpg', 'Tela 4: Mapa da Lavoura & GPS — SafraCafé')">
+                    <div class="phone-island"><div class="phone-island-cam"></div><div class="phone-island-speaker"></div></div>
+                    <picture>
+                        <source srcset="assets/apresentacao/05-mapa-gps.webp" type="image/webp">
+                        <img src="assets/apresentacao/05-mapa-gps.jpg" alt="Tela de Mapa" class="w-full h-full object-cover">
+                    </picture>
+                    <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-slate-900/90 backdrop-blur-sm border border-slate-700 text-slate-300 text-[10px] font-mono px-2.5 py-1 rounded-full pointer-events-none opacity-80">
+                        🔍 Toque para ampliar
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Contexto & Regras de Negócio -->
+            <div class="lg:col-span-7 space-y-4">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest bg-emerald-950 border border-emerald-800 px-2.5 py-0.5 rounded-full">Módulo 4 · Telemetria & Espaço</span>
+                    <span class="text-xs font-mono text-slate-400">Rota: /mapa</span>
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-black text-white">Mapa da Lavoura & Georreferenciamento</h2>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Visualização espacial contínua das atividades na fazenda cafeeira. Localização de colheitas, rotas de transporte e conferência geográfica de talhões em tempo real.
+                </p>
+
+                <!-- Destaques -->
+                <div class="space-y-2.5 pt-1 text-xs">
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-start space-x-3">
+                        <span class="p-2 rounded-lg bg-emerald-950 text-emerald-400 font-bold">🛰️</span>
+                        <div>
+                            <strong class="text-white text-sm block">Status "GPS Conectado em Tempo Real"</strong>
+                            <p class="text-slate-400 mt-0.5 leading-relaxed">Chip inferior com feedback dinâmico assegurando que o sinal GNSS do smartphone está ativo e calibrado para medições de campo.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-start space-x-3">
+                        <span class="p-2 rounded-lg bg-emerald-950 text-emerald-400 font-bold">📍</span>
+                        <div>
+                            <strong class="text-white text-sm block">Pins de Colheita e Talhões (Sul de Minas / Varginha)</strong>
+                            <p class="text-slate-400 mt-0.5 leading-relaxed">Marcadores interativos no mapa cartográfico sinalizando exatamente onde os balaios de café foram registrados e onde estão as frentes de trabalho.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-start space-x-3">
+                        <span class="p-2 rounded-lg bg-emerald-950 text-emerald-400 font-bold">🔍</span>
+                        <div>
+                            <strong class="text-white text-sm block">Barra Flutuante de Busca Inteligente</strong>
+                            <p class="text-slate-400 mt-0.5 leading-relaxed">Pesquisa por nome de talhão, cidade, endereço rural ou coordenadas geográficas decimais com botão de navegação direta.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-start space-x-3">
+                        <span class="p-2 rounded-lg bg-emerald-950 text-emerald-400 font-bold">🧭</span>
+                        <div>
+                            <strong class="text-white text-sm block">Controles Flutuantes: Camadas e Mira GPS</strong>
+                            <p class="text-slate-400 mt-0.5 leading-relaxed">Alternância rápida de camadas de visualização e botão de recentralização instantânea na posição do operador.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA para Transição aos Códigos -->
+                <div class="mt-4 pt-2 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                    <a href="#slide6" class="text-xs text-slate-400 hover:text-white transition">⇤ Anterior: Despesas</a>
+                    <a href="#slide8" class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-950/60 transition inline-flex items-center space-x-2">
+                        <span>➔ Conhecer a Arquitetura em Código (Passo 1: Value Objects)</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- BLOCO 2: ARQUITETURA EM CÓDIGO (CLEAN ARCHITECTURE + DDD) -->
+        <!-- ========================================================================= -->
+
+        <!-- SLIDE 8: VALUE OBJECTS -->
+        <section id="slide8" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-4 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 1</span>
@@ -258,8 +874,8 @@ export class Criterio {
             </div>
         </section>
 
-        <!-- SLIDE 3: ENTIDADES E AGREGADOS -->
-        <section id="slide3" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- SLIDE 9: ENTIDADES E AGREGADOS -->
+        <section id="slide9" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-4 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 2</span>
@@ -347,8 +963,8 @@ export class Criterio {
             </div>
         </section>
 
-        <!-- SLIDE 4: DOMAIN SERVICES -->
-        <section id="slide4" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- SLIDE 10: DOMAIN SERVICES -->
+        <section id="slide10" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-4 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 3</span>
@@ -406,8 +1022,8 @@ export class Criterio {
             </div>
         </section>
 
-        <!-- SLIDE 5: CONTRATOS & INTERFACES (DIP) -->
-        <section id="slide5" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- SLIDE 11: CONTRATOS & INTERFACES (DIP) -->
+        <section id="slide11" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-4 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 4</span>
@@ -439,8 +1055,8 @@ export interface PeriodoAvaliacaoRepository {
             </div>
         </section>
 
-        <!-- SLIDE 6: CASOS DE USO -->
-        <section id="slide6" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- SLIDE 12: CASOS DE USO -->
+        <section id="slide12" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-4 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 5</span>
@@ -510,8 +1126,8 @@ export class RegistrarAtividadesUseCase {
             </div>
         </section>
 
-        <!-- SLIDE 7: CÂMERA E GPS -->
-        <section id="slide7">
+        <!-- SLIDE 13: CÂMERA E GPS -->
+        <section id="slide13">
             <div class="text-center mb-6">
                 <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 6</span>
                 <h2 class="text-3xl font-extrabold text-white">Hardware Desacoplado: Câmera & GPS</h2>
@@ -558,8 +1174,8 @@ export class InMemoryLocationGateway implements LocationGateway {
             </div>
         </section>
 
-        <!-- SLIDE 8: PERSISTÊNCIA OFFLINE-FIRST -->
-        <section id="slide8" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- SLIDE 14: PERSISTÊNCIA OFFLINE-FIRST -->
+        <section id="slide14" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-4 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 7</span>
@@ -618,8 +1234,8 @@ export class InMemoryLocationGateway implements LocationGateway {
             </div>
         </section>
 
-        <!-- SLIDE 9: CONTEXT API & HOOKS -->
-        <section id="slide9" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- SLIDE 15: CONTEXT API & HOOKS -->
+        <section id="slide15" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-4 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 8</span>
@@ -671,8 +1287,8 @@ export class InMemoryLocationGateway implements LocationGateway {
             </div>
         </section>
 
-        <!-- SLIDE 10: TELAS & TESTES RNTL -->
-        <section id="slide10" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- SLIDE 16: TELAS & TESTES RNTL -->
+        <section id="slide16" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-4 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 9</span>
@@ -729,8 +1345,8 @@ export class InMemoryLocationGateway implements LocationGateway {
             </div>
         </section>
 
-        <!-- SLIDE 11: SESSÃO SEGURA -->
-        <section id="slide11" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- SLIDE 17: SESSÃO SEGURA -->
+        <section id="slide17" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-4 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 10</span>
@@ -781,8 +1397,8 @@ export class SessionStorageSecureStore implements SessionStorage {
             </div>
         </section>
 
-        <!-- SLIDE 12: COMPROVAÇÃO DE ISOLAMENTO 100% MOCK -->
-        <section id="slide12">
+        <!-- SLIDE 18: COMPROVAÇÃO DE ISOLAMENTO 100% MOCK -->
+        <section id="slide18">
             <div class="text-center mb-8">
                 <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 11</span>
                 <h2 class="text-4xl font-black text-white">Comprovação de Isolamento (100% Mock)</h2>
@@ -812,8 +1428,8 @@ export class SessionStorageSecureStore implements SessionStorage {
             </div>
         </section>
 
-        <!-- SLIDE 13: MÉTRICAS E TESTES AO VIVO -->
-        <section id="slide13" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- SLIDE 19: MÉTRICAS E TESTES AO VIVO -->
+        <section id="slide19" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div class="lg:col-span-4 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 12</span>
@@ -884,8 +1500,8 @@ export class SessionStorageSecureStore implements SessionStorage {
             </div>
         </section>
 
-        <!-- SLIDE 14: FUNDAMENTOS FINAIS -->
-        <section id="slide14">
+        <!-- SLIDE 20: FUNDAMENTOS FINAIS -->
+        <section id="slide20">
             <div class="text-center mb-10">
                 <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Encerramento</span>
                 <h2 class="text-4xl font-extrabold text-white">5 Decisões Arquiteturais Fundamentais</h2>
@@ -951,9 +1567,56 @@ export class SessionStorageSecureStore implements SessionStorage {
             document.documentElement.style.setProperty('--code-font-size', currentFontSize.toFixed(2) + 'rem');
         }
 
+        
+        // Controle de visualização da tela de Apontamento (Topo vs Registro)
+        let currentApontamentoImg = 'assets/apresentacao/01-apontamento-topo.jpg';
+        function switchApontamentoView(view) {
+            const topoEl = document.getElementById('view-apont-topo');
+            const regEl = document.getElementById('view-apont-reg');
+            const btnTopo = document.getElementById('btn-apont-topo');
+            const btnReg = document.getElementById('btn-apont-reg');
+
+            if (view === 'topo') {
+                topoEl.classList.remove('hidden');
+                regEl.classList.add('hidden');
+                btnTopo.className = 'px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold transition';
+                btnReg.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
+                currentApontamentoImg = 'assets/apresentacao/01-apontamento-topo.jpg';
+            } else {
+                topoEl.classList.add('hidden');
+                regEl.classList.remove('hidden');
+                btnReg.className = 'px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-semibold transition';
+                btnTopo.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition';
+                currentApontamentoImg = 'assets/apresentacao/02-apontamento-registro.jpg';
+            }
+        }
+
+        // Modal Lightbox para Ampliação de Imagens
+        function openImageModal(imgSrc, caption) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-img');
+            const modalCaption = document.getElementById('modal-caption');
+            modalImg.src = imgSrc;
+            modalCaption.textContent = caption || 'Tela do SafraCafé';
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('image-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+
         // Navegação por teclado (Seta para cima e Seta para baixo)
         document.addEventListener('keydown', (e) => {
-            const slides = ['slide1', 'slide2', 'slide3', 'slide4', 'slide5', 'slide6', 'slide7', 'slide8', 'slide9', 'slide10', 'slide11', 'slide12', 'slide13', 'slide14'];
+            const slides = ['slide1', 'slide2', 'slide3', 'slide4', 'slide5', 'slide6', 'slide7', 'slide8', 'slide9', 'slide10', 'slide11', 'slide12', 'slide13', 'slide14', 'slide15', 'slide16', 'slide17', 'slide18', 'slide19', 'slide20'];
             let current = 0;
             const scrollPos = window.scrollY + 100;
             for (let i = 0; i < slides.length; i++) {
@@ -975,5 +1638,17 @@ export class SessionStorageSecureStore implements SessionStorage {
             }
         });
     </script>
+
+    <!-- Modal Lightbox para Ampliação das Imagens -->
+    <div id="image-modal" class="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4" onclick="closeImageModal()">
+        <div class="relative max-w-4xl max-h-[92vh] flex flex-col items-center modal-fade" onclick="event.stopPropagation()">
+            <img id="modal-img" src="" alt="Tela Ampliada" class="max-h-[82vh] rounded-2xl border-2 border-emerald-500/50 shadow-2xl">
+            <div class="mt-3 flex items-center justify-between w-full max-w-md text-slate-300 text-xs px-2">
+                <span id="modal-caption" class="font-medium text-emerald-400 truncate"></span>
+                <button onclick="closeImageModal()" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg border border-slate-700 font-mono transition">Fechar (Esc)</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

@@ -13,15 +13,35 @@
 * Desacoplamento estrito: a camada de domínio não possui importações ou dependências de React, Expo ou bibliotecas de UI.
 * A interface gráfica é validada sem dependência de APIs remotas em execução.
 
-### Fluxo de Construção Incremental
+### Fluxo da Apresentação ("Interface e Domínio Primeiro")
 ```
-[Value Objects] ➔ [Entities & Aggregates] ➔ [Domain Services] ➔ [Interfaces/Gateways]
-       ➔ [Use Cases] ➔ [Hardware/DB Fakes] ➔ [Context & Hooks] ➔ [Telas RNTL] ➔ [Testes Automatizados]
+[Capa: SafraCafé] ➔ [Telas do App: Ordem Operacional] ➔ [Arquitetura & Códigos DDD] ➔ [Métricas & Testes]
+   │
+   ├─ 📱 Slide 2: Visão Geral Panorâmica (5 Telas Mobile com Login)
+   ├─ 📱 Slide 3: Tela 0 — Login & Autenticação Segura (Atalho Demo, Expo SecureStore & Offline)
+   ├─ 📱 Slide 4: Tela 1 — Apontamento de Colheita (Balaios, Crachá QR, Litros & GPS)
+   ├─ 📱 Slide 5: Tela 2 — Gestão de Trabalhadores (Crachás TRAB-001/002, Diárias & Busca)
+   ├─ 📱 Slide 6: Tela 3 — Controle de Despesas (Óleo R$ 140, Comprovante & GPS)
+   └─ 📱 Slide 7: Tela 4 — Mapa da Lavoura (GPS em Tempo Real, Varginha/Sul de MG)
+   │
+   └─ 💻 Slides 8 a 20: Clean Architecture, DDD, Value Objects, Use Cases, Telas RNTL e Testes
 ```
 
 ---
 
-## 📑 Slide 2: Passo 1 — Value Objects (Objetos de Valor)
+## 📱 Slide 2 a 7: Telas Operacionais do Aplicativo (Interface Primeiro)
+
+### Ordem Operacional na Lavoura
+1. **Slide 2 — Visão Geral Panorâmica:** Grid interativo com as 5 telas em smartphones simulados, ressaltando o design moderno e 100% offline-first.
+2. **Slide 3 — Tela 0: Login e Autenticação Segura:** Porta de entrada com botão "Preencher conta demo" (`pesquisador@ecofield.app` | `123456`), persistência em SecureStore (Keychain/Keystore) e menu flutuante de configurações.
+3. **Slide 4 — Tela 1: Apontamento de Colheita:** Leitura de crachá óptico com QR Code (`IQrCodeScannerGateway`), contadores em tempo real ("0 Balaios Hoje", "0 L Total Colhido"), fixação automática de coordenadas GPS (`-21.2488, -44.9998`) e feed dos últimos balaios registrados com botão para alternar entre visão topo e registro.
+4. **Slide 5 — Tela 2: Gestão de Trabalhadores:** Cadastro unívoco de apanhadores com identificadores serializados (`TRAB-001`, `TRAB-002`), transparência no valor da diária (`R$ 60,00/dia`), CPF validado matematicamente e busca reativa instantânea.
+5. **Slide 6 — Tela 3: Controle de Despesas:** Gestão de custos de campo (óleo, insumos, ferramentas), foto do comprovante fiscal anexada via câmera e registro georreferenciado do local da compra/uso.
+6. **Slide 7 — Tela 4: Mapa da Lavoura & Georreferenciamento:** Monitoramento contínuo com telemetria ativa (`GPS conectado em tempo real`), marcadores de colheita/talhões na região cafeeira (Varginha / Sul de Minas) e barra de busca geográfica.
+
+---
+
+## 📑 Slide 8: Passo 1 — Value Objects (Objetos de Valor)
 
 ### Características Arquiteturais
 * **Imutabilidade:** Propriedades `readonly`, sem métodos modificadores (`setters`).

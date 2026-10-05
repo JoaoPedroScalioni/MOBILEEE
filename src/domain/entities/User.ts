@@ -22,12 +22,24 @@ export class User {
   }
 
   atualizarNome(nome: string): void {
+    const anterior = this.name;
     this.name = nome;
-    this.validate();
+    try {
+      this.validate();
+    } catch (erro) {
+      this.name = anterior;
+      throw erro;
+    }
   }
 
   atualizarEmail(email: string): void {
+    const anterior = this.email;
     this.email = email;
-    this.validate();
+    try {
+      this.validate();
+    } catch (erro) {
+      this.email = anterior;
+      throw erro;
+    }
   }
 }

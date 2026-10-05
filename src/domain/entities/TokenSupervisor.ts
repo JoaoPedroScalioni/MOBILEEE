@@ -81,7 +81,7 @@ export class TokenSupervisor {
   }
 
   public estenderValidade(horasAdicionais: number): void {
-    if (typeof horasAdicionais !== 'number' || horasAdicionais <= 0) {
+    if (typeof horasAdicionais !== 'number' || !Number.isFinite(horasAdicionais) || horasAdicionais <= 0) {
       throw new Error('A quantidade de horas para extensão deve ser um número positivo.');
     }
     const msAdicionais = horasAdicionais * 60 * 60 * 1000;

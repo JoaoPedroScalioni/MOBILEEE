@@ -7,10 +7,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useAuth } from '../src/adapters/context/AuthContext';
+import { useAuth } from '../src/adapters/auth/AuthContext';
 
 export default function LoginScreenRoute() {
-  const { login, status, user } = useAuth();
+  const { login, status, session } = useAuth();
+  const user = session?.user ?? null;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [erro, setErro] = useState<string | null>(null);
@@ -18,7 +19,7 @@ export default function LoginScreenRoute() {
   const handleEntrar = async () => {
     setErro(null);
     try {
-      await login(email, password, 'aluno');
+      await login(email, password);
     } catch (err: any) {
       setErro(err?.message || 'Falha ao autenticar.');
     }

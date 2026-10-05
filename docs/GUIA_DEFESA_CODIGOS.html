@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia de Defesa Técnica dos Códigos — SafraCafé Mobile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --border: #1f2937;
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.15);
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --code-bg: #0d1117;
+      --code-border: #30363d;
+      --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-main);
+      line-height: 1.65;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 48px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tag {
+      display: inline-block;
+      padding: 6px 14px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .print-btn {
+      background: #1f2937;
+      color: #fff;
+      border: 1px solid #374151;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .print-btn:hover {
+      background: #374151;
+      border-color: #4b5563;
+    }
+    h1.title-1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 32px 0 16px 0;
+      letter-spacing: -0.02em;
+      line-height: 1.25;
+    }
+    h2.title-2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #34d399;
+      margin: 28px 0 12px 0;
+      border-left: 4px solid #10b981;
+      padding-left: 14px;
+    }
+    h3.title-3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #93c5fd;
+      margin: 22px 0 10px 0;
+    }
+    h4.title-4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fbbf24;
+      margin: 16px 0 8px 0;
+    }
+    p.para {
+      font-size: 0.98rem;
+      color: #d1d5db;
+      margin-bottom: 12px;
+    }
+    .quote {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      border-radius: 0 8px 8px 0;
+      color: #a7f3d0;
+      margin: 16px 0;
+      font-size: 0.95rem;
+    }
+    .divider {
+      border: 0;
+      height: 1px;
+      background: var(--border);
+      margin: 36px 0;
+    }
+    pre.code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 10px;
+      padding: 18px;
+      margin: 18px 0;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: #e6edf3;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    }
+    code {
+      font-family: var(--font-mono);
+      background: rgba(255,255,255,0.08);
+      color: #38bdf8;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.88em;
+    }
+    pre.code-block code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+    .list-item {
+      margin-left: 24px;
+      color: #e5e7eb;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+    .num-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: #e5e7eb;
+      font-size: 0.95rem;
+    }
+    .badge-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 26px;
+      height: 26px;
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+    .spacer {
+      height: 8px;
+    }
+    @media print {
+      body { background: #fff; color: #000; padding: 0; }
+      .container { max-width: 100%; border: none; box-shadow: none; padding: 20px; }
+      .print-btn { display: none; }
+      pre.code-block { background: #f8f9fa; color: #000; border: 1px solid #ddd; }
+      code { background: #eee; color: #000; }
+      h2.title-2 { color: #059669; }
+      h3.title-3 { color: #2563eb; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-bar">
+      <span class="tag">Guia de Apoio para Apresentação</span>
+      <button class="print-btn" onclick="window.print()">🖨️ Imprimir / Salvar em PDF</button>
+    </div>
+    <h1 class="title-1">SafraCafé — Guia Definitivo de Defesa Técnica da Prova</h1>
+<h2 class="title-2">Resumo Explicativo dos Códigos, Invariantes e Possíveis Perguntas da Banca</h2>
+<div class="spacer"></div>
+<blockquote class="quote"><strong>Fase:</strong> "Domínio e Interface Primeiro" (100% Mock / 91.82% Cobertura / 234 Testes / Zero I/O)  </blockquote>
+<blockquote class="quote"><strong>Arquitetura:</strong> Clean Architecture + Domain-Driven Design (DDD) + Test-Driven Development (TDD)</blockquote>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h2 class="title-2">🧭 Visão Panorâmica da Apresentação</h2>
+<p class="para">A defesa foi estruturada exatamente na ordem exigida pelo checklist da disciplina:</p>
+<pre class="code-block"><code class="lang-">1. Telas Mobile (Login, Colheita, Trabalhadores, Despesas, Mapa)
+2. Checklist Sequencial de Construção (Os 8 passos)
+3. Camada de Domínio Puro (Value Objects, Entidades &amp; Agregados, Domain Services)
+4. Contratos e DIP (Interfaces de Repositórios e Gateways)
+5. Camada de Aplicação (10 Use Cases com ciclo Red-Green-Refactor)
+6. Hardware Desacoplado (Gateways e Fakes de Câmera e GPS)
+7. Persistência Offline-First &amp; Resolução de Conflitos
+8. Context API &amp; Custom Hooks (Adapters sem Prop Drilling)
+9. Telas RNTL (Testes com fireEvent e sem emulador físico)
+10. Sessão Segura (Keychain no iOS / Keystore no Android)
+11. Comprovação de Isolamento 100% Mock
+12. Métricas Consolidadas (57 Suites, 234 Testes, 91.82% Cobertura)</code></pre>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">1. Slide 8: Value Objects (Objetos de Valor)</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📄 Código em Destaque: `src/domain/value-objects/Criterio.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">export type FaixaCriterio = 'MB' | 'B' | 'R' | 'F';
+
+export class Criterio {
+  private readonly nome: string;
+  private readonly nota: number;
+
+  constructor(nome: string, nota: number) {
+    if (!nome || nome.trim().length === 0) {
+      throw new Error('O nome do critério não pode ser vazio.');
+    }
+    if (typeof nota !== 'number' || isNaN(nota)) {
+      throw new Error('A nota do critério deve ser um número válido.');
+    }
+    if (nota &lt; 0 || nota &gt; 10) {
+      throw new Error('A nota do critério deve estar entre 0 e 10.');
+    }
+    this.nome = nome.trim();
+    this.nota = Math.round(nota * 10) / 10;
+  }
+
+  public getFaixa(): FaixaCriterio {
+    if (this.nota &gt;= 8.5) return 'MB';
+    if (this.nota &gt;= 7.0) return 'B';
+    if (this.nota &gt;= 5.0) return 'R';
+    return 'F';
+  }
+
+  public equals(other: Criterio): boolean {
+    if (!(other instanceof Criterio)) return false;
+    return this.nome === other.nome &amp;&amp; this.nota === other.nota;
+  }
+}</code></pre>
+<div class="spacer"></div>
+<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Auto-validação no Construtor:</strong> Impede a existência de um critério com nome vazio ou nota fora do intervalo de 0 a 10.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Imutabilidade (<code>readonly</code>):</strong> Uma vez criado, o estado nunca é mutado. Se a nota mudar, cria-se uma nova instância.</span></div>
+<div class="num-item"><span class="badge-num">3</span> <span><strong>Cálculo de Conceito (<code>getFaixa</code>):</strong> Converte a nota decimal na escala oficial: MB (>=8.5), B (>=7.0), R (>=5.0), F (<5.0).</span></div>
+<div class="num-item"><span class="badge-num">4</span> <span><strong>Igualdade Estrutural (<code>equals</code>):</strong> Dois VOs são iguais se seus valores internos forem idênticos, não por ponteiro de memória ou ID.</span></div>
+<div class="spacer"></div>
+<h3 class="title-3">❓ Possíveis Perguntas da Banca e Como Responder:</h3>
+<li class="list-item"><strong>P: "Por que Criterio não tem um campo <code>id</code>?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Porque no DDD, Value Objects são definidos puramente por seus atributos, não por identidade. Dois critérios chamados 'Pontualidade' com nota 9.0 são conceitualmente o mesmo objeto de valor."*</p>
+<li class="list-item"><strong>P: "Quais outros Value Objects existem no projeto?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Temos <code>Coordenada</code> (valida latitude [-90,90], longitude [-180,180] e timestamp), <code>Assinatura</code> (base64 criptográfico e data/hora), <code>CargaHoraria</code> (horas totais, mínimas e saldo do período), <code>StatusPeriodo</code> e <code>StatusSincronizacao</code>."*</p>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">2. Slide 9: Entidades & Agregados</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📄 Código em Destaque: `src/domain/entities/PeriodoAvaliacao.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">export class PeriodoAvaliacao {
+  public registrarAvaliacaoSupervisor(avaliacao: AvaliacaoSupervisor): void {
+    if (this.status === StatusPeriodo.APROVADO) {
+      throw new Error('Não é permitido registrar ou alterar avaliação de supervisor em um período já aprovado.');
+    }
+    this.avaliacaoSupervisor = avaliacao;
+    this.atualizarStatusAposAvaliacoes();
+  }
+
+  public aprovar(): void {
+    if (!this.atividades) {
+      throw new Error('Não é possível aprovar um período sem atividades registradas.');
+    }
+    if (!this.avaliacaoSupervisor) {
+      throw new Error('Não é possível aprovar um período sem a avaliação do supervisor.');
+    }
+    if (!this.autoAvaliacao) {
+      throw new Error('Não é possível aprovar um período sem a autoavaliação do estagiário.');
+    }
+    if (!this.assinaturaAluno || !this.assinaturaSupervisor) {
+      throw new Error('Não é possível aprovar um período sem as assinaturas de ambas as partes.');
+    }
+    this.status = StatusPeriodo.APROVADO;
+    this.motivoDevolucao = undefined;
+  }
+
+  public podeGerarPdf(): boolean {
+    const statusAprovado = this.status === StatusPeriodo.APROVADO;
+    const temTodasAssinaturas = this.assinaturaAluno !== null &amp;&amp; this.assinaturaSupervisor !== null;
+    const sincronizadas = this.assinaturasSincronizadas === true;
+    return statusAprovado &amp;&amp; temTodasAssinaturas &amp;&amp; sincronizadas;
+  }
+}</code></pre>
+<div class="spacer"></div>
+<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Raiz de Agregação (Aggregate Root):</strong> Toda modificação em <code>AtividadesDesenvolvidas</code>, <code>AvaliacaoSupervisor</code>, <code>AutoAvaliacao</code> ou <code>Assinatura</code> passa obrigatoriamente pelos métodos do <code>PeriodoAvaliacao</code>.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Proteção de Invariantes em <code>aprovar()</code>:</strong> Bloqueia a aprovação caso falte qualquer uma das 4 peças (atividades, autoavaliação, avaliação do supervisor e assinaturas de ambas as partes).</span></div>
+<div class="num-item"><span class="badge-num">3</span> <span><strong>Bloqueio de Mutação Pós-Aprovação:</strong> Não permite registrar 2ª avaliação após o status ser <code>APROVADO</code>.</span></div>
+<div class="num-item"><span class="badge-num">4</span> <span><strong>Regra de PDF (<code>podeGerarPdf</code>):</strong> Só permite geração se estiver aprovado E com assinaturas digitalmente sincronizadas.</span></div>
+<div class="num-item"><span class="badge-num">5</span> <span><strong>Entidades Satélites com Raiz Própria:</strong> <code>Estagio</code> (ciclo do estágio) e <code>TokenSupervisor</code> (token temporário de supervisor com expiração e revogação, permitindo acesso sem login tradicional).</span></div>
+<div class="spacer"></div>
+<h3 class="title-3">❓ Possíveis Perguntas da Banca:</h3>
+<li class="list-item"><strong>P: "O que é uma invariante de negócio e onde ela é garantida?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Invariante é uma regra corporativa que deve ser verdadeira o tempo todo. No DDD, quem garante as invariantes é a própria Entidade/Agregado, rejeitando qualquer operação ilegal com exceções antes de gravar."*</p>
+<li class="list-item"><strong>P: "Como o supervisor avalia se ele não tem conta no aplicativo?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Criamos a entidade <code>TokenSupervisor</code>, que possui UUID próprio, data de expiração e flag de revogação. Ele acessa via link/token com o use case <code>AcessarViaTokenUseCase</code> sem necessitar de conta ou senha padrão."*</p>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">3. Slide 10: Domain Services (Serviços de Domínio)</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📄 Códigos em Destaque (3 Abas Interativas):</h3>
+<div class="spacer"></div>
+<h4 class="title-4">1. `src/domain/services/RegraGeracaoPdfService.ts`</h4>
+<pre class="code-block"><code class="lang-typescript">export class RegraGeracaoPdfService {
+  public static validar(periodo: PeriodoAvaliacao, estagio?: Estagio): ValidacaoGeracaoPdfResult {
+    const erros: string[] = [];
+    if (!periodo) return { podeGerar: false, erros: ['Período de avaliação não informado.'] };
+
+    if (!periodo.podeGerarPdf()) {
+      if (periodo.getStatus() !== 'aprovado') erros.push('O relatório do período precisa estar aprovado para geração de PDF.');
+      if (!periodo.getAssinaturaAluno() || !periodo.getAssinaturaSupervisor()) erros.push('O relatório deve conter as assinaturas do aluno e do supervisor.');
+      if (!periodo.isAssinaturasSincronizadas()) erros.push('Todas as assinaturas digitais devem estar sincronizadas com o servidor.');
+    }
+
+    if (estagio &amp;&amp; estagio.getId() !== periodo.getEstagioId()) {
+      erros.push('O estágio fornecido não corresponde ao estágio vinculado ao período de avaliação.');
+    }
+
+    return { podeGerar: erros.length === 0, erros };
+  }
+}</code></pre>
+<div class="spacer"></div>
+<h4 class="title-4">2. `src/domain/services/RegraDevolucaoService.ts`</h4>
+<pre class="code-block"><code class="lang-typescript">export class RegraDevolucaoService {
+  public static validarDevolucao(periodo: PeriodoAvaliacao, motivo: string): ValidacaoDevolucaoResult {
+    const motivosInvalidez: string[] = [];
+    if (!periodo) return { podeDevolver: false, motivosInvalidez: ['Período de avaliação inexistente.'] };
+    if (periodo.getStatus() === StatusPeriodo.APROVADO) {
+      motivosInvalidez.push('Não é permitido devolver um período que já foi aprovado definitivamente.');
+    }
+    if (!motivo || motivo.trim().length &lt; 5) {
+      motivosInvalidez.push('A justificativa da devolução deve possuir no mínimo 5 caracteres explicativos.');
+    }
+    return { podeDevolver: motivosInvalidez.length === 0, motivosInvalidez };
+  }
+}</code></pre>
+<div class="spacer"></div>
+<h4 class="title-4">3. `src/domain/services/SincronizacaoService.ts`</h4>
+<pre class="code-block"><code class="lang-typescript">export class SincronizacaoService {
+  resolverConflito(updatedAtLocal: number, updatedAtRemoto: number): 'local' | 'remoto' {
+    if (updatedAtRemoto &gt; updatedAtLocal) return 'remoto';
+    return 'local';
+  }
+}</code></pre>
+<div class="spacer"></div>
+<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Regras Cruzadas Multi-Entidades:</strong> <code>RegraGeracaoPdfService</code> valida o casamento entre <code>PeriodoAvaliacao</code> e <code>Estagio</code>.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Separação de Responsabilidade:</strong> Regras que não pertencem exclusivamente a uma entidade vivem em Domain Services puros.</span></div>
+<div class="num-item"><span class="badge-num">3</span> <span><strong>Resolução de Conflitos Determinística:</strong> O <code>SincronizacaoService</code> implementa Last-Write-Wins baseado em timestamps.</span></div>
+<div class="spacer"></div>
+<h3 class="title-3">❓ Possíveis Perguntas da Banca:</h3>
+<li class="list-item"><strong>P: "Por que essas regras não foram colocadas dentro do Use Case?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Porque são regras de negócio puras, não orquestração de infraestrutura. Se mudarmos a forma de entrega ou o framework da aplicação, a regra de negócio permanece idêntica e reutilizável no domínio."*</p>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">4. Slide 11: Contratos e Interfaces (DIP)</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📄 Código em Destaque: `src/domain/repositories/PeriodoAvaliacaoRepository.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">export interface PeriodoAvaliacaoRepository {
+  save(periodo: PeriodoAvaliacao): Promise&lt;void&gt;;
+  findById(id: string): Promise&lt;PeriodoAvaliacao | null&gt;;
+  findByEstagioId(estagioId: string): Promise&lt;PeriodoAvaliacao[]&gt;;
+  list(): Promise&lt;PeriodoAvaliacao[]&gt;;
+  findPendentesSincronizacao(): Promise&lt;PeriodoAvaliacao[]&gt;;
+}</code></pre>
+<div class="spacer"></div>
+<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Princípio da Inversão de Dependência (DIP):</strong> O Domínio define a interface. A Infraestrutura externa apenas a implementa.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Métodos Assíncronos (<code>Promise</code>):</strong> Mesmo que a implementação de teste use <code>Map</code> na memória RAM, os contratos retornam <code>Promise</code> para compatibilidade futura com SQLite ou Supabase.</span></div>
+<div class="spacer"></div>
+<h3 class="title-3">❓ Possíveis Perguntas da Banca:</h3>
+<li class="list-item"><strong>P: "Onde ficam as implementações dessa interface nesta fase?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Ficam em <code>src/infra/InMemoryPeriodoAvaliacaoRepository.ts</code>, operando via <code>Map<string, PeriodoAvaliacao></code> e seguindo o padrão Singleton."*</p>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">5. Slide 12: Casos de Uso (Application Layer)</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📄 Código em Destaque: `src/usecases/RegistrarAtividadesUseCase.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">export interface RegistrarAtividadesDTO {
+  periodoId: string;
+  descricao: string;
+  horasTotais: number;
+  horasMinimas: number;
+  horasPeriodo: number;
+  capturarLocalizacao?: boolean;
+}
+
+export class RegistrarAtividadesUseCase {
+  constructor(
+    private readonly periodoRepo: PeriodoAvaliacaoRepository,
+    private readonly locationGateway?: LocationGateway
+  ) {}
+
+  async execute(dto: RegistrarAtividadesDTO): Promise&lt;PeriodoAvaliacao&gt; {
+    const periodo = await this.periodoRepo.findById(dto.periodoId);
+    if (!periodo) throw new Error('Período de avaliação não encontrado.');
+
+    let coordenada: Coordenada | undefined;
+    if (dto.capturarLocalizacao &amp;&amp; this.locationGateway) {
+      coordenada = await this.locationGateway.obterLocalizacaoAtual();
+    }
+
+    const cargaHoraria = new CargaHoraria(dto.horasTotais, dto.horasMinimas, dto.horasPeriodo);
+    const atividades = new AtividadesDesenvolvidas({
+      id: `ativ-${Date.now()}`,
+      descricao: dto.descricao,
+      cargaHoraria,
+      coordenada,
+      dataRegistro: new Date(),
+    });
+
+    periodo.registrarAtividades(atividades);
+    await this.periodoRepo.save(periodo);
+    return periodo;
+  }
+}</code></pre>
+<div class="spacer"></div>
+<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Injeção de Dependência pelo Construtor:</strong> Recebe apenas contratos (<code>PeriodoAvaliacaoRepository</code> e <code>LocationGateway</code>).</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Uso de DTOs:</strong> Dados entram como tipos primitivos ou planos (<code>RegistrarAtividadesDTO</code>).</span></div>
+<div class="num-item"><span class="badge-num">3</span> <span><strong>Instanciação de VOs e Entidades:</strong> Constrói <code>CargaHoraria</code> e <code>AtividadesDesenvolvidas</code> delegando a regra de negócio para a entidade <code>periodo.registrarAtividades(atividades)</code>.</span></div>
+<div class="spacer"></div>
+<h3 class="title-3">❓ Possíveis Perguntas da Banca:</h3>
+<li class="list-item"><strong>P: "Quais são os 10 casos de uso do sistema?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"1. RegistrarAtividades, 2. AvaliarDesempenho, 3. RealizarAutoAvaliacao, 4. AssinarRelatorio, 5. AprovarRelatorio, 6. DevolverRelatorio, 7. GerarPdf, 8. SincronizarFila, 9. AutenticarUsuario e 10. AcessarViaToken. Todos estão reexportados em <code>src/application/use-cases/index.ts</code>."*</p>
+<li class="list-item"><strong>P: "O que significa o ciclo Red-Green-Refactor nos casos de uso?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Primeiro escrevemos o teste unitário que falha (Red), depois implementamos o caso de uso até o teste passar (Green), e por fim limpamos o design mantendo o teste verde (Refactor)."*</p>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">6. Slide 13: Hardware Desacoplado (Câmera & GPS)</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📄 Código em Destaque: `src/infra/InMemoryCameraGateway.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">export class InMemoryCameraGateway implements CameraGateway {
+  private fotoSimulada: FotoCapturada = {
+    uri: 'file:///mock/foto-comprovante.jpg',
+    base64: 'data:image/jpeg;base64,mockedbase64string123',
+    largura: 800,
+    altura: 600,
+  };
+
+  async capturarFoto(): Promise&lt;FotoCapturada&gt; {
+    return this.fotoSimulada;
+  }
+}</code></pre>
+<div class="spacer"></div>
+<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Arquitetura Hexagonal (Portas e Adaptadores):</strong> O domínio define <code>CameraGateway</code> e <code>LocationGateway</code>.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Dupla Implementação:</strong> Em produção mobile, <code>CameraGatewayExpo</code> encapsula <code>expo-camera</code>. Nos testes, <code>InMemoryCameraGateway</code> retorna a foto em Base64 imediatamente sem abrir a câmera do celular.</span></div>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">7. Slide 14: Persistência Offline-First & Sincronização</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📄 Código em Destaque: `src/usecases/SincronizarFilaUseCase.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">export class SincronizarFilaUseCase {
+  constructor(
+    private readonly periodoRepo: PeriodoAvaliacaoRepository,
+    private readonly remoteSyncGateway?: RemoteSyncGateway
+  ) {}
+
+  async execute(): Promise&lt;SincronizarFilaResult&gt; {
+    const pendentes = await this.periodoRepo.findPendentesSincronizacao();
+    let sincronizados = 0, falhas = 0;
+
+    for (const periodo of pendentes) {
+      try {
+        if (this.remoteSyncGateway) {
+          await this.remoteSyncGateway.enviarPeriodo(periodo.getId(), {
+            status: periodo.getStatus(),
+            alunoId: periodo.getAlunoId(),
+          });
+        }
+        periodo.atualizarStatusSincronizacao(StatusSincronizacao.SYNCED);
+        periodo.marcarAssinaturasSincronizadas(true);
+        await this.periodoRepo.save(periodo);
+        sincronizados++;
+      } catch (err) {
+        periodo.atualizarStatusSincronizacao(StatusSincronizacao.ERROR);
+        falhas++;
+      }
+    }
+    return { totalPendentes: pendentes.length, sincronizados, falhas };
+  }
+}</code></pre>
+<div class="spacer"></div>
+<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Busca Fila Pendente:</strong> Filtra apenas períodos com <code>StatusSincronizacao.PENDING</code>.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Transição de Estados:</strong> Se o gateway remoto responder com sucesso, transita para <code>SYNCED</code> e libera a geração de PDF; se falhar, transita para <code>ERROR</code> sem travar a interface do operador.</span></div>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">8. Slide 15: Context API & Custom Hooks (Adapters)</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📄 Código em Destaque: `src/adapters/context/AuthContext.tsx`</h3>
+<pre class="code-block"><code class="lang-typescript">export function AuthProvider({
+  children,
+  autenticarUseCase,
+  restoreSessionUseCase,
+  signOutUseCase
+}: AuthProviderProps) {
+  const auth = autenticarUseCase ?? container.autenticarUsuarioUseCase;
+  const restore = restoreSessionUseCase ?? container.restoreSession;
+
+  const [session, setSession] = useState&lt;Session | null&gt;(null);
+  const [papel, setPapel] = useState&lt;PapelUsuario&gt;('aluno');
+  const [status, setStatus] = useState&lt;AuthStatus&gt;('loading');
+
+  useEffect(() =&gt; {
+    restore.execute().then((restored) =&gt; {
+      if (restored) {
+        setSession(restored);
+        setStatus('authenticated');
+      } else {
+        setStatus('unauthenticated');
+      }
+    });
+  }, [restore]);
+}</code></pre>
+<div class="spacer"></div>
+<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Localização em <code>adapters/</code>:</strong> Nunca no <code>domain/</code> ou <code>usecases/</code>.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Eliminação de Prop Drilling:</strong> Permite que qualquer tela acesse <code>user</code>, <code>papel</code> e <code>status</code> via <code>useAuth()</code>.</span></div>
+<div class="num-item"><span class="badge-num">3</span> <span><strong>Injeção com Fallback no Container:</strong> <code>autenticarUseCase ?? container.autenticarUsuarioUseCase</code>, permitindo que testes injetem Use Cases Fakes.</span></div>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">9. Slide 16: Telas e Testes RNTL (React Native Testing Library)</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📄 Códigos em Destaque (Abas Interativas):</h3>
+<div class="spacer"></div>
+<h4 class="title-4">1. `tests/screens/AssinaturaScreen.test.tsx`</h4>
+<pre class="code-block"><code class="lang-typescript">it('deve registrar assinatura digital simulando toque nos botões e inputs', async () =&gt; {
+  const periodoRepo = InMemoryPeriodoAvaliacaoRepository.getInstance();
+  periodoRepo.clear();
+  await periodoRepo.save(new PeriodoAvaliacao({
+    id: 'p1', estagioId: 'e1', alunoId: 'aluno-01', numeroPeriodo: 1,
+    dataInicio: new Date('2026-01-01'), dataFim: new Date('2026-06-01'),
+  }));
+
+  const assinarUseCase = new AssinarRelatorioUseCase(periodoRepo);
+  const onConcluidoMock = jest.fn();
+
+  const { getByTestId, findByText } = render(
+    &lt;AssinaturaScreen
+      periodoId="p1"
+      autorIdPadrao="aluno-01"
+      assinarUseCase={assinarUseCase}
+      onAssinaturaConcluida={onConcluidoMock}
+    /&gt;
+  );
+
+  fireEvent.press(getByTestId('btn-papel-aluno'));
+  fireEvent.press(getByTestId('btn-assinar'));
+
+  expect(await findByText('Assinatura registrada e vinculada com sucesso!')).toBeTruthy();
+  expect(onConcluidoMock).toHaveBeenCalledTimes(1);
+});</code></pre>
+<div class="spacer"></div>
+<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Simulação de Toques com <code>fireEvent</code>:</strong> Testa botões (<code>fireEvent.press</code>) e inputs (<code>fireEvent.changeText</code>) sem precisar de emulador físico ou clique manual.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Testes Assíncronos com <code>waitFor</code> e <code>findByText</code>:</strong> Garante que animações e chamadas assíncronas do React Native sejam aguardadas corretamente.</span></div>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">10. Slide 17: Sessão Segura (Expo SecureStore)</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📄 Código em Destaque: `src/adapters/auth/SessionStorageSecureStore.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">import * as SecureStore from 'expo-secure-store';
+import { SessionStorage } from '../../domain/gateways/SessionStorage';
+
+const CHAVE_SESSAO = 'safracafe.session';
+
+export class SessionStorageSecureStore implements SessionStorage {
+  async salvar(session: Session): Promise&lt;void&gt; {
+    const json = {
+      token: session.token,
+      user: { id: session.user.id, name: session.user.name, email: session.user.email },
+      expiresAt: session.expiresAt,
+    };
+    await SecureStore.setItemAsync(CHAVE_SESSAO, JSON.stringify(json));
+  }
+
+  async carregar(): Promise&lt;Session | null&gt; {
+    const raw = await SecureStore.getItemAsync(CHAVE_SESSAO);
+    if (!raw) return null;
+    const json = JSON.parse(raw);
+    return new Session(json.token, new User(json.user.id, json.user.name, json.user.email), json.expiresAt);
+  }
+}</code></pre>
+<div class="spacer"></div>
+<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Hardware Nativo Criptografado:</strong> Utiliza <strong>Keychain</strong> no iOS e <strong>Keystore</strong> no Android.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Virtualização em Testes:</strong> O <code>expo-secure-store</code> é mockado no <code>tests/setup.ts</code>, gravando em memória RAM sem tocar em disco físico.</span></div>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">11. Slide 18 & 19: Comprovação de Isolamento 100% Mock & Métricas</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📊 Tabela Oficial de Cobertura e Pirâmide de Testes:</h3>
+<p class="para">| Camada / Diretório | Suítes | Testes | % Linhas |</p>
+<p class="para">| :--- | :---: | :---: | :---: |</p>
+<p class="para">| <strong>1. Value Objects</strong> (<code>domain/value-objects</code>) | 10 | 45 | <strong>98.96%</strong> |</p>
+<p class="para">| <strong>2. Entities & Aggregates</strong> (<code>domain/entities</code>) | 8 | 48 | <strong>89.37%</strong> |</p>
+<p class="para">| <strong>3. Domain Services</strong> (<code>domain/services</code>) | 3 | 6 | <strong>90.32%</strong> |</p>
+<p class="para">| <strong>4. Use Cases</strong> (<code>src/usecases</code>) | 24 | 55 | <strong>95.69%</strong> |</p>
+<p class="para">| <strong>5. Repositórios & Gateways Fake</strong> (<code>infra</code>) | 2 | 11 | <strong>96.96%</strong> |</p>
+<p class="para">| <strong>6. Context API & Sessão Segura</strong> (<code>adapters</code>) | 6 | 14 | <strong>83.33%</strong> |</p>
+<p class="para">| <strong>7. Telas RNTL</strong> (<code>src/adapters/screens</code>) | 4 | 7 | <strong>82.85%</strong> |</p>
+<p class="para">| <strong>TOTAL GERAL (All Files)</strong> | <strong>57 Suites</strong> | <strong>234 Testes</strong> | <strong>91.82%</strong> |</p>
+<div class="spacer"></div>
+<h3 class="title-3">🔺 Pirâmide de Testes do Projeto:</h3>
+<li class="list-item"><strong>E2E (Pouquíssimos):</strong> Reservados apenas para fluxos críticos pontuais.</li>
+<li class="list-item"><strong>Telas RNTL (7 Testes):</strong> Renderização e eventos de tela com use cases fakes.</li>
+<li class="list-item"><strong>Context API, Hooks & Infra Fakes (25 Testes):</strong> Sessão segura, ciclo de vida e repositórios em memória.</li>
+<li class="list-item"><strong>Use Cases (55 Testes):</strong> Validação de fluxos alternativos e orquestração.</li>
+<li class="list-item"><strong>Domínio Puro (Base Larga — 99 Testes):</strong> Value objects, entidades e domain services rodando em microssegundos sem dependências externas.</li>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h2 class="title-2">🎯 5 Respostas de Ouro para a Banca:</h2>
+<div class="spacer"></div>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>"Por que não tem SQLite nem Supabase nesta entrega?"</strong>  </span></div>
+<p class="para">   *"Porque esta é a fase 'Domínio e Interface Primeiro'. Persistência é um detalhe externo em Clean Architecture. Desacoplamos o banco para garantir regras 100% puras e uma suíte de 234 testes rodando em ~5 segundos sem dependência de rede ou disco."*</p>
+<div class="spacer"></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>"Como o projeto garante que o domínio não depende de React ou Expo?"</strong>  </span></div>
+<p class="para">   *"A camada <code>src/domain/</code> possui zero imports de <code>@/</code>, <code>react</code>, <code>react-native</code>, <code>expo</code> ou bibliotecas de UI. Ela é TypeScript puro e roda em qualquer ambiente (Node, Web, Mobile ou Backend)."*</p>
+<div class="spacer"></div>
+<div class="num-item"><span class="badge-num">3</span> <span><strong>"Qual é o papel do arquivo <code>src/factory/container.ts</code>?"</strong>  </span></div>
+<p class="para">   *"Ele é o único ponto de Inversão de Controle (IoC) da aplicação. Ele faz o wiring entre as implementações Singleton da camada de infraestrutura e os casos de uso da camada de aplicação."*</p>
+<div class="spacer"></div>
+<div class="num-item"><span class="badge-num">4</span> <span><strong>"Como o app resolve o problema de Prop Drilling do usuário logado?"</strong>  </span></div>
+<p class="para">   *"Através do <code>AuthContext</code> na camada de adaptadores. Ele envolve a raiz no <code>_layout.tsx</code> e qualquer componente acessa a sessão via hook <code>useAuth()</code> sem precisar repassar props manualmente."*</p>
+<div class="spacer"></div>
+<div class="num-item"><span class="badge-num">5</span> <span><strong>"Como vocês garantem que os dados no smartphone não sejam roubados?"</strong>  </span></div>
+<p class="para">   *"Usamos o adaptador <code>SessionStorageSecureStore</code>, que delega para o <code>expo-secure-store</code>. No iOS ele grava no Keychain e no Android no Keystore, ambas áreas protegidas por criptografia de hardware do dispositivo."*</p>
+<div class="spacer"></div>
+  </div>
+</body>
+</html>

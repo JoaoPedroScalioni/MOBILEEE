@@ -1,8 +1,8 @@
 # 📱 Apresentação de Defesa Técnica: Fase "Domínio e Interface Primeiro"
-### Projeto: SafraCafé — Gestão Offline-First da Colheita Cafeeira
+### Projeto: SafraCafé — Sistema de Avaliação de Estágio e Registro de Atividades
 **Padrão Arquitetural:** Clean Architecture + Domain-Driven Design (DDD) + TDD (Test-Driven Development)  
 **Ambiente da Etapa:** 100% Mock / Em Memória (Isolado de Banco Físico e Hardware Nativo)  
-**Resultados dos Testes:** 57 Test Suites | 234 Testes Aprovados (100%) | 91.82% de Cobertura Global
+**Resultados dos Testes:** 52 Test Suites | 170 Testes Aprovados (100%) | 81.74% de Cobertura Global
 
 ---
 
@@ -49,38 +49,306 @@
 * **Auto-validação no Construtor:** Bloqueio imediato na instanciação em caso de valores inválidos.
 
 ### Objetos de Valor Implementados
-* [`QuantidadeBalaio`](file:///c:/PROJETOMOBILE/src/domain/value-objects/QuantidadeBalaio.ts): Volume em litros de café colhido no talhão (finito e estritamente $> 0$).
-* [`ValorMonetario`](file:///c:/PROJETOMOBILE/src/domain/value-objects/ValorMonetario.ts): Diária do colhedor (R$ 60,00) ou gastos de campo ($\ge 0$, formatado em BRL).
-* [`Coordinates`](file:///c:/PROJETOMOBILE/src/domain/value-objects/Coordinates.ts): Latitude [-90, 90] e longitude [-180, 180] para georreferenciamento do talhão.
-* [`SyncStatus`](file:///c:/PROJETOMOBILE/src/domain/value-objects/SyncStatus.ts): Estados formais do ciclo offline-first (`PENDING`, `SYNCED`, `ERROR`).
+* [`Criterio`](file:///c:/PROJETOMOBILE/src/domain/value-objects/Criterio.ts): Validação de notas (0 a 10) e cálculo automático da faixa de conceito (`MB`, `B`, `R`, `F`).
+* [`Coordenada`](file:///c:/PROJETOMOBILE/src/domain/value-objects/Coordenada.ts): Latitude [-90, 90], longitude [-180, 180] e timestamp UTC.
+* [`Assinatura`](file:///c:/PROJETOMOBILE/src/domain/value-objects/Assinatura.ts): Assinatura digital (payload base64, papel do autor e carimbo de tempo).
+* [`CargaHoraria`](file:///c:/PROJETOMOBILE/src/domain/value-objects/CargaHoraria.ts): Validação de horas acumuladas, limite mínimo e horas do período.
+* [`StatusPeriodo`](file:///c:/PROJETOMOBILE/src/domain/value-objects/StatusPeriodo.ts) e [`StatusSincronizacao`](file:///c:/PROJETOMOBILE/src/domain/value-objects/StatusSincronizacao.ts): Estados formais do ciclo de vida.
 
-### Implementação: `QuantidadeBalaio.ts`
+### Implementação: `Criterio.ts`
 ```typescript
-export class QuantidadeBalaio {
-    constructor(public readonly litros: number) {
-        this.validate(); // Auto-validação defensiva no construtor (imutável)
-    }
+export type FaixaCriterio = 'MB' | 'B' | 'R' | 'F';
 
-    private validate(): void {
-        if (!Number.isFinite(this.litros) || this.litros <= 0) {
-            throw new Error('Quantidade de balaio inválida');
-        }
+export class Criterio {
+  private readonly nome: string;
+  private readonly nota: number;
+
+  constructor(nome: string, nota: number) {
+    if (!nome || nome.trim().length === 0) {
+      throw new Error('O nome do critério não pode ser vazio.');
     }
+    if (typeof nota !== 'number' || isNaN(nota) || nota < 0 || nota > 10) {
+      throw new Error('A nota do critério deve estar entre 0 e 10.');
+    }
+    this.nome = nome.trim();
+    this.nota = Math.round(nota * 10) / 10;
+  }
+
+  public getFaixa(): FaixaCriterio {
+    if (this.nota >= 8.5) return 'MB';
+    if (this.nota >= 7.0) return 'B';
+    if (this.nota >= 5.0) return 'R';
+    return 'F';
+  }
+
+  public equals(other: Criterio): boolean {
+    if (!(other instanceof Criterio)) return false;
+    return this.nome === other.nome && this.nota === other.nota;
+  }
 }
 ```
 
-### Validação Unitária: `tests/domain/QuantidadeBalaio.test.ts`
+### Validação Unitária: `tests/domain/Criterio.test.ts`
 ```typescript
-it('deve aceitar quantidade válida em litros', () => {
-    const balaio = new QuantidadeBalaio(60);
-    expect(balaio.litros).toBe(60);
+it('deve classificar faixas de conceito corretamente: MB, B, R, F', () => {
+  expect(new Criterio('Assiduidade', 9.5).getFaixa()).toBe('MB');
+  expect(new Criterio('Proatividade', 7.5).getFaixa()).toBe('B');
+  expect(new Criterio('Pontualidade', 5.5).getFaixa()).toBe('R');
+  expect(new Criterio('Postura', 4.0).getFaixa()).toBe('F');
 });
 
-it('deve rejeitar litros negativos, zero ou não finitos', () => {
-    expect(() => new QuantidadeBalaio(0)).toThrow('Quantidade de balaio inválida');
-    expect(() => new QuantidadeBalaio(-10)).toThrow('Quantidade de balaio inválida');
-    expect(() => new QuantidadeBalaio(NaN)).toThrow('Quantidade de balaio inválida');
+it('deve rejeitar notas fora do intervalo 0-10', () => {
+  expect(() => new Criterio('Teste', -1)).toThrow('A nota do critério deve estar entre 0 e 10.');
+  expect(() => new Criterio('Teste', 10.5)).toThrow('A nota do critério deve estar entre 0 e 10.');
 });
+```
+
+---
+
+## 📑 Slide 3: Passo 2 — Entidades e Agregados (Entities & Aggregate Roots)
+
+### Características Arquiteturais
+* **Raiz de Agregação (`PeriodoAvaliacao`):** Ponto de controle exclusivo para garantir integridade e regras invariantes do período de estágio.
+* **Entidades Vinculadas:** `Estagio`, `TokenSupervisor`, `AtividadesDesenvolvidas`, `AvaliacaoSupervisor`, `AutoAvaliacao`.
+
+### Invariantes Garantidas
+1. **Imutabilidade pós-aprovação:** Bloqueio de novas avaliações caso o período já esteja no estado `APROVADO`.
+2. **Critérios de Aprovação:** Exigência mandatória de atividades, avaliação do supervisor, autoavaliação do estagiário e ambas as assinaturas digitais.
+3. **Condição de Emissão de Relatório (`podeGerarPdf()`):** Período aprovado, ambas as assinaturas presentes e confirmação de sincronização prévia com o servidor.
+
+### Implementação: `PeriodoAvaliacao.ts`
+```typescript
+export class PeriodoAvaliacao {
+  public registrarAvaliacaoSupervisor(avaliacao: AvaliacaoSupervisor): void {
+    if (this.status === StatusPeriodo.APROVADO) {
+      throw new Error('Não é permitido registrar ou alterar avaliação de supervisor em um período já aprovado.');
+    }
+    this.avaliacaoSupervisor = avaliacao;
+    this.atualizarStatusAposAvaliacoes();
+  }
+
+  public aprovar(): void {
+    if (!this.atividades) throw new Error('Não é possível aprovar um período sem atividades registradas.');
+    if (!this.avaliacaoSupervisor) throw new Error('Não é possível aprovar sem a avaliação do supervisor.');
+    if (!this.autoAvaliacao) throw new Error('Não é possível aprovar sem a autoavaliação do estagiário.');
+    if (!this.assinaturaAluno || !this.assinaturaSupervisor) {
+      throw new Error('Não é possível aprovar um período sem as assinaturas de ambas as partes.');
+    }
+    this.status = StatusPeriodo.APROVADO;
+  }
+
+  public podeGerarPdf(): boolean {
+    const statusAprovado = this.status === StatusPeriodo.APROVADO;
+    const temTodasAssinaturas = this.assinaturaAluno !== null && this.assinaturaSupervisor !== null;
+    const sincronizadas = this.assinaturasSincronizadas === true;
+    return statusAprovado && temTodasAssinaturas && sincronizadas;
+  }
+}
+```
+
+### Validação Unitária: `tests/domain/PeriodoAvaliacao.test.ts`
+```typescript
+it('deve bloquear nova avaliação se o período já estiver aprovado', () => {
+  const periodo = criarPeriodoAprovado();
+  expect(() => periodo.registrarAvaliacaoSupervisor(novaAvaliacao)).toThrow(
+    'Não é permitido registrar ou alterar avaliação de supervisor em um período já aprovado.'
+  );
+});
+
+it('deve retornar podeGerarPdf() verdadeiro somente com aprovação e assinaturas sincronizadas', () => {
+  const periodo = criarPeriodoAprovado();
+  periodo.marcarAssinaturasSincronizadas(true);
+  expect(periodo.podeGerarPdf()).toBe(true);
+});
+```
+
+---
+
+## 📑 Slide 4: Passo 3 — Domain Services (Serviços de Domínio)
+
+### Finalidade Arquitetural
+* Centralização de regras e validações cruzadas que envolvem mais de uma entidade de domínio.
+
+### Serviços Implementados
+* [`RegraGeracaoPdfService`](file:///c:/PROJETOMOBILE/src/domain/services/RegraGeracaoPdfService.ts): Valida simultaneamente o estado do `PeriodoAvaliacao` e a consistência do `Estagio` correspondente.
+* [`RegraDevolucaoService`](file:///c:/PROJETOMOBILE/src/domain/services/RegraDevolucaoService.ts): Valida justificativas e critérios de transição para reabertura de relatórios devolvidos.
+* [`SincronizacaoService`](file:///c:/PROJETOMOBILE/src/domain/services/SincronizacaoService.ts): Regras de resolução de pendências para o motor de sincronização.
+
+### Implementação: `RegraGeracaoPdfService.ts`
+```typescript
+export class RegraGeracaoPdfService {
+  public static validar(periodo: PeriodoAvaliacao, estagio?: Estagio): ValidacaoGeracaoPdfResult {
+    const erros: string[] = [];
+    if (!periodo) return { podeGerar: false, erros: ['Período de avaliação não informado.'] };
+
+    if (!periodo.podeGerarPdf()) {
+      if (periodo.getStatus() !== 'aprovado') erros.push('O relatório do período precisa estar aprovado.');
+      if (!periodo.getAssinaturaAluno() || !periodo.getAssinaturaSupervisor()) {
+        erros.push('O relatório deve conter as assinaturas do aluno e do supervisor.');
+      }
+      if (!periodo.isAssinaturasSincronizadas()) {
+        erros.push('Todas as assinaturas digitais devem estar sincronizadas com o servidor.');
+      }
+    }
+
+    if (estagio && estagio.getId() !== periodo.getEstagioId()) {
+      erros.push('O estágio fornecido não corresponde ao estágio vinculado ao período de avaliação.');
+    }
+
+    return { podeGerar: erros.length === 0, erros };
+  }
+}
+```
+
+---
+
+## 📑 Slide 5: Passo 4 — Contratos e Interfaces (Repository & Gateway Interfaces)
+
+### Princípio da Inversão de Dependência (DIP)
+* O Domínio define **apenas contratos abstratos** (TypeScript `interface`).
+* Nenhuma biblioteca de banco (SQLite, Supabase) ou recurso nativo do sistema operacional (Câmera, GPS) é importada no domínio.
+
+```typescript
+// src/domain/repositories/PeriodoAvaliacaoRepository.ts
+export interface PeriodoAvaliacaoRepository {
+  save(periodo: PeriodoAvaliacao): Promise<void>;
+  findById(id: string): Promise<PeriodoAvaliacao | null>;
+  findByEstagioId(estagioId: string): Promise<PeriodoAvaliacao[]>;
+  list(): Promise<PeriodoAvaliacao[]>;
+  findPendentesSincronizacao(): Promise<PeriodoAvaliacao[]>;
+}
+```
+
+---
+
+## 📑 Slide 6: Passo 5 — Casos de Uso (Application Layer)
+
+### Características da Camada de Aplicação
+* Orquestração de regras de negócio entre repositórios, gateways e entidades.
+* Injeção de dependência via construtor, possibilitando substituição total de repositórios reais por implementações em memória nos testes.
+
+### Casos de Uso do Sistema
+1. [`RegistrarAtividadesUseCase`](file:///c:/PROJETOMOBILE/src/usecases/RegistrarAtividadesUseCase.ts)
+2. [`AvaliarDesempenhoUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AvaliarDesempenhoUseCase.ts)
+3. [`RealizarAutoAvaliacaoUseCase`](file:///c:/PROJETOMOBILE/src/usecases/RealizarAutoAvaliacaoUseCase.ts)
+4. [`AssinarRelatorioUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AssinarRelatorioUseCase.ts)
+5. [`AprovarRelatorioUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AprovarRelatorioUseCase.ts)
+6. [`DevolverRelatorioUseCase`](file:///c:/PROJETOMOBILE/src/usecases/DevolverRelatorioUseCase.ts)
+7. [`GerarPdfUseCase`](file:///c:/PROJETOMOBILE/src/usecases/GerarPdfUseCase.ts)
+8. [`SincronizarFilaUseCase`](file:///c:/PROJETOMOBILE/src/usecases/SincronizarFilaUseCase.ts)
+9. [`AutenticarUsuarioUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AutenticarUsuarioUseCase.ts)
+10. [`AcessarViaTokenUseCase`](file:///c:/PROJETOMOBILE/src/usecases/AcessarViaTokenUseCase.ts)
+
+### Implementação: `RegistrarAtividadesUseCase.ts`
+```typescript
+export class RegistrarAtividadesUseCase {
+  constructor(
+    private readonly periodoRepo: PeriodoAvaliacaoRepository,
+    private readonly locationGateway?: LocationGateway
+  ) {}
+
+  async execute(dto: RegistrarAtividadesDTO): Promise<PeriodoAvaliacao> {
+    const periodo = await this.periodoRepo.findById(dto.periodoId);
+    if (!periodo) throw new Error('Período de avaliação não encontrado.');
+
+    let coordenada: Coordenada | undefined;
+    if (dto.capturarLocalizacao && this.locationGateway) {
+      coordenada = await this.locationGateway.obterLocalizacaoAtual();
+    }
+
+    const cargaHoraria = new CargaHoraria(dto.horasTotais, dto.horasMinimas, dto.horasPeriodo);
+    const atividades = new AtividadesDesenvolvidas({
+      id: `ativ-${Date.now()}`,
+      descricao: dto.descricao,
+      cargaHoraria,
+      coordenada,
+      dataRegistro: new Date(),
+    });
+
+    periodo.registrarAtividades(atividades);
+    await this.periodoRepo.save(periodo);
+    return periodo;
+  }
+}
+```
+
+---
+
+## 📑 Slide 7: Passo 6 — Hardware Desacoplado: Câmera e GPS
+
+### 1. Câmera Nativa (`CameraGateway`)
+* **Contrato no Domínio:** [`src/domain/gateways/CameraGateway.ts`](file:///c:/PROJETOMOBILE/src/domain/gateways/CameraGateway.ts)
+* **Adapter Real (Expo):** [`src/adapters/gateways/CameraGatewayExpo.ts`](file:///c:/PROJETOMOBILE/src/adapters/gateways/CameraGatewayExpo.ts) — Envolve `expo-camera` defensivamente com fallback para ambientes sem suporte a hardware.
+* **Fake em Memória para Testes:** [`src/infra/InMemoryCameraGateway.ts`](file:///c:/PROJETOMOBILE/src/infra/InMemoryCameraGateway.ts) — Retorno determinístico imediato de imagem base64 simulada.
+
+```typescript
+export interface CameraGateway {
+  capturarFoto(): Promise<FotoCapturada>;
+}
+
+export class InMemoryCameraGateway implements CameraGateway {
+  private fotoSimulada: FotoCapturada = {
+    uri: 'file:///mock/foto-comprovante.jpg',
+    base64: 'data:image/jpeg;base64,mockedbase64string123',
+    largura: 800,
+    altura: 600,
+  };
+  async capturarFoto(): Promise<FotoCapturada> {
+    return this.fotoSimulada;
+  }
+}
+```
+
+### 2. Geolocalização (`LocationGateway`)
+* **Contrato no Domínio:** [`src/domain/gateways/LocationGateway.ts`](file:///c:/PROJETOMOBILE/src/domain/gateways/LocationGateway.ts)
+* **Fake em Memória para Testes:** [`src/infra/InMemoryLocationGateway.ts`](file:///c:/PROJETOMOBILE/src/infra/InMemoryLocationGateway.ts) — Simula coordenadas com timestamp sem chamada a sensores físicos.
+
+```typescript
+export interface LocationGateway {
+  obterLocalizacaoAtual(): Promise<Coordenada>;
+}
+
+export class InMemoryLocationGateway implements LocationGateway {
+  private coordenadaAtual: Coordenada = new Coordenada(-23.55052, -46.633308, Date.now());
+  async obterLocalizacaoAtual(): Promise<Coordenada> {
+    return this.coordenadaAtual;
+  }
+}
+```
+
+---
+
+## 📑 Slide 8: Passo 7 — Persistência Desacoplada: SQLite e Supabase em Memória
+
+### Justificativa de Isolamento do Banco de Dados
+* **Arquitetura Agnóstica:** Persistência em disco (SQLite) e na nuvem (Supabase) constitui detalhe de entrada e saída.
+* **Determinismo e Velocidade:** Repositórios em memória (`Map<string, T>`) executam testes em milissegundos e eliminam falhas de conectividade ou bloqueios de arquivo durante a suíte de testes.
+* **Modelo Offline-First:** Toda operação de gravação localiza dados com status `PENDING`, e o despachante de fila sincroniza com o gateway remoto (`RemoteSyncGateway`).
+
+```typescript
+// Sincronização desacoplada de backend físico
+export class SincronizarFilaUseCase {
+  constructor(
+    private readonly periodoRepo: PeriodoAvaliacaoRepository,
+    private readonly remoteSyncGateway?: RemoteSyncGateway
+  ) {}
+
+  async execute(): Promise<SincronizarFilaResult> {
+    const pendentes = await this.periodoRepo.findPendentesSincronizacao();
+    let sincronizados = 0;
+
+    for (const periodo of pendentes) {
+      if (this.remoteSyncGateway) {
+        await this.remoteSyncGateway.enviarPeriodo(periodo.getId(), { ... });
+      }
+      periodo.atualizarStatusSincronizacao(StatusSincronizacao.SYNCED);
+      periodo.marcarAssinaturasSincronizadas(true);
+      await this.periodoRepo.save(periodo);
+      sincronizados++;
+    }
+    return { totalPendentes: pendentes.length, sincronizados, falhas: 0 };
+  }
+}
 ```
 
 ---

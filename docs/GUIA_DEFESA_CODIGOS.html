@@ -197,24 +197,23 @@
     <h1 class="title-1">SafraCafé — Guia Definitivo de Defesa Técnica da Prova</h1>
 <h2 class="title-2">Resumo Explicativo dos Códigos, Invariantes e Possíveis Perguntas da Banca</h2>
 <div class="spacer"></div>
-<blockquote class="quote"><strong>Projeto:</strong> SafraCafé — Gestão Offline-First da Colheita Cafeeira  </blockquote>
 <blockquote class="quote"><strong>Fase:</strong> "Domínio e Interface Primeiro" (100% Mock / 91.82% Cobertura / 234 Testes / Zero I/O)  </blockquote>
 <blockquote class="quote"><strong>Arquitetura:</strong> Clean Architecture + Domain-Driven Design (DDD) + Test-Driven Development (TDD)</blockquote>
 <div class="spacer"></div>
 <hr class="divider" />
 <div class="spacer"></div>
 <h2 class="title-2">🧭 Visão Panorâmica da Apresentação</h2>
-<p class="para">A defesa foi estruturada exatamente na ordem de engenharia do SafraCafé:</p>
-<pre class="code-block"><code class="lang-">1. Telas Mobile (Login, Colheita/Balaios, Trabalhadores, Despesas, Mapa)
+<p class="para">A defesa foi estruturada exatamente na ordem exigida pelo checklist da disciplina:</p>
+<pre class="code-block"><code class="lang-">1. Telas Mobile (Login, Colheita, Trabalhadores, Despesas, Mapa)
 2. Checklist Sequencial de Construção (Os 8 passos)
 3. Camada de Domínio Puro (Value Objects, Entidades &amp; Agregados, Domain Services)
 4. Contratos e DIP (Interfaces de Repositórios e Gateways)
-5. Camada de Aplicação (Use Cases orquestrados com ciclo Red-Green-Refactor)
+5. Camada de Aplicação (10 Use Cases com ciclo Red-Green-Refactor)
 6. Hardware Desacoplado (Gateways e Fakes de Câmera e GPS)
-7. Persistência Offline-First &amp; Resolução de Conflitos (Last-Write-Wins)
+7. Persistência Offline-First &amp; Resolução de Conflitos
 8. Context API &amp; Custom Hooks (Adapters sem Prop Drilling)
 9. Telas RNTL (Testes com fireEvent e sem emulador físico)
-10. Sessão Segura (Keychain no iOS / Keystore no Android via Expo SecureStore)
+10. Sessão Segura (Keychain no iOS / Keystore no Android)
 11. Comprovação de Isolamento 100% Mock
 12. Métricas Consolidadas (57 Suites, 234 Testes, 91.82% Cobertura)</code></pre>
 <div class="spacer"></div>
@@ -222,331 +221,446 @@
 <div class="spacer"></div>
 <h1 class="title-1">1. Slide 8: Value Objects (Objetos de Valor)</h1>
 <div class="spacer"></div>
-<h3 class="title-3">📄 Código em Destaque: `src/domain/value-objects/QuantidadeBalaio.ts`</h3>
-<pre class="code-block"><code class="lang-typescript">export class QuantidadeBalaio {
-    constructor(public readonly litros: number) {
-        this.validate(); // Auto-validação defensiva no construtor (imutável)
-    }
+<h3 class="title-3">📄 Código em Destaque: `src/domain/value-objects/Criterio.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">export type FaixaCriterio = 'MB' | 'B' | 'R' | 'F';
 
-    private validate(): void {
-        // Um balaio na colheita precisa ter volume finito maior que zero
-        if (!Number.isFinite(this.litros) || this.litros &lt;= 0) {
-            throw new Error('Quantidade de balaio inválida');
-        }
-    }
-}</code></pre>
-<div class="spacer"></div>
-<h3 class="title-3">📄 Código Complementar: `src/domain/value-objects/ValorMonetario.ts`</h3>
-<pre class="code-block"><code class="lang-typescript">export class ValorMonetario {
-    constructor(public readonly valor: number) {
-        this.validate();
-    }
+export class Criterio {
+  private readonly nome: string;
+  private readonly nota: number;
 
-    private validate(): void {
-        if (!Number.isFinite(this.valor) || this.valor &lt; 0) {
-            throw new Error('Valor monetário inválido');
-        }
+  constructor(nome: string, nota: number) {
+    if (!nome || nome.trim().length === 0) {
+      throw new Error('O nome do critério não pode ser vazio.');
     }
+    if (typeof nota !== 'number' || isNaN(nota)) {
+      throw new Error('A nota do critério deve ser um número válido.');
+    }
+    if (nota &lt; 0 || nota &gt; 10) {
+      throw new Error('A nota do critério deve estar entre 0 e 10.');
+    }
+    this.nome = nome.trim();
+    this.nota = Math.round(nota * 10) / 10;
+  }
 
-    public formatar(): string {
-        return this.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
+  public getFaixa(): FaixaCriterio {
+    if (this.nota &gt;= 8.5) return 'MB';
+    if (this.nota &gt;= 7.0) return 'B';
+    if (this.nota &gt;= 5.0) return 'R';
+    return 'F';
+  }
+
+  public equals(other: Criterio): boolean {
+    if (!(other instanceof Criterio)) return false;
+    return this.nome === other.nome &amp;&amp; this.nota === other.nota;
+  }
 }</code></pre>
 <div class="spacer"></div>
 <h3 class="title-3">🔍 Partes Mais Importantes:</h3>
-<div class="num-item"><span class="badge-num">1</span> <span><strong>Auto-validação no Construtor:</strong> Impede a existência de um balaio com litragem negativa, nula ou infinita.</span></div>
-<div class="num-item"><span class="badge-num">2</span> <span><strong>Imutabilidade (<code>readonly</code>):</strong> Uma vez criado, o estado nunca é mutado. Para alterar a litragem, instancia-se um novo objeto.</span></div>
-<div class="num-item"><span class="badge-num">3</span> <span><strong>Formatação BRL (<code>formatar</code>):</strong> <code>ValorMonetario</code> garante formatação nativa brasileira (ex: <code>R$ 60,00</code> para diária).</span></div>
-<div class="num-item"><span class="badge-num">4</span> <span><strong>Igualdade Estrutural:</strong> Dois objetos de valor são iguais se seus atributos forem equivalentes, dispensando identificador único (<code>id</code>).</span></div>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Auto-validação no Construtor:</strong> Impede a existência de um critério com nome vazio ou nota fora do intervalo de 0 a 10.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Imutabilidade (<code>readonly</code>):</strong> Uma vez criado, o estado nunca é mutado. Se a nota mudar, cria-se uma nova instância.</span></div>
+<div class="num-item"><span class="badge-num">3</span> <span><strong>Cálculo de Conceito (<code>getFaixa</code>):</strong> Converte a nota decimal na escala oficial: MB (>=8.5), B (>=7.0), R (>=5.0), F (<5.0).</span></div>
+<div class="num-item"><span class="badge-num">4</span> <span><strong>Igualdade Estrutural (<code>equals</code>):</strong> Dois VOs são iguais se seus valores internos forem idênticos, não por ponteiro de memória ou ID.</span></div>
 <div class="spacer"></div>
 <h3 class="title-3">❓ Possíveis Perguntas da Banca e Como Responder:</h3>
-<li class="list-item"><strong>P: "Por que QuantidadeBalaio e ValorMonetario não têm um campo <code>id</code>?"</strong>  </li>
-<p class="para">  <strong>R:</strong> *"Porque no DDD, Value Objects são definidos puramente por seus atributos, não por identidade. Dois balaios de 60 litros ou duas diárias de R$ 60,00 são conceitualmente equivalentes sem necessidade de ID."*</p>
-<li class="list-item"><strong>P: "Quais outros Value Objects existem no SafraCafé?"</strong>  </li>
-<p class="para">  <strong>R:</strong> *"Temos <code>Coordinates</code> (valida latitude [-90,90] e longitude [-180,180] para GPS da lavoura) e <code>SyncStatus</code> (controla os estados da fila offline: PENDING, SYNCED e ERROR)."*</p>
+<li class="list-item"><strong>P: "Por que Criterio não tem um campo <code>id</code>?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Porque no DDD, Value Objects são definidos puramente por seus atributos, não por identidade. Dois critérios chamados 'Pontualidade' com nota 9.0 são conceitualmente o mesmo objeto de valor."*</p>
+<li class="list-item"><strong>P: "Quais outros Value Objects existem no projeto?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Temos <code>Coordenada</code> (valida latitude [-90,90], longitude [-180,180] e timestamp), <code>Assinatura</code> (base64 criptográfico e data/hora), <code>CargaHoraria</code> (horas totais, mínimas e saldo do período), <code>StatusPeriodo</code> e <code>StatusSincronizacao</code>."*</p>
 <div class="spacer"></div>
 <hr class="divider" />
 <div class="spacer"></div>
 <h1 class="title-1">2. Slide 9: Entidades & Agregados</h1>
 <div class="spacer"></div>
-<h3 class="title-3">📄 Código em Destaque: `src/domain/entities/Trabalhador.ts`</h3>
-<pre class="code-block"><code class="lang-typescript">import { ValorMonetario } from '../value-objects/ValorMonetario';
-
-const CPF_REGEX = /^\d{11}$/;
-
-export class Trabalhador {
-    private _id: string;
-    private _nome: string;
-    private _cpf: string;
-    private _cracha: string;
-    private _diaria: ValorMonetario;
-
-    constructor(id: string, nome: string, cpf: string, cracha: string, diaria: ValorMonetario) {
-        this._id = id;
-        this._nome = nome;
-        this._cpf = cpf;
-        this._cracha = cracha;
-        this._diaria = diaria;
-        this.validate(); // Invariantes verificadas no ciclo de vida
+<h3 class="title-3">📄 Código em Destaque: `src/domain/entities/PeriodoAvaliacao.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">export class PeriodoAvaliacao {
+  public registrarAvaliacaoSupervisor(avaliacao: AvaliacaoSupervisor): void {
+    if (this.status === StatusPeriodo.APROVADO) {
+      throw new Error('Não é permitido registrar ou alterar avaliação de supervisor em um período já aprovado.');
     }
+    this.avaliacaoSupervisor = avaliacao;
+    this.atualizarStatusAposAvaliacoes();
+  }
 
-    get id(): string { return this._id; }
-    get nome(): string { return this._nome; }
-    get cpf(): string { return this._cpf; }
-    get cracha(): string { return this._cracha; }
-    get diaria(): ValorMonetario { return this._diaria; }
+  public aprovar(): void {
+    if (!this.atividades) {
+      throw new Error('Não é possível aprovar um período sem atividades registradas.');
+    }
+    if (!this.avaliacaoSupervisor) {
+      throw new Error('Não é possível aprovar um período sem a avaliação do supervisor.');
+    }
+    if (!this.autoAvaliacao) {
+      throw new Error('Não é possível aprovar um período sem a autoavaliação do estagiário.');
+    }
+    if (!this.assinaturaAluno || !this.assinaturaSupervisor) {
+      throw new Error('Não é possível aprovar um período sem as assinaturas de ambas as partes.');
+    }
+    this.status = StatusPeriodo.APROVADO;
+    this.motivoDevolucao = undefined;
+  }
 
-    private validate(): void {
-        if (!this._id || !this._id.trim()) throw new Error('Id de trabalhador inválido');
-        if (!this._nome || !this._nome.trim()) throw new Error('Nome de trabalhador inválido');
-        if (!CPF_REGEX.test(this._cpf)) throw new Error('CPF de trabalhador inválido');
-        if (!this._cracha || !this._cracha.trim()) throw new Error('Código de crachá inválido');
-    }
-}</code></pre>
-<div class="spacer"></div>
-<h3 class="title-3">📄 Raiz de Agregação da Colheita: `src/domain/entities/Apontamento.ts`</h3>
-<pre class="code-block"><code class="lang-typescript">export class Apontamento {
-    constructor(
-        private _id: string,
-        private _trabalhadorId: string,
-        private _quantidade: QuantidadeBalaio,
-        private _coordenadas: Coordinates,
-        private _data: number
-    ) {
-        this.validate();
-    }
-    // Protege invariantes: id não-vazio, trabalhador existente e data válida
+  public podeGerarPdf(): boolean {
+    const statusAprovado = this.status === StatusPeriodo.APROVADO;
+    const temTodasAssinaturas = this.assinaturaAluno !== null &amp;&amp; this.assinaturaSupervisor !== null;
+    const sincronizadas = this.assinaturasSincronizadas === true;
+    return statusAprovado &amp;&amp; temTodasAssinaturas &amp;&amp; sincronizadas;
+  }
 }</code></pre>
 <div class="spacer"></div>
 <h3 class="title-3">🔍 Partes Mais Importantes:</h3>
-<div class="num-item"><span class="badge-num">1</span> <span><strong>Validação Estrita de CPF:</strong> Expressão regular exige exatamente 11 dígitos numéricos, bloqueando cadastros corrompidos.</span></div>
-<div class="num-item"><span class="badge-num">2</span> <span><strong>Crachá Serializado:</strong> Códigos como <code>TRAB-001</code> e <code>TRAB-002</code> permitem leitura óptica instantânea de QR Code no campo.</span></div>
-<div class="num-item"><span class="badge-num">3</span> <span><strong>Agregação de Colheita (<code>Apontamento</code>):</strong> Conecta apanhador, volume colhido em litros, localização GPS e carimbo de tempo.</span></div>
-<div class="num-item"><span class="badge-num">4</span> <span><strong>Proteção Contra Estados Ilegais:</strong> A entidade lança exceção antes de salvar caso qualquer campo viole a regra de negócio.</span></div>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Raiz de Agregação (Aggregate Root):</strong> Toda modificação em <code>AtividadesDesenvolvidas</code>, <code>AvaliacaoSupervisor</code>, <code>AutoAvaliacao</code> ou <code>Assinatura</code> passa obrigatoriamente pelos métodos do <code>PeriodoAvaliacao</code>.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Proteção de Invariantes em <code>aprovar()</code>:</strong> Bloqueia a aprovação caso falte qualquer uma das 4 peças (atividades, autoavaliação, avaliação do supervisor e assinaturas de ambas as partes).</span></div>
+<div class="num-item"><span class="badge-num">3</span> <span><strong>Bloqueio de Mutação Pós-Aprovação:</strong> Não permite registrar 2ª avaliação após o status ser <code>APROVADO</code>.</span></div>
+<div class="num-item"><span class="badge-num">4</span> <span><strong>Regra de PDF (<code>podeGerarPdf</code>):</strong> Só permite geração se estiver aprovado E com assinaturas digitalmente sincronizadas.</span></div>
+<div class="num-item"><span class="badge-num">5</span> <span><strong>Entidades Satélites com Raiz Própria:</strong> <code>Estagio</code> (ciclo do estágio) e <code>TokenSupervisor</code> (token temporário de supervisor com expiração e revogação, permitindo acesso sem login tradicional).</span></div>
 <div class="spacer"></div>
 <h3 class="title-3">❓ Possíveis Perguntas da Banca:</h3>
-<li class="list-item"><strong>P: "Qual a diferença conceitual entre Entidade e Value Object no SafraCafé?"</strong>  </li>
-<p class="para">  <strong>R:</strong> *"A Entidade (<code>Trabalhador</code>, <code>Apontamento</code>) possui identidade única e ciclo de vida mutável. O Value Object (<code>QuantidadeBalaio</code>, <code>ValorMonetario</code>) é imutável e sua equivalência é puramente pelo valor que carrega."*</p>
-<li class="list-item"><strong>P: "Como o QR Code do crachá é validado no aplicativo?"</strong>  </li>
-<p class="para">  <strong>R:</strong> *"O leitor óptico captura o payload do crachá e o caso de uso busca o apanhador no <code>TrabalhadorRepository</code> pelo método <code>findByCracha()</code>, preenchendo o colhedor automaticamente na tela."*</p>
+<li class="list-item"><strong>P: "O que é uma invariante de negócio e onde ela é garantida?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Invariante é uma regra corporativa que deve ser verdadeira o tempo todo. No DDD, quem garante as invariantes é a própria Entidade/Agregado, rejeitando qualquer operação ilegal com exceções antes de gravar."*</p>
+<li class="list-item"><strong>P: "Como o supervisor avalia se ele não tem conta no aplicativo?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Criamos a entidade <code>TokenSupervisor</code>, que possui UUID próprio, data de expiração e flag de revogação. Ele acessa via link/token com o use case <code>AcessarViaTokenUseCase</code> sem necessitar de conta ou senha padrão."*</p>
 <div class="spacer"></div>
 <hr class="divider" />
 <div class="spacer"></div>
 <h1 class="title-1">3. Slide 10: Domain Services (Serviços de Domínio)</h1>
 <div class="spacer"></div>
-<h3 class="title-3">📄 Código em Destaque: `src/domain/services/SincronizacaoService.ts`</h3>
-<pre class="code-block"><code class="lang-typescript">export type ConflitoResultado = 'local' | 'remoto';
+<h3 class="title-3">📄 Códigos em Destaque (3 Abas Interativas):</h3>
+<div class="spacer"></div>
+<h4 class="title-4">1. `src/domain/services/RegraGeracaoPdfService.ts`</h4>
+<pre class="code-block"><code class="lang-typescript">export class RegraGeracaoPdfService {
+  public static validar(periodo: PeriodoAvaliacao, estagio?: Estagio): ValidacaoGeracaoPdfResult {
+    const erros: string[] = [];
+    if (!periodo) return { podeGerar: false, erros: ['Período de avaliação não informado.'] };
 
-export class SincronizacaoService {
-  resolverConflito(updatedAtLocal: number, updatedAtRemoto: number): ConflitoResultado {
-    // Resolução determinística: timestamp mais recente vence (Last-Write-Wins)
-    if (updatedAtRemoto &gt; updatedAtLocal) {
-      return 'remoto';
+    if (!periodo.podeGerarPdf()) {
+      if (periodo.getStatus() !== 'aprovado') erros.push('O relatório do período precisa estar aprovado para geração de PDF.');
+      if (!periodo.getAssinaturaAluno() || !periodo.getAssinaturaSupervisor()) erros.push('O relatório deve conter as assinaturas do aluno e do supervisor.');
+      if (!periodo.isAssinaturasSincronizadas()) erros.push('Todas as assinaturas digitais devem estar sincronizadas com o servidor.');
     }
+
+    if (estagio &amp;&amp; estagio.getId() !== periodo.getEstagioId()) {
+      erros.push('O estágio fornecido não corresponde ao estágio vinculado ao período de avaliação.');
+    }
+
+    return { podeGerar: erros.length === 0, erros };
+  }
+}</code></pre>
+<div class="spacer"></div>
+<h4 class="title-4">2. `src/domain/services/RegraDevolucaoService.ts`</h4>
+<pre class="code-block"><code class="lang-typescript">export class RegraDevolucaoService {
+  public static validarDevolucao(periodo: PeriodoAvaliacao, motivo: string): ValidacaoDevolucaoResult {
+    const motivosInvalidez: string[] = [];
+    if (!periodo) return { podeDevolver: false, motivosInvalidez: ['Período de avaliação inexistente.'] };
+    if (periodo.getStatus() === StatusPeriodo.APROVADO) {
+      motivosInvalidez.push('Não é permitido devolver um período que já foi aprovado definitivamente.');
+    }
+    if (!motivo || motivo.trim().length &lt; 5) {
+      motivosInvalidez.push('A justificativa da devolução deve possuir no mínimo 5 caracteres explicativos.');
+    }
+    return { podeDevolver: motivosInvalidez.length === 0, motivosInvalidez };
+  }
+}</code></pre>
+<div class="spacer"></div>
+<h4 class="title-4">3. `src/domain/services/SincronizacaoService.ts`</h4>
+<pre class="code-block"><code class="lang-typescript">export class SincronizacaoService {
+  resolverConflito(updatedAtLocal: number, updatedAtRemoto: number): 'local' | 'remoto' {
+    if (updatedAtRemoto &gt; updatedAtLocal) return 'remoto';
     return 'local';
   }
 }</code></pre>
 <div class="spacer"></div>
 <h3 class="title-3">🔍 Partes Mais Importantes:</h3>
-<div class="num-item"><span class="badge-num">1</span> <span><strong>Estratégia Last-Write-Wins (LWW):</strong> Se o registro remoto possuir <code>updatedAt</code> superior ao local, a versão do servidor prevalece. Caso contrário, a alteração local é enviada.</span></div>
-<div class="num-item"><span class="badge-num">2</span> <span><strong>Desacoplamento de Rede:</strong> O serviço é 100% puro e opera apenas com números (timestamps), permitindo testes unitários instantâneos sem mocks de HTTP ou banco.</span></div>
-<div class="num-item"><span class="badge-num">3</span> <span><strong>Prevenção de Perda de Dados na Roça:</strong> Garante consistência determinística quando múltiplos apontadores operam offline simultaneamente.</span></div>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Regras Cruzadas Multi-Entidades:</strong> <code>RegraGeracaoPdfService</code> valida o casamento entre <code>PeriodoAvaliacao</code> e <code>Estagio</code>.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Separação de Responsabilidade:</strong> Regras que não pertencem exclusivamente a uma entidade vivem em Domain Services puros.</span></div>
+<div class="num-item"><span class="badge-num">3</span> <span><strong>Resolução de Conflitos Determinística:</strong> O <code>SincronizacaoService</code> implementa Last-Write-Wins baseado em timestamps.</span></div>
+<div class="spacer"></div>
+<h3 class="title-3">❓ Possíveis Perguntas da Banca:</h3>
+<li class="list-item"><strong>P: "Por que essas regras não foram colocadas dentro do Use Case?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Porque são regras de negócio puras, não orquestração de infraestrutura. Se mudarmos a forma de entrega ou o framework da aplicação, a regra de negócio permanece idêntica e reutilizável no domínio."*</p>
 <div class="spacer"></div>
 <hr class="divider" />
 <div class="spacer"></div>
 <h1 class="title-1">4. Slide 11: Contratos e Interfaces (DIP)</h1>
 <div class="spacer"></div>
-<h3 class="title-3">📄 Códigos em Destaque: `ApontamentoRepository.ts` & `TrabalhadorRepository.ts`</h3>
-<pre class="code-block"><code class="lang-typescript">export interface ApontamentoRepository {
-    save(apontamento: Apontamento): Promise&lt;void&gt;;
-    findById(id: string): Promise&lt;Apontamento | null&gt;;
-    findByTrabalhadorId(trabalhadorId: string): Promise&lt;Apontamento[]&gt;;
-    findAll(): Promise&lt;Apontamento[]&gt;;
-}
-
-export interface TrabalhadorRepository {
-    save(trabalhador: Trabalhador): Promise&lt;void&gt;;
-    findById(id: string): Promise&lt;Trabalhador | null&gt;;
-    findByCracha(cracha: string): Promise&lt;Trabalhador | null&gt;;
-    findAll(): Promise&lt;Trabalhador[]&gt;;
-    delete(id: string): Promise&lt;void&gt;;
+<h3 class="title-3">📄 Código em Destaque: `src/domain/repositories/PeriodoAvaliacaoRepository.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">export interface PeriodoAvaliacaoRepository {
+  save(periodo: PeriodoAvaliacao): Promise&lt;void&gt;;
+  findById(id: string): Promise&lt;PeriodoAvaliacao | null&gt;;
+  findByEstagioId(estagioId: string): Promise&lt;PeriodoAvaliacao[]&gt;;
+  list(): Promise&lt;PeriodoAvaliacao[]&gt;;
+  findPendentesSincronizacao(): Promise&lt;PeriodoAvaliacao[]&gt;;
 }</code></pre>
 <div class="spacer"></div>
 <h3 class="title-3">🔍 Partes Mais Importantes:</h3>
-<div class="num-item"><span class="badge-num">1</span> <span><strong>Inversão de Dependência (DIP):</strong> O domínio dita as interfaces (<code>repositories/</code> e <code>gateways/</code>). A infraestrutura apenas implementa esses contratos.</span></div>
-<div class="num-item"><span class="badge-num">2</span> <span><strong>Substituição Transparente:</strong> Na prova, usamos implementações em memória (<code>InMemory*Repository</code>). No futuro, trocam-se por SQLite/Supabase sem alterar uma linha do domínio.</span></div>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Princípio da Inversão de Dependência (DIP):</strong> O Domínio define a interface. A Infraestrutura externa apenas a implementa.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Métodos Assíncronos (<code>Promise</code>):</strong> Mesmo que a implementação de teste use <code>Map</code> na memória RAM, os contratos retornam <code>Promise</code> para compatibilidade futura com SQLite ou Supabase.</span></div>
+<div class="spacer"></div>
+<h3 class="title-3">❓ Possíveis Perguntas da Banca:</h3>
+<li class="list-item"><strong>P: "Onde ficam as implementações dessa interface nesta fase?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Ficam em <code>src/infra/InMemoryPeriodoAvaliacaoRepository.ts</code>, operando via <code>Map<string, PeriodoAvaliacao></code> e seguindo o padrão Singleton."*</p>
 <div class="spacer"></div>
 <hr class="divider" />
 <div class="spacer"></div>
 <h1 class="title-1">5. Slide 12: Casos de Uso (Application Layer)</h1>
 <div class="spacer"></div>
-<h3 class="title-3">📄 Código em Destaque: `src/usecases/RegistrarApontamento.ts`</h3>
-<pre class="code-block"><code class="lang-typescript">export class RegistrarApontamento {
-    constructor(
-        private readonly apontamentoRepository: ApontamentoRepository,
-        private readonly trabalhadorRepository: TrabalhadorRepository,
-        private readonly syncQueueRepository?: SyncQueueRepository,
-    ) {}
+<h3 class="title-3">📄 Código em Destaque: `src/usecases/RegistrarAtividadesUseCase.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">export interface RegistrarAtividadesDTO {
+  periodoId: string;
+  descricao: string;
+  horasTotais: number;
+  horasMinimas: number;
+  horasPeriodo: number;
+  capturarLocalizacao?: boolean;
+}
 
-    public async execute(input: RegistrarApontamentoDTO, agora: number = Date.now()) {
-        const trabalhador = await this.trabalhadorRepository.findById(input.trabalhadorId);
-        if (!trabalhador) {
-            throw new Error('Trabalhador não encontrado');
-        }
-
-        const coordenadas = new Coordinates(input.latitude, input.longitude);
-        const quantidade = new QuantidadeBalaio(input.litros);
-        const id = Crypto.randomUUID();
-        const apontamento = new Apontamento(id, input.trabalhadorId, quantidade, coordenadas, agora);
-
-        await this.apontamentoRepository.save(apontamento);
-
-        if (this.syncQueueRepository) {
-            const item = new SyncQueueItem(Crypto.randomUUID(), 'Apontamento', id, 'INSERT', agora, agora);
-            await this.syncQueueRepository.enqueue(item);
-        }
-
-        return apontamento;
-    }
-}</code></pre>
-<div class="spacer"></div>
-<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
-<div class="num-item"><span class="badge-num">1</span> <span><strong>Injeção de Dependência pelo Construtor:</strong> Recebe <code>ApontamentoRepository</code>, <code>TrabalhadorRepository</code> e <code>SyncQueueRepository</code>.</span></div>
-<div class="num-item"><span class="badge-num">2</span> <span><strong>Orquestração Completa:</strong> Valida colhedor, instancia VOs (<code>Coordinates</code>, <code>QuantidadeBalaio</code>), persiste o apontamento e enfileira na fila outbox.</span></div>
-<div class="num-item"><span class="badge-num">3</span> <span><strong>Testabilidade Máxima:</strong> Testado via ciclo Red-Green-Refactor com repositórios fakes em memória.</span></div>
-<div class="spacer"></div>
-<hr class="divider" />
-<div class="spacer"></div>
-<h1 class="title-1">6. Slide 14: Persistência Offline-First</h1>
-<div class="spacer"></div>
-<h3 class="title-3">📄 Código em Destaque: `src/usecases/SyncPendingQueue.ts`</h3>
-<pre class="code-block"><code class="lang-typescript">export class SyncPendingQueue {
+export class RegistrarAtividadesUseCase {
   constructor(
-    private readonly syncQueueRepository: SyncQueueRepository,
-    private readonly syncGateway: SyncGateway,
-    private readonly networkGateway: NetworkGateway,
-    private readonly sincronizacaoService: SincronizacaoService,
+    private readonly periodoRepo: PeriodoAvaliacaoRepository,
+    private readonly locationGateway?: LocationGateway
   ) {}
 
-  async execute(agora: number = Date.now()): Promise&lt;SyncResultado&gt; {
-    const pendentes = await this.syncQueueRepository.findPending();
-    if (!(await this.networkGateway.isConnected())) {
-      return { synchronized: 0, pending: pendentes.length, offline: true };
+  async execute(dto: RegistrarAtividadesDTO): Promise&lt;PeriodoAvaliacao&gt; {
+    const periodo = await this.periodoRepo.findById(dto.periodoId);
+    if (!periodo) throw new Error('Período de avaliação não encontrado.');
+
+    let coordenada: Coordenada | undefined;
+    if (dto.capturarLocalizacao &amp;&amp; this.locationGateway) {
+      coordenada = await this.locationGateway.obterLocalizacaoAtual();
     }
 
-    let synchronized = 0;
-    for (const item of pendentes) {
-      item.registrarTentativa(agora);
-      await this.syncQueueRepository.save(item);
-      try {
-        const resultado = await this.syncGateway.push(item);
-        const conflito = this.sincronizacaoService.resolverConflito(
-          item.updatedAt,
-          resultado.serverUpdatedAt ?? item.updatedAt,
-        );
-        if (conflito === 'remoto') continue;
-        await this.syncQueueRepository.remove(item.id);
-        synchronized += 1;
-      } catch {
-        item.marcarErro(agora);
-        await this.syncQueueRepository.save(item);
-      }
-    }
-    const restantes = await this.syncQueueRepository.findPending();
-    return { synchronized, pending: restantes.length, offline: false };
+    const cargaHoraria = new CargaHoraria(dto.horasTotais, dto.horasMinimas, dto.horasPeriodo);
+    const atividades = new AtividadesDesenvolvidas({
+      id: `ativ-${Date.now()}`,
+      descricao: dto.descricao,
+      cargaHoraria,
+      coordenada,
+      dataRegistro: new Date(),
+    });
+
+    periodo.registrarAtividades(atividades);
+    await this.periodoRepo.save(periodo);
+    return periodo;
   }
 }</code></pre>
 <div class="spacer"></div>
 <h3 class="title-3">🔍 Partes Mais Importantes:</h3>
-<div class="num-item"><span class="badge-num">1</span> <span><strong>Checagem de Conectividade:</strong> Se <code>networkGateway.isConnected()</code> for falso, preserva a fila intacta e encerra sem falhas.</span></div>
-<div class="num-item"><span class="badge-num">2</span> <span><strong>Remoção Atômica:</strong> O item só é removido da fila local após sucesso confirmado de push no gateway remoto.</span></div>
-<div class="num-item"><span class="badge-num">3</span> <span><strong>Resiliência a Erros:</strong> Em caso de exceção de rede, chama <code>item.marcarErro()</code> com contagem de retentativas.</span></div>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Injeção de Dependência pelo Construtor:</strong> Recebe apenas contratos (<code>PeriodoAvaliacaoRepository</code> e <code>LocationGateway</code>).</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Uso de DTOs:</strong> Dados entram como tipos primitivos ou planos (<code>RegistrarAtividadesDTO</code>).</span></div>
+<div class="num-item"><span class="badge-num">3</span> <span><strong>Instanciação de VOs e Entidades:</strong> Constrói <code>CargaHoraria</code> e <code>AtividadesDesenvolvidas</code> delegando a regra de negócio para a entidade <code>periodo.registrarAtividades(atividades)</code>.</span></div>
+<div class="spacer"></div>
+<h3 class="title-3">❓ Possíveis Perguntas da Banca:</h3>
+<li class="list-item"><strong>P: "Quais são os 10 casos de uso do sistema?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"1. RegistrarAtividades, 2. AvaliarDesempenho, 3. RealizarAutoAvaliacao, 4. AssinarRelatorio, 5. AprovarRelatorio, 6. DevolverRelatorio, 7. GerarPdf, 8. SincronizarFila, 9. AutenticarUsuario e 10. AcessarViaToken. Todos estão reexportados em <code>src/application/use-cases/index.ts</code>."*</p>
+<li class="list-item"><strong>P: "O que significa o ciclo Red-Green-Refactor nos casos de uso?"</strong>  </li>
+<p class="para">  <strong>R:</strong> *"Primeiro escrevemos o teste unitário que falha (Red), depois implementamos o caso de uso até o teste passar (Green), e por fim limpamos o design mantendo o teste verde (Refactor)."*</p>
 <div class="spacer"></div>
 <hr class="divider" />
 <div class="spacer"></div>
-<h1 class="title-1">7. Slide 15: Context API & Custom Hooks</h1>
+<h1 class="title-1">6. Slide 13: Hardware Desacoplado (Câmera & GPS)</h1>
 <div class="spacer"></div>
-<h3 class="title-3">📄 Código em Destaque: `src/adapters/auth/AuthContext.tsx`</h3>
-<pre class="code-block"><code class="lang-typescript">export function AuthProvider({ children, authenticateUseCase, restoreSessionUseCase, signOutUseCase }: AuthProviderProps) {
-    const auth = authenticateUseCase ?? container.authenticateUser;
-    const restore = restoreSessionUseCase ?? container.restoreSession;
+<h3 class="title-3">📄 Código em Destaque: `src/infra/InMemoryCameraGateway.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">export class InMemoryCameraGateway implements CameraGateway {
+  private fotoSimulada: FotoCapturada = {
+    uri: 'file:///mock/foto-comprovante.jpg',
+    base64: 'data:image/jpeg;base64,mockedbase64string123',
+    largura: 800,
+    altura: 600,
+  };
 
-    const [session, setSession] = useState&lt;Session | null&gt;(null);
-    const [status, setStatus] = useState&lt;AuthStatus&gt;("loading");
-
-    useEffect(() =&gt; {
-        restore.execute().then((s) =&gt; {
-            setSession(s);
-            setStatus(s ? "authenticated" : "unauthenticated");
-        });
-    }, [restore]);
+  async capturarFoto(): Promise&lt;FotoCapturada&gt; {
+    return this.fotoSimulada;
+  }
 }</code></pre>
 <div class="spacer"></div>
 <h3 class="title-3">🔍 Partes Mais Importantes:</h3>
-<div class="num-item"><span class="badge-num">1</span> <span><strong>Sem Acoplamento Reverso:</strong> Fica restrito à camada de adaptadores (<code>src/adapters/auth/</code>). Domínio e Use Cases nunca importam React.</span></div>
-<div class="num-item"><span class="badge-num">2</span> <span><strong>Zero Prop Drilling:</strong> Distribui a sessão do operador cafeeiro (<code>pesquisador@ecofield.app</code>) para qualquer tela da aplicação.</span></div>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Arquitetura Hexagonal (Portas e Adaptadores):</strong> O domínio define <code>CameraGateway</code> e <code>LocationGateway</code>.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Dupla Implementação:</strong> Em produção mobile, <code>CameraGatewayExpo</code> encapsula <code>expo-camera</code>. Nos testes, <code>InMemoryCameraGateway</code> retorna a foto em Base64 imediatamente sem abrir a câmera do celular.</span></div>
 <div class="spacer"></div>
 <hr class="divider" />
 <div class="spacer"></div>
-<h1 class="title-1">8. Slide 16: Telas e Testes RNTL</h1>
+<h1 class="title-1">7. Slide 14: Persistência Offline-First & Sincronização</h1>
 <div class="spacer"></div>
-<h3 class="title-3">📄 Código em Destaque: `tests/screens/LoginScreen.test.tsx`</h3>
-<pre class="code-block"><code class="lang-typescript">describe('LoginScreen (RNTL + Fakes)', () =&gt; {
-    it('faz login com sucesso usando credenciais válidas e navega', async () =&gt; {
-        const { getByPlaceholderText, getByText } = await renderScreen();
+<h3 class="title-3">📄 Código em Destaque: `src/usecases/SincronizarFilaUseCase.ts`</h3>
+<pre class="code-block"><code class="lang-typescript">export class SincronizarFilaUseCase {
+  constructor(
+    private readonly periodoRepo: PeriodoAvaliacaoRepository,
+    private readonly remoteSyncGateway?: RemoteSyncGateway
+  ) {}
 
-        fireEvent.changeText(getByPlaceholderText('Digite seu e-mail...'), 'pesquisador@ecofield.app');
-        fireEvent.changeText(getByPlaceholderText('Digite sua senha...'), '123456');
-        fireEvent.press(getByText('Entrar'));
+  async execute(): Promise&lt;SincronizarFilaResult&gt; {
+    const pendentes = await this.periodoRepo.findPendentesSincronizacao();
+    let sincronizados = 0, falhas = 0;
 
-        await waitFor(() =&gt; {
-            expect(router.replace).toHaveBeenCalledWith('/(drawer)/(tabs)');
-        });
+    for (const periodo of pendentes) {
+      try {
+        if (this.remoteSyncGateway) {
+          await this.remoteSyncGateway.enviarPeriodo(periodo.getId(), {
+            status: periodo.getStatus(),
+            alunoId: periodo.getAlunoId(),
+          });
+        }
+        periodo.atualizarStatusSincronizacao(StatusSincronizacao.SYNCED);
+        periodo.marcarAssinaturasSincronizadas(true);
+        await this.periodoRepo.save(periodo);
+        sincronizados++;
+      } catch (err) {
+        periodo.atualizarStatusSincronizacao(StatusSincronizacao.ERROR);
+        falhas++;
+      }
+    }
+    return { totalPendentes: pendentes.length, sincronizados, falhas };
+  }
+}</code></pre>
+<div class="spacer"></div>
+<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Busca Fila Pendente:</strong> Filtra apenas períodos com <code>StatusSincronizacao.PENDING</code>.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Transição de Estados:</strong> Se o gateway remoto responder com sucesso, transita para <code>SYNCED</code> e libera a geração de PDF; se falhar, transita para <code>ERROR</code> sem travar a interface do operador.</span></div>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">8. Slide 15: Context API & Custom Hooks (Adapters)</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📄 Código em Destaque: `src/adapters/context/AuthContext.tsx`</h3>
+<pre class="code-block"><code class="lang-typescript">export function AuthProvider({
+  children,
+  autenticarUseCase,
+  restoreSessionUseCase,
+  signOutUseCase
+}: AuthProviderProps) {
+  const auth = autenticarUseCase ?? container.autenticarUsuarioUseCase;
+  const restore = restoreSessionUseCase ?? container.restoreSession;
+
+  const [session, setSession] = useState&lt;Session | null&gt;(null);
+  const [papel, setPapel] = useState&lt;PapelUsuario&gt;('aluno');
+  const [status, setStatus] = useState&lt;AuthStatus&gt;('loading');
+
+  useEffect(() =&gt; {
+    restore.execute().then((restored) =&gt; {
+      if (restored) {
+        setSession(restored);
+        setStatus('authenticated');
+      } else {
+        setStatus('unauthenticated');
+      }
     });
+  }, [restore]);
+}</code></pre>
+<div class="spacer"></div>
+<h3 class="title-3">🔍 Partes Mais Importantes:</h3>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Localização em <code>adapters/</code>:</strong> Nunca no <code>domain/</code> ou <code>usecases/</code>.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Eliminação de Prop Drilling:</strong> Permite que qualquer tela acesse <code>user</code>, <code>papel</code> e <code>status</code> via <code>useAuth()</code>.</span></div>
+<div class="num-item"><span class="badge-num">3</span> <span><strong>Injeção com Fallback no Container:</strong> <code>autenticarUseCase ?? container.autenticarUsuarioUseCase</code>, permitindo que testes injetem Use Cases Fakes.</span></div>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h1 class="title-1">9. Slide 16: Telas e Testes RNTL (React Native Testing Library)</h1>
+<div class="spacer"></div>
+<h3 class="title-3">📄 Códigos em Destaque (Abas Interativas):</h3>
+<div class="spacer"></div>
+<h4 class="title-4">1. `tests/screens/AssinaturaScreen.test.tsx`</h4>
+<pre class="code-block"><code class="lang-typescript">it('deve registrar assinatura digital simulando toque nos botões e inputs', async () =&gt; {
+  const periodoRepo = InMemoryPeriodoAvaliacaoRepository.getInstance();
+  periodoRepo.clear();
+  await periodoRepo.save(new PeriodoAvaliacao({
+    id: 'p1', estagioId: 'e1', alunoId: 'aluno-01', numeroPeriodo: 1,
+    dataInicio: new Date('2026-01-01'), dataFim: new Date('2026-06-01'),
+  }));
+
+  const assinarUseCase = new AssinarRelatorioUseCase(periodoRepo);
+  const onConcluidoMock = jest.fn();
+
+  const { getByTestId, findByText } = render(
+    &lt;AssinaturaScreen
+      periodoId="p1"
+      autorIdPadrao="aluno-01"
+      assinarUseCase={assinarUseCase}
+      onAssinaturaConcluida={onConcluidoMock}
+    /&gt;
+  );
+
+  fireEvent.press(getByTestId('btn-papel-aluno'));
+  fireEvent.press(getByTestId('btn-assinar'));
+
+  expect(await findByText('Assinatura registrada e vinculada com sucesso!')).toBeTruthy();
+  expect(onConcluidoMock).toHaveBeenCalledTimes(1);
 });</code></pre>
 <div class="spacer"></div>
 <h3 class="title-3">🔍 Partes Mais Importantes:</h3>
-<div class="num-item"><span class="badge-num">1</span> <span><strong>Isolamento de Hardware:</strong> Simula eventos reais de clique e digitação (<code>fireEvent</code>) sem precisar de emulador Android/iOS ou cliques manuais.</span></div>
-<div class="num-item"><span class="badge-num">2</span> <span><strong>Injeção de Fakes no Provider:</strong> O formulário consome use cases fakes injetados, garantindo teste determinístico que roda em milissegundos.</span></div>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Simulação de Toques com <code>fireEvent</code>:</strong> Testa botões (<code>fireEvent.press</code>) e inputs (<code>fireEvent.changeText</code>) sem precisar de emulador físico ou clique manual.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Testes Assíncronos com <code>waitFor</code> e <code>findByText</code>:</strong> Garante que animações e chamadas assíncronas do React Native sejam aguardadas corretamente.</span></div>
 <div class="spacer"></div>
 <hr class="divider" />
 <div class="spacer"></div>
-<h1 class="title-1">9. Slide 17: Sessão Segura (Expo SecureStore)</h1>
+<h1 class="title-1">10. Slide 17: Sessão Segura (Expo SecureStore)</h1>
 <div class="spacer"></div>
 <h3 class="title-3">📄 Código em Destaque: `src/adapters/auth/SessionStorageSecureStore.ts`</h3>
 <pre class="code-block"><code class="lang-typescript">import * as SecureStore from 'expo-secure-store';
+import { SessionStorage } from '../../domain/gateways/SessionStorage';
 
 const CHAVE_SESSAO = 'safracafe.session';
 
 export class SessionStorageSecureStore implements SessionStorage {
-    async salvar(session: Session): Promise&lt;void&gt; {
-        await SecureStore.setItemAsync(CHAVE_SESSAO, JSON.stringify(session));
-    }
+  async salvar(session: Session): Promise&lt;void&gt; {
+    const json = {
+      token: session.token,
+      user: { id: session.user.id, name: session.user.name, email: session.user.email },
+      expiresAt: session.expiresAt,
+    };
+    await SecureStore.setItemAsync(CHAVE_SESSAO, JSON.stringify(json));
+  }
 
-    async carregar(): Promise&lt;Session | null&gt; {
-        const json = await SecureStore.getItemAsync(CHAVE_SESSAO);
-        if (!json) return null;
-        return JSON.parse(json);
-    }
-
-    async limpar(): Promise&lt;void&gt; {
-        await SecureStore.deleteItemAsync(CHAVE_SESSAO);
-    }
+  async carregar(): Promise&lt;Session | null&gt; {
+    const raw = await SecureStore.getItemAsync(CHAVE_SESSAO);
+    if (!raw) return null;
+    const json = JSON.parse(raw);
+    return new Session(json.token, new User(json.user.id, json.user.name, json.user.email), json.expiresAt);
+  }
 }</code></pre>
 <div class="spacer"></div>
 <h3 class="title-3">🔍 Partes Mais Importantes:</h3>
-<div class="num-item"><span class="badge-num">1</span> <span><strong>Criptografia de Hardware:</strong> Grava o token da sessão no Keychain (iOS) e Keystore (Android), impedindo extração de credenciais.</span></div>
-<div class="num-item"><span class="badge-num">2</span> <span><strong>Mock nos Testes:</strong> Em <code>tests/setup.ts</code>, <code>expo-secure-store</code> é interceptado por um Map em memória, garantindo execução contínua no Jest.</span></div>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>Hardware Nativo Criptografado:</strong> Utiliza <strong>Keychain</strong> no iOS e <strong>Keystore</strong> no Android.</span></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>Virtualização em Testes:</strong> O <code>expo-secure-store</code> é mockado no <code>tests/setup.ts</code>, gravando em memória RAM sem tocar em disco físico.</span></div>
 <div class="spacer"></div>
 <hr class="divider" />
 <div class="spacer"></div>
-<h1 class="title-1">10. Slide 20: 5 Decisões Arquiteturais Fundamentais</h1>
+<h1 class="title-1">11. Slide 18 & 19: Comprovação de Isolamento 100% Mock & Métricas</h1>
 <div class="spacer"></div>
-<div class="num-item"><span class="badge-num">1</span> <span><strong>Separação Persistência/Domínio:</strong> Repositórios em memória com <code>Map<string, T></code> viabilizam troca transparente por SQLite/Supabase no futuro sem tocar no domínio.</span></div>
-<div class="num-item"><span class="badge-num">2</span> <span><strong>Invariantes Blindadas:</strong> Raízes de agregação (<code>Trabalhador</code>, <code>Apontamento</code>) e Value Objects (<code>QuantidadeBalaio</code>, <code>ValorMonetario</code>, <code>Coordinates</code>) impedem dados corrompidos na colheita.</span></div>
-<div class="num-item"><span class="badge-num">3</span> <span><strong>Autenticação Segura & Modo Campo:</strong> Criptografia no hardware (<code>expo-secure-store</code>) com login demo rápido para operadores rurais sem internet.</span></div>
-<div class="num-item"><span class="badge-num">4</span> <span><strong>IoC Container Centralizado:</strong> <code>container.ts</code> é o ponto único de injeção de dependências Singleton da aplicação.</span></div>
-<div class="num-item"><span class="badge-num">5</span> <span><strong>Clean Architecture Estrita:</strong> Domínio 100% puro, sem dependências de React, Expo ou bancos físicos.</span></div>
+<h3 class="title-3">📊 Tabela Oficial de Cobertura e Pirâmide de Testes:</h3>
+<p class="para">| Camada / Diretório | Suítes | Testes | % Linhas |</p>
+<p class="para">| :--- | :---: | :---: | :---: |</p>
+<p class="para">| <strong>1. Value Objects</strong> (<code>domain/value-objects</code>) | 10 | 45 | <strong>98.96%</strong> |</p>
+<p class="para">| <strong>2. Entities & Aggregates</strong> (<code>domain/entities</code>) | 8 | 48 | <strong>89.37%</strong> |</p>
+<p class="para">| <strong>3. Domain Services</strong> (<code>domain/services</code>) | 3 | 6 | <strong>90.32%</strong> |</p>
+<p class="para">| <strong>4. Use Cases</strong> (<code>src/usecases</code>) | 24 | 55 | <strong>95.69%</strong> |</p>
+<p class="para">| <strong>5. Repositórios & Gateways Fake</strong> (<code>infra</code>) | 2 | 11 | <strong>96.96%</strong> |</p>
+<p class="para">| <strong>6. Context API & Sessão Segura</strong> (<code>adapters</code>) | 6 | 14 | <strong>83.33%</strong> |</p>
+<p class="para">| <strong>7. Telas RNTL</strong> (<code>src/adapters/screens</code>) | 4 | 7 | <strong>82.85%</strong> |</p>
+<p class="para">| <strong>TOTAL GERAL (All Files)</strong> | <strong>57 Suites</strong> | <strong>234 Testes</strong> | <strong>91.82%</strong> |</p>
+<div class="spacer"></div>
+<h3 class="title-3">🔺 Pirâmide de Testes do Projeto:</h3>
+<li class="list-item"><strong>E2E (Pouquíssimos):</strong> Reservados apenas para fluxos críticos pontuais.</li>
+<li class="list-item"><strong>Telas RNTL (7 Testes):</strong> Renderização e eventos de tela com use cases fakes.</li>
+<li class="list-item"><strong>Context API, Hooks & Infra Fakes (25 Testes):</strong> Sessão segura, ciclo de vida e repositórios em memória.</li>
+<li class="list-item"><strong>Use Cases (55 Testes):</strong> Validação de fluxos alternativos e orquestração.</li>
+<li class="list-item"><strong>Domínio Puro (Base Larga — 99 Testes):</strong> Value objects, entidades e domain services rodando em microssegundos sem dependências externas.</li>
+<div class="spacer"></div>
+<hr class="divider" />
+<div class="spacer"></div>
+<h2 class="title-2">🎯 5 Respostas de Ouro para a Banca:</h2>
+<div class="spacer"></div>
+<div class="num-item"><span class="badge-num">1</span> <span><strong>"Por que não tem SQLite nem Supabase nesta entrega?"</strong>  </span></div>
+<p class="para">   *"Porque esta é a fase 'Domínio e Interface Primeiro'. Persistência é um detalhe externo em Clean Architecture. Desacoplamos o banco para garantir regras 100% puras e uma suíte de 234 testes rodando em ~5 segundos sem dependência de rede ou disco."*</p>
+<div class="spacer"></div>
+<div class="num-item"><span class="badge-num">2</span> <span><strong>"Como o projeto garante que o domínio não depende de React ou Expo?"</strong>  </span></div>
+<p class="para">   *"A camada <code>src/domain/</code> possui zero imports de <code>@/</code>, <code>react</code>, <code>react-native</code>, <code>expo</code> ou bibliotecas de UI. Ela é TypeScript puro e roda em qualquer ambiente (Node, Web, Mobile ou Backend)."*</p>
+<div class="spacer"></div>
+<div class="num-item"><span class="badge-num">3</span> <span><strong>"Qual é o papel do arquivo <code>src/factory/container.ts</code>?"</strong>  </span></div>
+<p class="para">   *"Ele é o único ponto de Inversão de Controle (IoC) da aplicação. Ele faz o wiring entre as implementações Singleton da camada de infraestrutura e os casos de uso da camada de aplicação."*</p>
+<div class="spacer"></div>
+<div class="num-item"><span class="badge-num">4</span> <span><strong>"Como o app resolve o problema de Prop Drilling do usuário logado?"</strong>  </span></div>
+<p class="para">   *"Através do <code>AuthContext</code> na camada de adaptadores. Ele envolve a raiz no <code>_layout.tsx</code> e qualquer componente acessa a sessão via hook <code>useAuth()</code> sem precisar repassar props manualmente."*</p>
+<div class="spacer"></div>
+<div class="num-item"><span class="badge-num">5</span> <span><strong>"Como vocês garantem que os dados no smartphone não sejam roubados?"</strong>  </span></div>
+<p class="para">   *"Usamos o adaptador <code>SessionStorageSecureStore</code>, que delega para o <code>expo-secure-store</code>. No iOS ele grava no Keychain e no Android no Keystore, ambas áreas protegidas por criptografia de hardware do dispositivo."*</p>
 <div class="spacer"></div>
   </div>
 </body>

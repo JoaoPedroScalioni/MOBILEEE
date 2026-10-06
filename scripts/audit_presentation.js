@@ -31,10 +31,10 @@ console.log('Imgs sem atributo src:', imgNoSrc.length);
 
 // 4. Check all JS references in switchServiceTab and switchRntlTab
 const expectedIds = [
-  'panel-svc-sync', 'panel-svc-fechamento',
-  'btn-svc-sync', 'btn-svc-fechamento',
-  'panel-rntl-login', 'panel-rntl-apontamento', 'panel-rntl-trabalhadores',
-  'btn-rntl-login', 'btn-rntl-apontamento', 'btn-rntl-trabalhadores',
+  'panel-svc-pdf', 'panel-svc-devolucao', 'panel-svc-sync',
+  'btn-svc-pdf', 'btn-svc-devolucao', 'btn-svc-sync',
+  'panel-rntl-assinatura', 'panel-rntl-atividades', 'panel-rntl-historico',
+  'btn-rntl-assinatura', 'btn-rntl-atividades', 'btn-rntl-historico',
   'view-apont-topo', 'view-apont-reg', 'btn-apont-topo', 'btn-apont-reg',
   'image-modal', 'modal-img', 'modal-caption'
 ];
@@ -43,19 +43,23 @@ console.log('IDs DOM necessarios para scripts que faltam:', missingDomIds);
 
 // 5. Check checklist terms
 const requiredTerms = [
-  'QuantidadeBalaio', 'ValorMonetario', 'Coordinates',
-  'SyncStatus', 'Trabalhador', 'Apontamento', 'Despesa',
-  'SyncQueueItem', 'Session', 'SincronizacaoService',
-  'ApontamentoRepository', 'TrabalhadorRepository', 'DespesaRepository',
+  'Criterio', 'Coordenada', 'Assinatura', 'CargaHoraria',
+  'StatusSincronizacao', 'StatusPeriodo', 'PeriodoAvaliacao',
+  'Estagio', 'TokenSupervisor', 'RegraGeracaoPdfService',
+  'RegraDevolucaoService', 'SincronizacaoService', 'PeriodoAvaliacaoRepository',
   'CameraGateway', 'LocationGateway', 'AuthGateway',
-  'RegistrarApontamento', 'CadastrarTrabalhador', 'RegistrarDespesa',
-  'AuthenticateUser', 'SyncPendingQueue',
-  'AuthContext', 'SessionStorageSecureStore', 'useAuth',
-  'expo-secure-store', 'Keychain', 'Keystore',
-  'Prop Drilling', 'Red-Green-Refactor'
+  'RegistrarAtividadesUseCase', 'AvaliarDesempenhoUseCase',
+  'RealizarAutoAvaliacaoUseCase', 'AssinarRelatorioUseCase',
+  'AprovarRelatorioUseCase', 'DevolverRelatorioUseCase',
+  'GerarPdfUseCase', 'SincronizarFilaUseCase',
+  'AutenticarUsuarioUseCase', 'AcessarViaTokenUseCase',
+  'AuthContext', 'SessionStorageSecureStore', 'useAuth', 'useAtividades',
+  'CameraGatewayExpo', 'AssinaturaScreen', 'AtividadesFormScreen',
+  'HistoricoRelatoriosScreen', 'expo-secure-store', 'Keychain', 'Keystore',
+  'Prop Drilling', 'Red-Green-Refactor', 'E2E'
 ];
 
-console.log('\n--- Verificação de Termos do Checklist SafraCafé ---');
+console.log('\n--- Verificação de Termos do Checklist ---');
 let missingTerms = [];
 requiredTerms.forEach(term => {
   const count = (html.match(new RegExp(term, 'g')) || []).length;

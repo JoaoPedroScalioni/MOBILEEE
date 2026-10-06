@@ -192,11 +192,11 @@ Ran all test suites.
 
 A ordem exata de implementação seguida:
 
-1. [x] **Value Objects:** `QuantidadeBalaio`, `ValorMonetario`, `Coordinates`, `SyncStatus` (testes puros).
-2. [x] **Entities & Aggregates:** `Trabalhador`, `Apontamento`, `Despesa`, `SyncQueueItem`, `Session` (invariantes testadas).
-3. [x] **Domain Services:** `SincronizacaoService` (resolução determinística de conflitos Last-Write-Wins offline-first).
-4. [x] **Interfaces de Repository / Gateway:** `TrabalhadorRepository`, `ApontamentoRepository`, `DespesaRepository`, `CameraGateway`, `LocationGateway`, `AuthGateway`.
-5. [x] **Use Cases:** `RegistrarApontamento`, `CadastrarTrabalhador`, `RegistrarDespesa`, `AuthenticateUser`, `SyncPendingQueue` (ciclo Red-Green-Refactor com fakes).
-6. [x] **Context API + Custom Hooks:** `AuthContext`, `useAuth`, `useApontamentos`, `useTrabalhadores` conectando Use Cases ao ciclo de vida.
-7. [x] **Telas com RNTL:** `LoginScreen`, `ApontamentoScreen` (crachá QR e balaios), `TrabalhadoresScreen` (apanhadores TRAB-001/002), `DespesasScreen` com Use Cases Fakes injetados.
+1. [x] **Value Objects:** `Criterio`, `Coordenada`, `Assinatura`, `CargaHoraria` (testes puros).
+2. [x] **Entities & Aggregates:** `PeriodoAvaliacao`, `Estagio`, `TokenSupervisor` (invariantes testadas).
+3. [x] **Domain Services:** `RegraGeracaoPdfService`, `RegraDevolucaoService`, `SincronizacaoService`.
+4. [x] **Interfaces de Repository / Gateway:** Contratos declarativos no domínio puro.
+5. [x] **Use Cases:** Orquestração com fakes in-memory (ciclo Red-Green-Refactor).
+6. [x] **Context API + Custom Hooks:** `AuthContext`, `useAuth` e `useAtividades` conectando Use Cases ao ciclo de vida.
+7. [x] **Telas com RNTL:** `AssinaturaScreen`, `AtividadesFormScreen`, `HistoricoRelatoriosScreen` com Use Cases Fakes injetados.
 8. [x] **Sessão Segura:** Adaptador `SessionStorageSecureStore` encapsulando `expo-secure-store` (mockado nos testes).

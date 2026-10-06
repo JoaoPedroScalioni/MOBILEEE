@@ -132,6 +132,29 @@
             to { opacity: 1; transform: scale(1); }
         }
 
+    
+        /* Prevenção total de overflow nas caixas de destaque */
+        .callout-box {
+            min-width: 0 !important;
+            word-break: break-word !important;
+            overflow-wrap: anywhere !important;
+        }
+        .callout-box code {
+            white-space: normal !important;
+            word-break: break-all !important;
+            overflow-wrap: anywhere !important;
+            display: inline !important;
+            background: rgba(15, 23, 42, 0.7) !important;
+            padding: 1px 4px !important;
+            border-radius: 4px !important;
+            font-size: 0.78rem !important;
+        }
+        .callout-box p {
+            min-width: 0 !important;
+            word-break: break-word !important;
+            overflow-wrap: anywhere !important;
+        }
+
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200 font-sans antialiased selection:bg-emerald-500 selection:text-white">
@@ -205,19 +228,19 @@
             </div>
 
                         <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6 max-w-4xl mx-auto text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left w-full max-w-6xl mx-auto min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Blindar as regras centrais da colheita cafeeira antes de acoplar qualquer banco físico ou framework de UI. Evita retrabalho estrutural e garante domínio puro 100% testável.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Blindar as regras centrais da colheita cafeeira antes de acoplar qualquer banco físico ou framework de UI. Evita retrabalho estrutural e garante domínio puro 100% testável.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Raiz arquitetural: <code>src/domain/</code>, <code>src/usecases/</code>, <code>src/adapters/</code>, <code>src/infra/</code>, <code>src/factory/container.ts</code> e suíte em <code>tests/</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Raiz arquitetural: <code>src/domain/</code>, <code>src/usecases/</code>, <code>src/adapters/</code>, <code>src/infra/</code>, <code>src/factory/container.ts</code> e suíte em <code>tests/</code>.</p>
                     </div>
                 </div>
             </div>
@@ -388,19 +411,19 @@
 
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Garante a autenticação segura do operador rural com tokens criptografados no hardware nativo do smartphone, mantendo o acesso ativo mesmo quando o celular perde sinal no meio da lavoura.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Garante a autenticação segura do operador rural com tokens criptografados no hardware nativo do smartphone, mantendo o acesso ativo mesmo quando o celular perde sinal no meio da lavoura.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Tela: <code>app/login.tsx</code> · Casos de Uso: <code>src/usecases/AuthenticateUser.ts</code>, <code>RestoreSession.ts</code> · Teste: <code>tests/screens/LoginScreen.test.tsx</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Tela: <code>app/login.tsx</code> · Casos de Uso: <code>src/usecases/AuthenticateUser.ts</code>, <code>RestoreSession.ts</code> · Teste: <code>tests/screens/LoginScreen.test.tsx</code>.</p>
                     </div>
                 </div>
             </div>
@@ -589,19 +612,19 @@
 
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Identificação nominal e serial unívoca de cada apanhador (TRAB-001, TRAB-002) com CPF validado e valor de diária fixado, eliminando confusões no fechamento contábil e pagamentos.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Identificação nominal e serial unívoca de cada apanhador (TRAB-001, TRAB-002) com CPF validado e valor de diária fixado, eliminando confusões no fechamento contábil e pagamentos.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Tela: <code>app/(drawer)/(tabs)/trabalhadores.tsx</code> · Entidade: <code>src/domain/entities/Trabalhador.ts</code> · Testes: <code>tests/domain/Trabalhador.test.ts</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Tela: <code>app/(drawer)/(tabs)/trabalhadores.tsx</code> · Entidade: <code>src/domain/entities/Trabalhador.ts</code> · Testes: <code>tests/domain/Trabalhador.test.ts</code>.</p>
                     </div>
                 </div>
             </div>
@@ -681,19 +704,19 @@
 
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Controle minucioso de custos de safra (combustível, lubrificantes de derriçadoras, insumos) com comprovante fotográfico e GPS do local de compra, prevenindo fraudes e perda de notas.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Controle minucioso de custos de safra (combustível, lubrificantes de derriçadoras, insumos) com comprovante fotográfico e GPS do local de compra, prevenindo fraudes e perda de notas.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Tela: <code>app/(drawer)/(tabs)/despesas.tsx</code> · Entidade: <code>src/domain/entities/Despesa.ts</code> · Testes: <code>tests/domain/Despesa.test.ts</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Tela: <code>app/(drawer)/(tabs)/despesas.tsx</code> · Entidade: <code>src/domain/entities/Despesa.ts</code> · Testes: <code>tests/domain/Despesa.test.ts</code>.</p>
                     </div>
                 </div>
             </div>
@@ -782,19 +805,19 @@
 
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Monitoramento geoespacial dos talhões da fazenda cafeeira no Sul de Minas, permitindo identificar onde a colheita está concentrada e otimizar rotas de tratores e transporte de café.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Monitoramento geoespacial dos talhões da fazenda cafeeira no Sul de Minas, permitindo identificar onde a colheita está concentrada e otimizar rotas de tratores e transporte de café.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Tela: <code>app/(drawer)/(tabs)/mapa.tsx</code> · Gateway: <code>src/domain/gateways/LocationGateway.ts</code> · VO: <code>src/domain/value-objects/Coordinates.ts</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Tela: <code>app/(drawer)/(tabs)/mapa.tsx</code> · Gateway: <code>src/domain/gateways/LocationGateway.ts</code> · VO: <code>src/domain/value-objects/Coordinates.ts</code>.</p>
                     </div>
                 </div>
             </div>
@@ -865,19 +888,19 @@
 
             
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left w-full max-w-6xl mx-auto min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Estabelece o fluxo metódico de engenharia de software da equipe no SafraCafé: construir regras puras primeiro, orquestração depois, adaptadores de hardware e por fim telas RNTL, tudo orientado a TDD.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Estabelece o fluxo metódico de engenharia de software da equipe no SafraCafé: construir regras puras primeiro, orquestração depois, adaptadores de hardware e por fim telas RNTL, tudo orientado a TDD.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Distribuição nas camadas: <code>src/domain/</code> → <code>src/usecases/</code> → <code>src/adapters/</code> → <code>src/factory/container.ts</code> → <code>tests/</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Distribuição nas camadas: <code>src/domain/</code> → <code>src/usecases/</code> → <code>src/adapters/</code> → <code>src/factory/container.ts</code> → <code>tests/</code>.</p>
                     </div>
                 </div>
             </div>
@@ -1057,19 +1080,19 @@
 
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Elimina Primitive Obsession. Garante que nenhum volume negativo de balaio ou coordenada fora dos limites do globo terrestre seja instanciado, validando tudo de forma imutável no construtor.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Elimina Primitive Obsession. Garante que nenhum volume negativo de balaio ou coordenada fora dos limites do globo terrestre seja instanciado, validando tudo de forma imutável no construtor.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Arquivos: <code>src/domain/value-objects/QuantidadeBalaio.ts</code>, <code>ValorMonetario.ts</code>, <code>Coordinates.ts</code>, <code>SyncStatus.ts</code> · Testes: <code>tests/domain/QuantidadeBalaio.test.ts</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Arquivos: <code>src/domain/value-objects/QuantidadeBalaio.ts</code>, <code>ValorMonetario.ts</code>, <code>Coordinates.ts</code>, <code>SyncStatus.ts</code> · Testes: <code>tests/domain/QuantidadeBalaio.test.ts</code>.</p>
                     </div>
                 </div>
             </div>
@@ -1169,19 +1192,19 @@ export class ValorMonetario {
 
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Raízes de Agregação controlam a consistência dos dados do cafezal. Um apontamento não pode ser criado sem apanhador ou coordenadas válidas, e um trabalhador exige CPF de 11 dígitos e crachá unívoco.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Raízes de Agregação controlam a consistência dos dados do cafezal. Um apontamento não pode ser criado sem apanhador ou coordenadas válidas, e um trabalhador exige CPF de 11 dígitos e crachá unívoco.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Arquivos: <code>src/domain/entities/Trabalhador.ts</code>, <code>Apontamento.ts</code>, <code>Despesa.ts</code>, <code>SyncQueueItem.ts</code> · Testes: <code>tests/domain/Trabalhador.test.ts</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Arquivos: <code>src/domain/entities/Trabalhador.ts</code>, <code>Apontamento.ts</code>, <code>Despesa.ts</code>, <code>SyncQueueItem.ts</code> · Testes: <code>tests/domain/Trabalhador.test.ts</code>.</p>
                     </div>
                 </div>
             </div>
@@ -1280,19 +1303,19 @@ export class Trabalhador {
 
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Regras de negócio que cruzam o estado de múltiplas entidades. Na lavoura sem internet, quando dois operadores sincronizam o mesmo registro, o Last-Write-Wins (LWW) resolve conflitos de forma matemática sem travar a fila.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Regras de negócio que cruzam o estado de múltiplas entidades. Na lavoura sem internet, quando dois operadores sincronizam o mesmo registro, o Last-Write-Wins (LWW) resolve conflitos de forma matemática sem travar a fila.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Arquivo: <code>src/domain/services/SincronizacaoService.ts</code> · Teste: <code>tests/domain/SincronizacaoService.test.ts</code> (100% de Cobertura).</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Arquivo: <code>src/domain/services/SincronizacaoService.ts</code> · Teste: <code>tests/domain/SincronizacaoService.test.ts</code> (100% de Cobertura).</p>
                     </div>
                 </div>
             </div>
@@ -1343,19 +1366,19 @@ export class SincronizacaoService {
 
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Princípio da Inversão de Dependência (DIP). O domínio declara contratos puros em TypeScript. A infraestrutura cumpre esses contratos. Assim, podemos trocar memória RAM por SQLite e Supabase sem tocar em uma linha de regra de negócio.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Princípio da Inversão de Dependência (DIP). O domínio declara contratos puros em TypeScript. A infraestrutura cumpre esses contratos. Assim, podemos trocar memória RAM por SQLite e Supabase sem tocar em uma linha de regra de negócio.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Contratos em: <code>src/domain/repositories/ApontamentoRepository.ts</code>, <code>TrabalhadorRepository.ts</code>, <code>DespesaRepository.ts</code>, <code>CameraGateway.ts</code>, <code>LocationGateway.ts</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Contratos em: <code>src/domain/repositories/ApontamentoRepository.ts</code>, <code>TrabalhadorRepository.ts</code>, <code>DespesaRepository.ts</code>, <code>CameraGateway.ts</code>, <code>LocationGateway.ts</code>.</p>
                     </div>
                 </div>
             </div>
@@ -1410,19 +1433,19 @@ export interface TrabalhadorRepository {
 
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Orquestram as intenções do usuário recebendo DTOs e coordenando repositórios e serviços. A adoção do ciclo TDD Red-Green-Refactor garante que 100% dos fluxos de colheita foram especificados antes da codificação.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Orquestram as intenções do usuário recebendo DTOs e coordenando repositórios e serviços. A adoção do ciclo TDD Red-Green-Refactor garante que 100% dos fluxos de colheita foram especificados antes da codificação.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Casos de uso em: <code>src/usecases/RegistrarApontamento.ts</code>, <code>CadastrarTrabalhador.ts</code>, <code>SyncPendingQueue.ts</code>, etc. 24 suítes em <code>tests/usecases/</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Casos de uso em: <code>src/usecases/RegistrarApontamento.ts</code>, <code>CadastrarTrabalhador.ts</code>, <code>SyncPendingQueue.ts</code>, etc. 24 suítes em <code>tests/usecases/</code>.</p>
                     </div>
                 </div>
             </div>
@@ -1542,19 +1565,19 @@ export class RegistrarApontamento {
             </div>
             
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left w-full max-w-6xl mx-auto min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Permite testar a leitura de QR Code, fotografia de cupons fiscais e fixação de GPS instantaneamente em memória, sem depender de câmera física ou sinal real de satélite durante os testes automatizados.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Permite testar a leitura de QR Code, fotografia de cupons fiscais e fixação de GPS instantaneamente em memória, sem depender de câmera física ou sinal real de satélite durante os testes automatizados.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Interfaces: <code>src/domain/gateways/CameraGateway.ts</code>, <code>LocationGateway.ts</code> · Fakes em memória: <code>src/infra/InMemoryCameraGateway.ts</code>, <code>InMemoryLocationGateway.ts</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Interfaces: <code>src/domain/gateways/CameraGateway.ts</code>, <code>LocationGateway.ts</code> · Fakes em memória: <code>src/infra/InMemoryCameraGateway.ts</code>, <code>InMemoryLocationGateway.ts</code>.</p>
                     </div>
                 </div>
             </div>
@@ -1613,19 +1636,19 @@ export class InMemoryLocationGateway implements LocationGateway {
 
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">No cafezal não há garantia de sinal 4G/5G. Todas as pesagens e despesas entram na fila Outbox local em memória e são despachadas atomicamente para o servidor com resolução LWW assim que a conexão retorna.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">No cafezal não há garantia de sinal 4G/5G. Todas as pesagens e despesas entram na fila Outbox local em memória e são despachadas atomicamente para o servidor com resolução LWW assim que a conexão retorna.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Caso de Uso: <code>src/usecases/SyncPendingQueue.ts</code> · Entidade: <code>src/domain/entities/SyncQueueItem.ts</code> · Fakes com Map em <code>src/infra/</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Caso de Uso: <code>src/usecases/SyncPendingQueue.ts</code> · Entidade: <code>src/domain/entities/SyncQueueItem.ts</code> · Fakes com Map em <code>src/infra/</code>.</p>
                     </div>
                 </div>
             </div>
@@ -1698,19 +1721,19 @@ export class InMemoryLocationGateway implements LocationGateway {
 
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Elimina Prop Drilling e impede que as telas de React Native importem lógica de domínio ou de casos de uso diretamente. A Context API isola o ciclo de vida reativo e provê a sessão globalmente.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Elimina Prop Drilling e impede que as telas de React Native importem lógica de domínio ou de casos de uso diretamente. A Context API isola o ciclo de vida reativo e provê a sessão globalmente.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Localização: <code>src/adapters/auth/AuthContext.tsx</code>, <code>src/adapters/hooks/useAuth.ts</code>, <code>useApontamentos.ts</code>, <code>useTrabalhadores.ts</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Localização: <code>src/adapters/auth/AuthContext.tsx</code>, <code>src/adapters/hooks/useAuth.ts</code>, <code>useApontamentos.ts</code>, <code>useTrabalhadores.ts</code>.</p>
                     </div>
                 </div>
             </div>
@@ -1783,19 +1806,19 @@ export class InMemoryLocationGateway implements LocationGateway {
 
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Permite validar renderização visual, preenchimento de inputs e navegação do operador sem necessidade de abrir emulador físico pesado ou realizar cliques manuais lentos.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Permite validar renderização visual, preenchimento de inputs e navegação do operador sem necessidade de abrir emulador físico pesado ou realizar cliques manuais lentos.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Telas em: <code>app/login.tsx</code>, <code>app/(drawer)/(tabs)/apontamento.tsx</code>, <code>trabalhadores.tsx</code> · Testes RNTL em: <code>tests/screens/LoginScreen.test.tsx</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Telas em: <code>app/login.tsx</code>, <code>app/(drawer)/(tabs)/apontamento.tsx</code>, <code>trabalhadores.tsx</code> · Testes RNTL em: <code>tests/screens/LoginScreen.test.tsx</code>.</p>
                     </div>
                 </div>
             </div>
@@ -1863,19 +1886,19 @@ export class InMemoryLocationGateway implements LocationGateway {
                 </div>
                 
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 gap-2.5 mb-4 text-left w-full min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Nunca utilizar AsyncStorage sem criptografia para tokens. O uso de hardware criptográfico (Keychain no iOS e Keystore no Android) protege as credenciais do operador mesmo em aparelhos perdidos.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Nunca utilizar AsyncStorage sem criptografia para tokens. O uso de hardware criptográfico (Keychain no iOS e Keystore no Android) protege as credenciais do operador mesmo em aparelhos perdidos.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Adaptador: <code>src/adapters/auth/SessionStorageSecureStore.ts</code> · Gateway: <code>src/domain/gateways/SessionStorage.ts</code> · Teste: <code>tests/adapters/SessionStorageSecureStore.test.ts</code>.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Adaptador: <code>src/adapters/auth/SessionStorageSecureStore.ts</code> · Gateway: <code>src/domain/gateways/SessionStorage.ts</code> · Teste: <code>tests/adapters/SessionStorageSecureStore.test.ts</code>.</p>
                     </div>
                 </div>
             </div>
@@ -2091,19 +2114,19 @@ export class SessionStorageSecureStore implements SessionStorage {
 
             
             <!-- Destaque: Por que é importante & Onde está no app -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
-                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left w-full max-w-6xl mx-auto min-w-0">
+                <div class="callout-box bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Síntese para a banca avaliadora: o SafraCafé foi projetado desde o primeiro dia com princípios sólidos de engenharia de software corporativa, permitindo evolução contínua sem quebrar regras de negócio.</p>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">Síntese para a banca avaliadora: o SafraCafé foi projetado desde o primeiro dia com princípios sólidos de engenharia de software corporativa, permitindo evolução contínua sem quebrar regras de negócio.</p>
                     </div>
                 </div>
-                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                <div class="callout-box bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm min-w-0 w-full overflow-hidden">
                     <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
-                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Visão consolidada em <code>src/factory/container.ts</code> (wiring Singleton de toda a aplicação).</p>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed break-words">Visão consolidada em <code>src/factory/container.ts</code> (wiring Singleton de toda a aplicação).</p>
                     </div>
                 </div>
             </div>

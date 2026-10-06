@@ -1298,10 +1298,13 @@ export interface PeriodoAvaliacaoRepository {
             </div>
             <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                    <span class="text-xs font-mono text-slate-400">src/usecases/RegistrarAtividadesUseCase.ts</span>
-                    <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 94.08%</span>
+                    <div class="flex space-x-2">
+                        <button onclick="switchTab('usecase', 'code')" id="usecase-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/usecases/RegistrarAtividadesUseCase.ts</button>
+                        <button onclick="switchTab('usecase', 'test')" id="usecase-btn-test" class="tab-btn text-xs font-mono px-3 py-1.5 rounded border border-slate-700">🔄 Ciclo Red-Green-Refactor (TDD)</button>
+                    </div>
+                    <span class="text-xs text-emerald-400 font-mono font-semibold">TDD Red-Green-Refactor</span>
                 </div>
-                <div class="code-container bg-slate-950">
+                <div id="usecase-tab-code" class="code-container bg-slate-950">
 <pre><code class="language-typescript">export interface RegistrarAtividadesDTO {
   periodoId: string;
   descricao: string;
@@ -1340,6 +1343,42 @@ export class RegistrarAtividadesUseCase {
     return periodo;
   }
 }</code></pre>
+                </div>
+                <div id="usecase-tab-test" class="code-container bg-slate-950 hidden">
+<pre><code class="language-typescript">// =========================================================================
+// DEMONSTRAÇÃO PRÁTICA DO CICLO TDD: RED-GREEN-REFACTOR
+// =========================================================================
+
+// 🔴 FASE 1: RED (Escrever o teste ANTES do código de produção)
+// O teste define a invariante. Ao executar, FALHA porque a regra ainda não existe.
+describe('RegistrarAtividadesUseCase — Ciclo Red-Green-Refactor', () => {
+  it('🔴 RED: deve falhar quando o período de avaliação não for encontrado', async () => {
+    const fakeRepo = new PeriodoAvaliacaoRepositoryFake(); // Inicia com Map vazio
+    const useCase = new RegistrarAtividadesUseCase(fakeRepo);
+
+    // Asserção que falhará antes da implementação
+    await expect(useCase.execute({ periodoId: 'inexistente', descricao: 'Teste', horasTotais: 100, horasMinimas: 20, horasPeriodo: 10 }))
+      .rejects.toThrow('Período de avaliação não encontrado.');
+  });
+  // ➜ Terminal (RED): FAIL tests/usecases/RegistrarAtividadesUseCase.test.ts
+  // ✖ Error: Received function did not throw (ou Cannot read properties of undefined)
+});
+
+// 🟢 FASE 2: GREEN (Implementar o CÓDIGO MÍNIMO para o teste passar)
+// Escreve-se apenas a lógica necessária para satisfazer a asserção do teste.
+export class RegistrarAtividadesUseCase {
+  async execute(dto: RegistrarAtividadesDTO): Promise<PeriodoAvaliacao> {
+    const periodo = await this.periodoRepo.findById(dto.periodoId);
+    if (!periodo) throw new Error('Período de avaliação não encontrado.'); // Código mínimo para GREEN
+    // ...
+  }
+}
+// ➜ Terminal (GREEN): PASS tests/usecases/RegistrarAtividadesUseCase.test.ts
+// ✔ deve falhar quando o período de avaliação não for encontrado (3 ms)
+
+// 🔵 FASE 3: REFACTOR (Melhorar o design mantendo 100% dos testes verdes)
+// Extrai-se Value Objects (CargaHoraria), desacopla-se gateways e protege-se a Raiz de Agregação.
+// ➜ Suíte Completa: 57 Test Suites Aprovadas (100% PASS) | 234 Testes | 91.82% de Cobertura!</code></pre>
                 </div>
             </div>
         </section>

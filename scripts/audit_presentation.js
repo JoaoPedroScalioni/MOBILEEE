@@ -29,37 +29,30 @@ console.log('Total de tags <img>:', imgTags.length);
 const imgNoSrc = imgTags.filter(img => !img.includes('src='));
 console.log('Imgs sem atributo src:', imgNoSrc.length);
 
-// 4. Check all JS references in switchServiceTab and switchRntlTab
+// 4. Check all JS references
 const expectedIds = [
-  'panel-svc-pdf', 'panel-svc-devolucao', 'panel-svc-sync',
-  'btn-svc-pdf', 'btn-svc-devolucao', 'btn-svc-sync',
-  'panel-rntl-assinatura', 'panel-rntl-atividades', 'panel-rntl-historico',
-  'btn-rntl-assinatura', 'btn-rntl-atividades', 'btn-rntl-historico',
   'view-apont-topo', 'view-apont-reg', 'btn-apont-topo', 'btn-apont-reg',
-  'image-modal', 'modal-img', 'modal-caption'
+  'image-modal', 'modal-img', 'modal-caption',
+  'vo-btn-code', 'vo-btn-test', 'entity-btn-code', 'entity-btn-test',
+  'usecase-btn-code', 'usecase-btn-test'
 ];
 const missingDomIds = expectedIds.filter(id => !idMatches.has(id));
 console.log('IDs DOM necessarios para scripts que faltam:', missingDomIds);
 
-// 5. Check checklist terms
+// 5. Check SafraCafé terms
 const requiredTerms = [
-  'Criterio', 'Coordenada', 'Assinatura', 'CargaHoraria',
-  'StatusSincronizacao', 'StatusPeriodo', 'PeriodoAvaliacao',
-  'Estagio', 'TokenSupervisor', 'RegraGeracaoPdfService',
-  'RegraDevolucaoService', 'SincronizacaoService', 'PeriodoAvaliacaoRepository',
-  'CameraGateway', 'LocationGateway', 'AuthGateway',
-  'RegistrarAtividadesUseCase', 'AvaliarDesempenhoUseCase',
-  'RealizarAutoAvaliacaoUseCase', 'AssinarRelatorioUseCase',
-  'AprovarRelatorioUseCase', 'DevolverRelatorioUseCase',
-  'GerarPdfUseCase', 'SincronizarFilaUseCase',
-  'AutenticarUsuarioUseCase', 'AcessarViaTokenUseCase',
-  'AuthContext', 'SessionStorageSecureStore', 'useAuth', 'useAtividades',
-  'CameraGatewayExpo', 'AssinaturaScreen', 'AtividadesFormScreen',
-  'HistoricoRelatoriosScreen', 'expo-secure-store', 'Keychain', 'Keystore',
-  'Prop Drilling', 'Red-Green-Refactor', 'E2E'
+  'QuantidadeBalaio', 'ValorMonetario', 'Coordinates', 'SyncStatus',
+  'Trabalhador', 'Apontamento', 'Despesa', 'SyncQueueItem', 'Session',
+  'SincronizacaoService', 'TrabalhadorRepository', 'ApontamentoRepository',
+  'DespesaRepository', 'CameraGateway', 'LocationGateway', 'AuthGateway',
+  'RegistrarApontamento', 'CadastrarTrabalhador', 'RegistrarDespesa',
+  'AuthenticateUser', 'SyncPendingQueue', 'AuthContext', 'useAuth',
+  'useApontamentos', 'useTrabalhadores', 'LoginScreen', 'expo-secure-store',
+  'Keychain', 'Keystore', 'SessionStorageSecureStore',
+  'Red-Green-Refactor', '91.82%', '234 Testes', 'Clean Architecture'
 ];
 
-console.log('\n--- Verificação de Termos do Checklist ---');
+console.log('\n--- Verificação de Termos do Checklist SafraCafé ---');
 let missingTerms = [];
 requiredTerms.forEach(term => {
   const count = (html.match(new RegExp(term, 'g')) || []).length;
@@ -67,4 +60,4 @@ requiredTerms.forEach(term => {
     missingTerms.push(term);
   }
 });
-console.log('Termos do checklist faltantes:', missingTerms.length === 0 ? 'NENHUM (100% presentes!)' : missingTerms);
+console.log('Termos do checklist faltantes:', missingTerms.length === 0 ? 'NENHUM (100% presentes no SafraCafé!)' : missingTerms);

@@ -200,8 +200,26 @@
                 <span class="inline-block py-1 px-3 rounded-full text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800 uppercase tracking-widest mb-3">Defesa Técnica de Engenharia de Software</span>
                 <h1 class="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight">Fase: "Domínio e Interface Primeiro"</h1>
                 <p class="mt-3 text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">
-                    Projeto <span class="text-emerald-400 font-semibold">SafraCafé</span> — Sistema de Avaliação de Estágio e Registro de Atividades Desacoplado
+                    Projeto <span class="text-emerald-400 font-semibold">SafraCafé</span> — Gestão Offline-First da Colheita Cafeeira (Domínio e Interface Primeiro)
                 </p>
+            </div>
+
+                        <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6 max-w-4xl mx-auto text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Blindar as regras centrais da colheita cafeeira antes de acoplar qualquer banco físico ou framework de UI. Evita retrabalho estrutural e garante domínio puro 100% testável.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Raiz arquitetural: <code>src/domain/</code>, <code>src/usecases/</code>, <code>src/adapters/</code>, <code>src/infra/</code>, <code>src/factory/container.ts</code> e suíte em <code>tests/</code>.</p>
+                    </div>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
@@ -368,6 +386,25 @@
                     Primeira tela do aplicativo ao abrir. Desenhada com foco em usabilidade rápida para operadores agrícolas e com persistência segura de credenciais no chaveiro nativo do dispositivo.
                 </p>
 
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Garante a autenticação segura do operador rural com tokens criptografados no hardware nativo do smartphone, mantendo o acesso ativo mesmo quando o celular perde sinal no meio da lavoura.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Tela: <code>app/login.tsx</code> · Casos de Uso: <code>src/usecases/AuthenticateUser.ts</code>, <code>RestoreSession.ts</code> · Teste: <code>tests/screens/LoginScreen.test.tsx</code>.</p>
+                    </div>
+                </div>
+            </div>
+
                 <!-- Destaques Operacionais -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs">
                     <div class="bg-slate-900 p-3.5 rounded-xl border border-slate-800">
@@ -412,7 +449,7 @@
                     <span class="font-mono text-emerald-400 font-bold uppercase tracking-wider text-[11px] block">Mapeamento para Clean Architecture:</span>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-slate-300 text-[11px]">
                         <div><strong class="text-slate-400 block">Casos de Uso:</strong> <code>AutenticarUsuario</code>, <code>RestoreSession</code></div>
-                        <div><strong class="text-slate-400 block">Entidades:</strong> <code>Session</code>, <code>TokenSupervisor</code></div>
+                        <div><strong class="text-slate-400 block">Entidades:</strong> <code>Session</code>, <code>User</code></div>
                         <div><strong class="text-slate-400 block">Teste de Tela:</strong> <code>LoginScreen.test.tsx</code> (RNTL)</div>
                     </div>
                 </div>
@@ -550,6 +587,25 @@
                     Identificação única de cada apanhador de café da propriedade. Garante a transparência dos apontamentos e a correta contabilização financeira de cada diária.
                 </p>
 
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Identificação nominal e serial unívoca de cada apanhador (TRAB-001, TRAB-002) com CPF validado e valor de diária fixado, eliminando confusões no fechamento contábil e pagamentos.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Tela: <code>app/(drawer)/(tabs)/trabalhadores.tsx</code> · Entidade: <code>src/domain/entities/Trabalhador.ts</code> · Testes: <code>tests/domain/Trabalhador.test.ts</code>.</p>
+                    </div>
+                </div>
+            </div>
+
                 <!-- Destaques -->
                 <div class="space-y-2.5 pt-1 text-xs">
                     <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-start space-x-3">
@@ -622,6 +678,25 @@
                 <p class="text-sm text-slate-300 leading-relaxed">
                     Acompanhamento pontual dos custos operacionais no cafezal: lubrificantes para derriçadoras, ferramentas, adubos e manutenções emergenciais com auditoria física e geográfica.
                 </p>
+
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Controle minucioso de custos de safra (combustível, lubrificantes de derriçadoras, insumos) com comprovante fotográfico e GPS do local de compra, prevenindo fraudes e perda de notas.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Tela: <code>app/(drawer)/(tabs)/despesas.tsx</code> · Entidade: <code>src/domain/entities/Despesa.ts</code> · Testes: <code>tests/domain/Despesa.test.ts</code>.</p>
+                    </div>
+                </div>
+            </div>
 
                 <!-- Destaques -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -705,6 +780,25 @@
                     Visualização espacial contínua das atividades na fazenda cafeeira. Localização de colheitas, rotas de transporte e conferência geográfica de talhões em tempo real.
                 </p>
 
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Monitoramento geoespacial dos talhões da fazenda cafeeira no Sul de Minas, permitindo identificar onde a colheita está concentrada e otimizar rotas de tratores e transporte de café.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Tela: <code>app/(drawer)/(tabs)/mapa.tsx</code> · Gateway: <code>src/domain/gateways/LocationGateway.ts</code> · VO: <code>src/domain/value-objects/Coordinates.ts</code>.</p>
+                    </div>
+                </div>
+            </div>
+
                 <!-- Destaques -->
                 <div class="space-y-2.5 pt-1 text-xs">
                     <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 flex items-start space-x-3">
@@ -757,16 +851,38 @@
                 <!-- ========================================================================= -->
         <!-- SLIDE CHECKLIST: 7. CHECKLIST SEQUENCIAL DE CONSTRUÇÃO (8 PASSOS) -->
         <!-- ========================================================================= -->
+                <!-- ========================================================================= -->
+        <!-- SLIDE CHECKLIST: 7. CHECKLIST SEQUENCIAL DE CONSTRUÇÃO (8 PASSOS SAFRACAFÉ) -->
+        <!-- ========================================================================= -->
         <section id="slide-checklist">
-            <div class="text-center mb-6">
+            <div class="text-center mb-5">
                 <span class="inline-block py-1 px-3 rounded-full text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800 uppercase tracking-widest mb-2">Item 7 · Planejamento Oficial de Engenharia</span>
                 <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Checklist Sequencial de Construção</h2>
                 <p class="mt-2 text-slate-400 text-sm md:text-base max-w-3xl mx-auto">
-                    A ordem exata de implementação adotada pela equipe de desenvolvimento: <strong class="text-emerald-400">Domínio → Use Cases → Context API / Sessão Segura → Telas RNTL com Fakes</strong>, 100% orientada a TDD (ciclo Red-Green-Refactor).
+                    A ordem exata de implementação adotada pela equipe no <strong class="text-emerald-400">SafraCafé</strong>: Domínio → Use Cases → Context API / Sessão Segura → Telas RNTL com Fakes, 100% orientada a TDD (ciclo Red-Green-Refactor).
                 </p>
             </div>
 
-            <!-- Grid com os 8 Passos Oficiais -->
+            
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Estabelece o fluxo metódico de engenharia de software da equipe no SafraCafé: construir regras puras primeiro, orquestração depois, adaptadores de hardware e por fim telas RNTL, tudo orientado a TDD.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Distribuição nas camadas: <code>src/domain/</code> → <code>src/usecases/</code> → <code>src/adapters/</code> → <code>src/factory/container.ts</code> → <code>tests/</code>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid com os 8 Passos Oficiais SafraCafé -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto w-full">
                 
                 <!-- Passo 1 -->
@@ -778,7 +894,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Value Objects (Imutáveis)</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            <code>Criterio</code> (notas 0-10, faixas MB/B/R/F), <code>Coordenada</code> (lat, long, timestamp), <code>Assinatura</code> (base64 + timestamp), <code>CargaHoraria</code> (totais, mínimas e período), <code>StatusSincronizacao</code> e <code>StatusPeriodo</code>.
+                            <code>QuantidadeBalaio</code> (volume > 0 litros colhidos no cafezal), <code>ValorMonetario</code> (diárias em R$ 60,00 e despesas ≥ 0), <code>Coordinates</code> (latitude [-90, 90] e longitude [-180, 180] GPS) e <code>SyncStatus</code> (PENDING, SYNCED, ERROR).
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -796,7 +912,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Entities & Aggregates</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            <code>PeriodoAvaliacao</code> (Aggregate Root protegendo autoavaliação, avaliação de supervisor e assinaturas), <code>Estagio</code> e <code>TokenSupervisor</code> (acesso temporário sem conta com validação de expiração e revogação).
+                            <code>Trabalhador</code> (Aggregate Root com CPF 11 dígitos, crachá TRAB-001/002 e diária), <code>Apontamento</code> (lançamento da colheita vinculando colhedor, balaios e GPS), <code>Despesa</code> (registro com foto do comprovante), <code>SyncQueueItem</code> e <code>Session</code>.
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -814,7 +930,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Domain Services</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            <code>RegraGeracaoPdfService</code> (valida período aprovado e assinaturas sincronizadas), <code>RegraDevolucaoService</code> (motivo mínimo de 5 chars) e <code>SincronizacaoService</code> (resolução determinística de conflitos).
+                            <code>SincronizacaoService</code> (resolução determinística de conflitos na fila offline-first via comparação Last-Write-Wins com timestamps) e Regras de Fechamento de Colheita (apuração diária de balaios colhidos sem perda de dados na roça).
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -832,7 +948,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Repository & Gateway Interfaces</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Contratos puros definidos no domínio: <code>PeriodoAvaliacaoRepository</code>, <code>EstagioRepository</code>, <code>TokenSupervisorRepository</code>, <code>CameraGateway</code>, <code>LocationGateway</code> e <code>AuthGateway</code>.
+                            Contratos puros definidos no domínio: <code>TrabalhadorRepository</code>, <code>ApontamentoRepository</code>, <code>DespesaRepository</code>, <code>SyncQueueGateway</code>, <code>CameraGateway</code>, <code>LocationGateway</code> e <code>AuthGateway</code>.
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -850,7 +966,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Use Cases (TDD & Fakes)</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Orquestração com fakes em memória (ciclo <strong>Red-Green-Refactor</strong>): <code>RegistrarAtividades</code>, <code>AvaliarDesempenho</code>, <code>RealizarAutoAvaliacao</code>, <code>AssinarRelatorio</code>, <code>AprovarRelatorio</code>, <code>DevolverRelatorio</code>, <code>GerarPdf</code>, <code>SincronizarFila</code>, <code>AutenticarUsuario</code> e <code>AcessarViaToken</code>.
+                            Orquestração com fakes em memória (ciclo <strong>Red-Green-Refactor</strong>): <code>RegistrarApontamento</code>, <code>CadastrarTrabalhador</code>, <code>RegistrarDespesa</code>, <code>AuthenticateUser</code>, <code>SyncPendingQueue</code>, <code>ListarApontamentos</code> e <code>ListarTrabalhadores</code>.
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -868,7 +984,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Context API & Custom Hooks</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            <code>AuthContext.tsx</code> provê a sessão global na camada de adaptadores. Hooks de ponte como <code>useAuth</code> e <code>useAtividades</code> gerenciam os estados reativos (<code>idle</code>, <code>salvando</code>, <code>salvo</code>, <code>erro</code>) isolando as telas.
+                            <code>AuthContext.tsx</code> provê a sessão do operador cafeeiro (<code>pesquisador@ecofield.app</code>). Custom Hooks de ponte como <code>useAuth</code>, <code>useApontamentos</code> e <code>useTrabalhadores</code> gerenciam os estados reativos isolando as telas.
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -886,7 +1002,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Telas RNTL & Expo Router</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Fronteira visual Boundary em <code>app/</code> com telas <code>AssinaturaScreen</code>, <code>AtividadesFormScreen</code>, <code>HistoricoRelatoriosScreen</code> e <code>LoginScreen</code> testadas com <code>fireEvent.press</code> e <code>fireEvent.changeText</code>.
+                            Fronteira visual Boundary em <code>app/</code> com telas <code>LoginScreen</code>, <code>ApontamentoScreen</code> (leitura de QR Code e balaios), <code>TrabalhadoresScreen</code> e <code>DespesasScreen</code> testadas via RNTL.
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -904,7 +1020,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Sessão Segura (Keychain/Keystore)</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Adaptador <code>SessionStorageSecureStore</code> encapsula a biblioteca nativa <code>expo-secure-store</code>. Proteção de tokens com criptografia no hardware do aparelho, 100% mockado nos testes.
+                            Adaptador <code>SessionStorageSecureStore</code> encapsula a biblioteca nativa <code>expo-secure-store</code>. Proteção de tokens com criptografia no hardware do aparelho (chave <code>safracafe.session</code>), 100% mockado nos testes.
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -919,7 +1035,7 @@
             <div class="mt-6 flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 border border-slate-800 p-3.5 rounded-xl max-w-7xl mx-auto w-full text-xs">
                 <div class="flex items-center space-x-2 text-slate-300">
                     <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                    <span>Status de Conformidade: <strong>100% dos 8 passos implementados e aprovados com 234 testes automatizados</strong></span>
+                    <span>Status de Conformidade: <strong>100% dos 8 passos implementados e aprovados com 234 testes automatizados do SafraCafé</strong></span>
                 </div>
                 <a href="#slide8" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition inline-flex items-center space-x-1">
                     <span>Avançar para Códigos do Domínio (Passo 1)</span> ➔
@@ -928,317 +1044,295 @@
         </section>
 
         <!-- SLIDE 8: VALUE OBJECTS -->
+                <!-- SLIDE 8: VALUE OBJECTS -->
         <section id="slide8" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-4 space-y-4">
+            <div class="lg:col-span-5 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 1</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Value Objects (Imutáveis)</h2>
                     <p class="text-sm text-slate-300 mt-2">
-                        Objetos sem identidade própria definidos apenas por seus valores. São imutáveis e se auto-validam de forma defensiva no construtor.
+                        Objetos sem identidade própria definidos apenas por seus atributos. São imutáveis e se auto-validam de forma defensiva no construtor.
                     </p>
                 </div>
-                <div class="space-y-2.5">
-                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                        <strong class="text-white text-sm">Criterio:</strong>
-                        <span class="text-xs text-slate-400 block mt-0.5">Valida nota entre 0 e 10 e classifica em MB (>=8.5), B (>=7.0), R (>=5.0) e F.</span>
+
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Elimina Primitive Obsession. Garante que nenhum volume negativo de balaio ou coordenada fora dos limites do globo terrestre seja instanciado, validando tudo de forma imutável no construtor.</p>
                     </div>
-                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                        <strong class="text-white text-sm">Coordenada:</strong>
-                        <span class="text-xs text-slate-400 block mt-0.5">Latitude [-90, 90], Longitude [-180, 180] e timestamp UTC.</span>
-                    </div>
-                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                        <strong class="text-white text-sm">Assinatura:</strong>
-                        <span class="text-xs text-slate-400 block mt-0.5">Payload base64 criptográfico, papel ('aluno' | 'supervisor') e data/hora.</span>
-                    </div>
-                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                        <strong class="text-white text-sm">CargaHoraria:</strong>
-                        <span class="text-xs text-slate-400 block mt-0.5">Validação de horas totais, horas mínimas obrigatórias e saldo do período.</span>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Arquivos: <code>src/domain/value-objects/QuantidadeBalaio.ts</code>, <code>ValorMonetario.ts</code>, <code>Coordinates.ts</code>, <code>SyncStatus.ts</code> · Testes: <code>tests/domain/QuantidadeBalaio.test.ts</code>.</p>
                     </div>
                 </div>
             </div>
-            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
+
+                <div class="space-y-2 text-xs">
+                    <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                        <strong class="text-white text-xs">QuantidadeBalaio:</strong>
+                        <span class="text-[11px] text-slate-400 block mt-0.5">Volume em litros de café colhido no cafezal. Valida se é número finito e estritamente &gt; 0.</span>
+                    </div>
+                    <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                        <strong class="text-white text-xs">ValorMonetario:</strong>
+                        <span class="text-[11px] text-slate-400 block mt-0.5">Diária do apanhador (R$ 60,00) ou gastos com óleo/ferramentas. Garante valor ≥ 0 e formatação BRL.</span>
+                    </div>
+                    <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                        <strong class="text-white text-xs">Coordinates:</strong>
+                        <span class="text-[11px] text-slate-400 block mt-0.5">Latitude [-90, 90] e Longitude [-180, 180] para georreferenciamento compulsório no cafezal.</span>
+                    </div>
+                    <div class="bg-slate-900 p-2.5 rounded-lg border border-slate-800">
+                        <strong class="text-white text-xs">SyncStatus:</strong>
+                        <span class="text-[11px] text-slate-400 block mt-0.5">Estados formais do ciclo offline-first: PENDING, SYNCED e ERROR.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                     <div class="flex space-x-2">
-                        <button onclick="switchTab('vo', 'code')" id="vo-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/domain/value-objects/Criterio.ts</button>
-                        <button onclick="switchTab('vo', 'test')" id="vo-btn-test" class="tab-btn text-xs font-mono px-3 py-1.5 rounded border border-slate-700">tests/domain/Criterio.test.ts</button>
+                        <button onclick="switchTab('vo', 'code')" id="vo-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/domain/value-objects/QuantidadeBalaio.ts</button>
+                        <button onclick="switchTab('vo', 'test')" id="vo-btn-test" class="tab-btn text-xs font-mono px-3 py-1.5 rounded border border-slate-700">tests/domain/QuantidadeBalaio.test.ts</button>
                     </div>
-                    <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 98.96%</span>
+                    <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 100%</span>
                 </div>
                 <div id="vo-tab-code" class="code-container bg-slate-950">
-<pre><code class="language-typescript">export type FaixaCriterio = 'MB' | 'B' | 'R' | 'F';
-
-export class Criterio {
-  private readonly nome: string;
-  private readonly nota: number;
-
-  constructor(nome: string, nota: number) {
-    if (!nome || nome.trim().length === 0) {
-      throw new Error('O nome do critério não pode ser vazio.');
+<pre><code class="language-typescript">export class QuantidadeBalaio {
+    constructor(public readonly litros: number) {
+        this.validate(); // Auto-validação defensiva no construtor (imutável)
     }
-    if (typeof nota !== 'number' || isNaN(nota)) {
-      throw new Error('A nota do critério deve ser um número válido.');
+
+    private validate(): void {
+        // Um balaio na colheita precisa ter volume finito maior que zero
+        if (!Number.isFinite(this.litros) || this.litros <= 0) {
+            throw new Error('Quantidade de balaio inválida');
+        }
     }
-    if (nota < 0 || nota > 10) {
-      throw new Error('A nota do critério deve estar entre 0 e 10.');
+}
+
+// src/domain/value-objects/ValorMonetario.ts
+export class ValorMonetario {
+    constructor(public readonly valor: number) {
+        this.validate();
     }
-    this.nome = nome.trim();
-    this.nota = Math.round(nota * 10) / 10;
-  }
 
-  public getNome(): string {
-    return this.nome;
-  }
+    private validate(): void {
+        if (!Number.isFinite(this.valor) || this.valor < 0) {
+            throw new Error('Valor monetário inválido');
+        }
+    }
 
-  public getNota(): number {
-    return this.nota;
-  }
-
-  public getFaixa(): FaixaCriterio {
-    if (this.nota >= 8.5) return 'MB';
-    if (this.nota >= 7.0) return 'B';
-    if (this.nota >= 5.0) return 'R';
-    return 'F';
-  }
-
-  public equals(other: Criterio): boolean {
-    if (!(other instanceof Criterio)) return false;
-    return this.nome === other.nome && this.nota === other.nota;
-  }
+    public formatar(): string {
+        return this.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
 }</code></pre>
                 </div>
                 <div id="vo-tab-test" class="code-container bg-slate-950 hidden">
-<pre><code class="language-typescript">describe('Criterio Value Object (TDD)', () => {
-  it('deve classificar faixas de conceito corretamente: MB, B, R, F', () => {
-    expect(new Criterio('Assiduidade', 9.5).getFaixa()).toBe('MB');
-    expect(new Criterio('Proatividade', 7.5).getFaixa()).toBe('B');
-    expect(new Criterio('Pontualidade', 5.5).getFaixa()).toBe('R');
-    expect(new Criterio('Postura', 4.0).getFaixa()).toBe('F');
-  });
+<pre><code class="language-typescript">describe('QuantidadeBalaio Value Object (TDD)', () => {
+    it('cria balaio válido com volume positivo em litros', () => {
+        const balaio = new QuantidadeBalaio(60);
+        expect(balaio.litros).toBe(60);
+    });
 
-  it('deve rejeitar notas fora do intervalo 0-10', () => {
-    expect(() => new Criterio('Teste', -1)).toThrow('A nota do critério deve estar entre 0 e 10.');
-    expect(() => new Criterio('Teste', 10.5)).toThrow('A nota do critério deve estar entre 0 e 10.');
-  });
+    it('lança erro ao tentar criar balaio com volume zero ou negativo', () => {
+        expect(() => new QuantidadeBalaio(0)).toThrow('Quantidade de balaio inválida');
+        expect(() => new QuantidadeBalaio(-15)).toThrow('Quantidade de balaio inválida');
+        expect(() => new QuantidadeBalaio(NaN)).toThrow('Quantidade de balaio inválida');
+    });
 
-  it('deve validar igualdade estrutural com equals()', () => {
-    const c1 = new Criterio('Iniciativa', 8.0);
-    const c2 = new Criterio('Iniciativa', 8.0);
-    expect(c1.equals(c2)).toBe(true);
-  });
+    it('valida valor monetário da diária de colheita', () => {
+        const diaria = new ValorMonetario(60.0);
+        expect(diaria.valor).toBe(60.0);
+        expect(diaria.formatar()).toContain('60,00');
+    });
 });</code></pre>
                 </div>
             </div>
         </section>
 
         <!-- SLIDE 9: ENTIDADES E AGREGADOS -->
+                <!-- SLIDE 9: ENTIDADES E AGREGADOS -->
         <section id="slide9" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-4 space-y-4">
+            <div class="lg:col-span-5 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 2</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Entidades & Agregados</h2>
                     <p class="text-sm text-slate-300 mt-2">
-                        O <strong>PeriodoAvaliacao</strong> é a Raiz de Agregação. Controla o ciclo de vida e protege as <strong>invariantes de negócio</strong> contra estados ilegais.
+                        O <strong>Trabalhador</strong> e o <strong>Apontamento</strong> são as Raízes de Agregação da colheita cafeeira. Protegem as invariantes de negócio contra estados ilegais.
                     </p>
                 </div>
-                <div class="space-y-2 text-xs text-slate-300">
-                    <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">PeriodoAvaliacao (Aggregate Root)</strong>
-                        Gerencia <code>AtividadesDesenvolvidas</code>, <code>AvaliacaoSupervisor</code>, <code>AutoAvaliacao</code> e assinaturas. Bloqueia alterações se aprovado e valida <code>podeGerarPdf()</code> com assinaturas sincronizadas.
+
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Raízes de Agregação controlam a consistência dos dados do cafezal. Um apontamento não pode ser criado sem apanhador ou coordenadas válidas, e um trabalhador exige CPF de 11 dígitos e crachá unívoco.</p>
                     </div>
-                    <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">Estagio & TokenSupervisor (Raízes Próprias)</strong>
-                        Supervisor externo acessa via token com prazo de expiração e revogação, sem necessitar de conta ou autenticação padrão.
-                    </div>
-                    <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">Invariantes de Negócio Blindadas</strong>
-                        Impossível registrar 2ª avaliação após aprovação; bloqueia geração de PDF se faltar qualquer assinatura digital sincronizada.
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Arquivos: <code>src/domain/entities/Trabalhador.ts</code>, <code>Apontamento.ts</code>, <code>Despesa.ts</code>, <code>SyncQueueItem.ts</code> · Testes: <code>tests/domain/Trabalhador.test.ts</code>.</p>
                     </div>
                 </div>
             </div>
-            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
+
+                <div class="space-y-2 text-xs text-slate-300">
+                    <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">Trabalhador (Aggregate Root)</strong>
+                        Cadastro único com validação estrita de CPF (11 dígitos), crachá serializado (TRAB-001/002) impresso no QR Code e diária fixa em <code>ValorMonetario</code>.
+                    </div>
+                    <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">Apontamento (Aggregate Root de Colheita)</strong>
+                        Vincula o colhedor aos balaios aferidos (<code>QuantidadeBalaio</code>), data/timestamp e fixação compulsória de coordenadas GPS no cafezal.
+                    </div>
+                    <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">Despesa & Fila Outbox</strong>
+                        Registro georreferenciado de custos com foto do recibo via câmera nativa e enfileiramento em <code>SyncQueueItem</code> para sync offline-first.
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                     <div class="flex space-x-2">
-                        <button onclick="switchTab('entity', 'code')" id="entity-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/domain/entities/PeriodoAvaliacao.ts</button>
-                        <button onclick="switchTab('entity', 'test')" id="entity-btn-test" class="tab-btn text-xs font-mono px-3 py-1.5 rounded border border-slate-700">tests/domain/PeriodoAvaliacao.test.ts</button>
+                        <button onclick="switchTab('entity', 'code')" id="entity-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/domain/entities/Trabalhador.ts</button>
+                        <button onclick="switchTab('entity', 'test')" id="entity-btn-test" class="tab-btn text-xs font-mono px-3 py-1.5 rounded border border-slate-700">tests/domain/Trabalhador.test.ts</button>
                     </div>
                     <span class="text-xs text-emerald-400 font-mono font-semibold">Invariantes Blindadas</span>
                 </div>
                 <div id="entity-tab-code" class="code-container bg-slate-950">
-<pre><code class="language-typescript">export class PeriodoAvaliacao {
-  public registrarAvaliacaoSupervisor(avaliacao: AvaliacaoSupervisor): void {
-    if (this.status === StatusPeriodo.APROVADO) {
-      throw new Error('Não é permitido registrar ou alterar avaliação de supervisor em um período já aprovado.');
-    }
-    this.avaliacaoSupervisor = avaliacao;
-    this.atualizarStatusAposAvaliacoes();
-  }
+<pre><code class="language-typescript">import { ValorMonetario } from '../value-objects/ValorMonetario';
 
-  public aprovar(): void {
-    if (!this.atividades) {
-      throw new Error('Não é possível aprovar um período sem atividades registradas.');
-    }
-    if (!this.avaliacaoSupervisor) {
-      throw new Error('Não é possível aprovar um período sem a avaliação do supervisor.');
-    }
-    if (!this.autoAvaliacao) {
-      throw new Error('Não é possível aprovar um período sem a autoavaliação do estagiário.');
-    }
-    if (!this.assinaturaAluno || !this.assinaturaSupervisor) {
-      throw new Error('Não é possível aprovar um período sem as assinaturas de ambas as partes.');
-    }
-    this.status = StatusPeriodo.APROVADO;
-    this.motivoDevolucao = undefined;
-  }
+const CPF_REGEX = /^\d{11}$/;
 
-  public podeGerarPdf(): boolean {
-    const statusAprovado = this.status === StatusPeriodo.APROVADO;
-    const temTodasAssinaturas = this.assinaturaAluno !== null && this.assinaturaSupervisor !== null;
-    const sincronizadas = this.assinaturasSincronizadas === true;
-    return statusAprovado && temTodasAssinaturas && sincronizadas;
-  }
+export class Trabalhador {
+    private _id: string;
+    private _nome: string;
+    private _cpf: string;
+    private _cracha: string;
+    private _diaria: ValorMonetario;
+
+    constructor(id: string, nome: string, cpf: string, cracha: string, diaria: ValorMonetario) {
+        this._id = id;
+        this._nome = nome;
+        this._cpf = cpf;
+        this._cracha = cracha;
+        this._diaria = diaria;
+        this.validate(); // Invariantes verificadas no construtor
+    }
+
+    get id(): string { return this._id; }
+    get nome(): string { return this._nome; }
+    get cpf(): string { return this._cpf; }
+    get cracha(): string { return this._cracha; }
+    get diaria(): ValorMonetario { return this._diaria; }
+
+    private validate(): void {
+        if (!this._id || !this._id.trim()) throw new Error('Id de trabalhador inválido');
+        if (!this._nome || !this._nome.trim()) throw new Error('Nome de trabalhador inválido');
+        if (!CPF_REGEX.test(this._cpf)) throw new Error('CPF de trabalhador inválido');
+        if (!this._cracha || !this._cracha.trim()) throw new Error('Código de crachá inválido');
+    }
 }</code></pre>
                 </div>
                 <div id="entity-tab-test" class="code-container bg-slate-950 hidden">
-<pre><code class="language-typescript">describe('PeriodoAvaliacao Aggregate Root (TDD)', () => {
-  it('deve bloquear nova avaliação se o período já estiver aprovado', () => {
-    const periodo = criarPeriodoCompletoValido();
-    periodo.aprovar();
-    expect(() => periodo.registrarAvaliacaoSupervisor(novaAvaliacao)).toThrow(
-      'Não é permitido registrar ou alterar avaliação de supervisor em um período já aprovado.'
-    );
-  });
+<pre><code class="language-typescript">describe('Trabalhador Entity & Invariantes', () => {
+    it('cria trabalhador válido com CPF de 11 dígitos e diária', () => {
+        const trab = new Trabalhador('t1', 'José da Silva', '12345678901', 'TRAB-001', new ValorMonetario(60));
+        expect(trab.nome).toBe('José da Silva');
+        expect(trab.cracha).toBe('TRAB-001');
+    });
 
-  it('deve retornar podeGerarPdf() verdadeiro somente com aprovação e assinaturas sincronizadas', () => {
-    const periodo = criarPeriodoCompletoValido();
-    periodo.aprovar();
-    periodo.marcarAssinaturasSincronizadas(true);
-    expect(periodo.podeGerarPdf()).toBe(true);
-  });
+    it('bloqueia trabalhador com CPF fora do padrão numérico de 11 dígitos', () => {
+        expect(() => new Trabalhador('t1', 'José', '123', 'TRAB-001', new ValorMonetario(60)))
+            .toThrow('CPF de trabalhador inválido');
+    });
+
+    it('bloqueia trabalhador sem código de crachá para QR Code', () => {
+        expect(() => new Trabalhador('t1', 'José', '12345678901', '', new ValorMonetario(60)))
+            .toThrow('Código de crachá inválido');
+    });
 });</code></pre>
                 </div>
             </div>
         </section>
 
         <!-- SLIDE 10: DOMAIN SERVICES -->
+                <!-- SLIDE 10: DOMAIN SERVICES -->
         <section id="slide10" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-4 space-y-4">
+            <div class="lg:col-span-5 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 3 · Regras Cruzadas</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Domain Services</h2>
                     <p class="text-sm text-slate-300 mt-2">
-                        Regras de negócio que cruzam o estado de mais de uma entidade ou validam invariantes complexas de múltiplos agregados sem acoplamento a bancos ou APIs.
+                        Regras de negócio que cruzam o estado de mais de uma entidade ou validam sincronizações complexas sem acoplamento a banco físico ou rede.
                     </p>
                 </div>
-                <div class="space-y-2 text-xs text-slate-300">
-                    <button onclick="switchServiceTab('pdf')" id="btn-svc-pdf" class="w-full text-left p-3 rounded-lg border transition bg-emerald-950/80 border-emerald-600 text-white">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">1. RegraGeracaoPdfService</strong>
-                        Valida período aprovado, ambas as assinaturas presentes e sincronizadas antes de emitir PDF.
-                    </button>
-                    <button onclick="switchServiceTab('devolucao')" id="btn-svc-devolucao" class="w-full text-left p-3 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">2. RegraDevolucaoService</strong>
-                        Impede devolução de períodos já aprovados e exige justificativa mínima de 5 caracteres.
-                    </button>
-                    <button onclick="switchServiceTab('sync')" id="btn-svc-sync" class="w-full text-left p-3 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">3. SincronizacaoService</strong>
-                        Resolução determinística de conflitos na fila offline-first via comparação de timestamps.
-                    </button>
+
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Regras de negócio que cruzam o estado de múltiplas entidades. Na lavoura sem internet, quando dois operadores sincronizam o mesmo registro, o Last-Write-Wins (LWW) resolve conflitos de forma matemática sem travar a fila.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Arquivo: <code>src/domain/services/SincronizacaoService.ts</code> · Teste: <code>tests/domain/SincronizacaoService.test.ts</code> (100% de Cobertura).</p>
+                    </div>
                 </div>
             </div>
-            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <!-- Painel 1: RegraGeracaoPdfService -->
-                <div id="panel-svc-pdf">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                        <span class="text-xs font-mono text-slate-400">src/domain/services/RegraGeracaoPdfService.ts</span>
-                        <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 93.75%</span>
+
+                <div class="space-y-2.5 text-xs text-slate-300">
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">1. SincronizacaoService (LWW)</strong>
+                        Resolução determinística de conflitos na fila offline-first comparando timestamps <em>Last-Write-Wins</em>.
                     </div>
-                    <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">export class RegraGeracaoPdfService {
-  public static validar(periodo: PeriodoAvaliacao, estagio?: Estagio): ValidacaoGeracaoPdfResult {
-    const erros: string[] = [];
-    if (!periodo) return { podeGerar: false, erros: ['Período de avaliação não informado.'] };
-
-    if (!periodo.podeGerarPdf()) {
-      if (periodo.getStatus() !== 'aprovado') {
-        erros.push('O relatório do período precisa estar aprovado para geração de PDF.');
-      }
-      if (!periodo.getAssinaturaAluno() || !periodo.getAssinaturaSupervisor()) {
-        erros.push('O relatório deve conter as assinaturas do aluno e do supervisor.');
-      }
-      if (!periodo.isAssinaturasSincronizadas()) {
-        erros.push('Todas as assinaturas digitais devem estar sincronizadas com o servidor.');
-      }
-    }
-
-    if (estagio && estagio.getId() !== periodo.getEstagioId()) {
-      erros.push('O estágio fornecido não corresponde ao estágio vinculado ao período de avaliação.');
-    }
-
-    return { podeGerar: erros.length === 0, erros };
-  }
-}</code></pre>
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">2. Fechamento de Colheita</strong>
+                        Apuração e totalização diária de balaios colhidos por apanhador no talhão versus valor fixado da diária.
                     </div>
                 </div>
-
-                <!-- Painel 2: RegraDevolucaoService -->
-                <div id="panel-svc-devolucao" class="hidden">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                        <span class="text-xs font-mono text-slate-400">src/domain/services/RegraDevolucaoService.ts</span>
-                        <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 83.33%</span>
-                    </div>
-                    <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">export class RegraDevolucaoService {
-  public static validarDevolucao(periodo: PeriodoAvaliacao, motivo: string): ValidacaoDevolucaoResult {
-    const motivosInvalidez: string[] = [];
-    if (!periodo) return { podeDevolver: false, motivosInvalidez: ['Período de avaliação inexistente.'] };
-
-    if (periodo.getStatus() === StatusPeriodo.APROVADO) {
-      motivosInvalidez.push('Não é permitido devolver um período que já foi aprovado definitivamente.');
-    }
-
-    if (!motivo || motivo.trim().length < 5) {
-      motivosInvalidez.push('A justificativa da devolução deve possuir no mínimo 5 caracteres explicativos.');
-    }
-
-    return { podeDevolver: motivosInvalidez.length === 0, motivosInvalidez };
-  }
-
-  public static executarDevolucao(periodo: PeriodoAvaliacao, motivo: string): void {
-    const validacao = this.validarDevolucao(periodo, motivo);
-    if (!validacao.podeDevolver) {
-      throw new Error(`Falha ao devolver período: ${validacao.motivosInvalidez.join(' ')}`);
-    }
-    periodo.devolver(motivo);
-  }
-}</code></pre>
-                    </div>
+            </div>
+            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                    <span class="text-xs font-mono text-slate-400">src/domain/services/SincronizacaoService.ts</span>
+                    <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 100.00%</span>
                 </div>
-
-                <!-- Painel 3: SincronizacaoService -->
-                <div id="panel-svc-sync" class="hidden">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                        <span class="text-xs font-mono text-slate-400">src/domain/services/SincronizacaoService.ts</span>
-                        <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 100.00%</span>
-                    </div>
-                    <div class="code-container bg-slate-950">
+                <div class="code-container bg-slate-950">
 <pre><code class="language-typescript">export type ConflitoResultado = 'local' | 'remoto';
 
 export class SincronizacaoService {
   resolverConflito(updatedAtLocal: number, updatedAtRemoto: number): ConflitoResultado {
-    // Resolução determinística: timestamp mais recente vence (Last-Write-Wins)
+    // Resolução determinística no cafezal: timestamp mais recente vence (Last-Write-Wins)
     if (updatedAtRemoto > updatedAtLocal) {
       return 'remoto';
     }
     return 'local';
   }
 }</code></pre>
-                    </div>
                 </div>
             </div>
         </section>
 
         <!-- SLIDE 11: CONTRATOS & INTERFACES (DIP) -->
+                <!-- SLIDE 11: CONTRATOS & INTERFACES (DIP) -->
         <section id="slide11" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-4 space-y-4">
+            <div class="lg:col-span-5 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 4</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Contratos e Interfaces (DIP)</h2>
@@ -1246,138 +1340,194 @@ export class SincronizacaoService {
                         O <strong>Princípio da Inversão de Dependência</strong>: o Domínio dita os contratos (interfaces). A infraestrutura externa apenas cumpre esses contratos.
                     </p>
                 </div>
-                <div class="p-3.5 bg-slate-900 rounded-lg border border-slate-800 text-xs font-mono text-slate-300 space-y-1.5">
-                    <p class="text-emerald-400 font-bold uppercase text-[11px]">Contratos Essenciais Declarados no Domínio:</p>
-                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>PeriodoAvaliacaoRepository:</strong> Persistência abstrata</p>
-                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>CameraGateway:</strong> Captura de fotos/comprovantes</p>
-                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>LocationGateway:</strong> Telemetria de campo e GPS</p>
-                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>AuthGateway:</strong> Autenticação de credenciais</p>
+
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Princípio da Inversão de Dependência (DIP). O domínio declara contratos puros em TypeScript. A infraestrutura cumpre esses contratos. Assim, podemos trocar memória RAM por SQLite e Supabase sem tocar em uma linha de regra de negócio.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Contratos em: <code>src/domain/repositories/ApontamentoRepository.ts</code>, <code>TrabalhadorRepository.ts</code>, <code>DespesaRepository.ts</code>, <code>CameraGateway.ts</code>, <code>LocationGateway.ts</code>.</p>
+                    </div>
                 </div>
             </div>
-            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/domain/repositories/PeriodoAvaliacaoRepository.ts</div>
-                <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">import { PeriodoAvaliacao } from '../entities/PeriodoAvaliacao';
 
-export interface PeriodoAvaliacaoRepository {
-  save(periodo: PeriodoAvaliacao): Promise<void>;
-  findById(id: string): Promise<PeriodoAvaliacao | null>;
-  findByEstagioId(estagioId: string): Promise<PeriodoAvaliacao[]>;
-  list(): Promise<PeriodoAvaliacao[]>;
-  findPendentesSincronizacao(): Promise<PeriodoAvaliacao[]>;
+                <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 text-xs font-mono text-slate-300 space-y-1">
+                    <p class="text-emerald-400 font-bold uppercase text-[11px]">Contratos Declarados no Domínio:</p>
+                    <p>• <code>ApontamentoRepository</code>: Persistência de colheita e balaios</p>
+                    <p>• <code>TrabalhadorRepository</code>: Cadastro e busca por crachá (QR Code)</p>
+                    <p>• <code>DespesaRepository</code>: Registro de custos operacionais</p>
+                    <p>• <code>CameraGateway</code>: Leitor óptico de QR e foto de recibos</p>
+                    <p>• <code>LocationGateway</code>: Fixação de coordenadas GPS do cafezal</p>
+                    <p>• <code>AuthGateway</code>: Autenticação de operador de campo</p>
+                </div>
+            </div>
+            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/domain/repositories/ApontamentoRepository.ts</div>
+                <div class="code-container bg-slate-950">
+<pre><code class="language-typescript">import { Apontamento } from '../entities/Apontamento';
+
+export interface ApontamentoRepository {
+    save(apontamento: Apontamento): Promise<void>;
+    findById(id: string): Promise<Apontamento | null>;
+    findByTrabalhadorId(trabalhadorId: string): Promise<Apontamento[]>;
+    findAll(): Promise<Apontamento[]>;
+}
+
+// src/domain/repositories/TrabalhadorRepository.ts
+import { Trabalhador } from '../entities/Trabalhador';
+
+export interface TrabalhadorRepository {
+    save(trabalhador: Trabalhador): Promise<void>;
+    findById(id: string): Promise<Trabalhador | null>;
+    findByCracha(cracha: string): Promise<Trabalhador | null>;
+    findAll(): Promise<Trabalhador[]>;
+    delete(id: string): Promise<void>;
 }</code></pre>
                 </div>
             </div>
         </section>
 
         <!-- SLIDE 12: CASOS DE USO -->
+                <!-- SLIDE 12: CASOS DE USO -->
         <section id="slide12" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-4 space-y-4">
+            <div class="lg:col-span-5 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 5</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Casos de Uso (Application Layer)</h2>
                     <p class="text-sm text-slate-300 mt-2">
-                        Orquestram as operações de negócio recebendo DTOs e injetando repositórios e gateways via construtor.
+                        Orquestram as operações de colheita recebendo DTOs e injetando repositórios e gateways via construtor.
                     </p>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10.5px] text-slate-300 font-mono">
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="RegistrarAtividadesUseCase">1. RegistrarAtividadesUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AvaliarDesempenhoUseCase">2. AvaliarDesempenhoUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="RealizarAutoAvaliacaoUseCase">3. RealizarAutoAvaliacaoUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AssinarRelatorioUseCase">4. AssinarRelatorioUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AprovarRelatorioUseCase">5. AprovarRelatorioUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="DevolverRelatorioUseCase">6. DevolverRelatorioUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="GerarPdfUseCase">7. GerarPdfUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="SincronizarFilaUseCase">8. SincronizarFilaUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AutenticarUsuarioUseCase">9. AutenticarUsuarioUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AcessarViaTokenUseCase">10. AcessarViaTokenUseCase</span>
+
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Orquestram as intenções do usuário recebendo DTOs e coordenando repositórios e serviços. A adoção do ciclo TDD Red-Green-Refactor garante que 100% dos fluxos de colheita foram especificados antes da codificação.</p>
+                    </div>
                 </div>
-                <div class="p-2.5 bg-slate-900/90 rounded-lg border border-slate-800 text-[11px] text-slate-400">
-                    <strong class="text-emerald-400">Testes com Fakes In-Memory:</strong> Validados via TDD com <code>PeriodoAvaliacaoRepositoryFake</code> (utilizando <code>Map</code>), cobrindo caminho feliz, erros e permissões.
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Casos de uso em: <code>src/usecases/RegistrarApontamento.ts</code>, <code>CadastrarTrabalhador.ts</code>, <code>SyncPendingQueue.ts</code>, etc. 24 suítes em <code>tests/usecases/</code>.</p>
+                    </div>
                 </div>
             </div>
-            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
+
+                <div class="grid grid-cols-2 gap-1.5 text-[10.5px] text-slate-300 font-mono">
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate">1. RegistrarApontamento</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate">2. CadastrarTrabalhador</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate">3. RegistrarDespesa</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate">4. AuthenticateUser</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate">5. SyncPendingQueue</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate">6. ListarApontamentos</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate">7. ListarTrabalhadores</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate">8. ListarDespesas</span>
+                </div>
+                <div class="p-2.5 bg-slate-900/90 rounded-lg border border-slate-800 text-[11px] text-slate-400">
+                    <strong class="text-emerald-400">Testes com Fakes In-Memory:</strong> Validados via TDD com <code>InMemoryApontamentoRepository</code> e <code>InMemoryTrabalhadorRepository</code> (usando <code>Map</code>), cobrindo caminho feliz, erros de validação e GPS.
+                </div>
+            </div>
+            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                     <div class="flex space-x-2">
-                        <button onclick="switchTab('usecase', 'code')" id="usecase-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/usecases/RegistrarAtividadesUseCase.ts</button>
+                        <button onclick="switchTab('usecase', 'code')" id="usecase-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/usecases/RegistrarApontamento.ts</button>
                         <button onclick="switchTab('usecase', 'test')" id="usecase-btn-test" class="tab-btn text-xs font-mono px-3 py-1.5 rounded border border-slate-700">🔄 Ciclo Red-Green-Refactor (TDD)</button>
                     </div>
                     <span class="text-xs text-emerald-400 font-mono font-semibold">TDD Red-Green-Refactor</span>
                 </div>
                 <div id="usecase-tab-code" class="code-container bg-slate-950">
-<pre><code class="language-typescript">export interface RegistrarAtividadesDTO {
-  periodoId: string;
-  descricao: string;
-  horasTotais: number;
-  horasMinimas: number;
-  horasPeriodo: number;
-  capturarLocalizacao?: boolean;
+<pre><code class="language-typescript">export interface RegistrarApontamentoDTO {
+    trabalhadorId: string;
+    litros: number;
+    latitude: number;
+    longitude: number;
 }
 
-export class RegistrarAtividadesUseCase {
-  constructor(
-    private readonly periodoRepo: PeriodoAvaliacaoRepository,
-    private readonly locationGateway?: LocationGateway
-  ) {}
+export class RegistrarApontamento {
+    constructor(
+        private readonly apontamentoRepository: ApontamentoRepository,
+        private readonly trabalhadorRepository: TrabalhadorRepository,
+        private readonly syncQueueRepository?: SyncQueueRepository,
+    ) {}
 
-  async execute(dto: RegistrarAtividadesDTO): Promise<PeriodoAvaliacao> {
-    const periodo = await this.periodoRepo.findById(dto.periodoId);
-    if (!periodo) throw new Error('Período de avaliação não encontrado.');
+    public async execute(input: RegistrarApontamentoDTO, agora: number = Date.now()) {
+        const trabalhador = await this.trabalhadorRepository.findById(input.trabalhadorId);
+        if (!trabalhador) {
+            throw new Error('Trabalhador não encontrado');
+        }
 
-    let coordenada: Coordenada | undefined;
-    if (dto.capturarLocalizacao && this.locationGateway) {
-      coordenada = await this.locationGateway.obterLocalizacaoAtual();
+        const coordenadas = new Coordinates(input.latitude, input.longitude);
+        const quantidade = new QuantidadeBalaio(input.litros);
+        const id = Crypto.randomUUID();
+        const apontamento = new Apontamento(id, input.trabalhadorId, quantidade, coordenadas, agora);
+
+        await this.apontamentoRepository.save(apontamento);
+
+        if (this.syncQueueRepository) {
+            const item = new SyncQueueItem(
+                Crypto.randomUUID(),
+                'Apontamento',
+                id,
+                'INSERT',
+                agora,
+                agora,
+            );
+            await this.syncQueueRepository.enqueue(item);
+        }
+
+        return apontamento;
     }
-
-    const cargaHoraria = new CargaHoraria(dto.horasTotais, dto.horasMinimas, dto.horasPeriodo);
-    const atividades = new AtividadesDesenvolvidas({
-      id: `ativ-${Date.now()}`,
-      descricao: dto.descricao,
-      cargaHoraria,
-      coordenada,
-      dataRegistro: new Date(),
-    });
-
-    periodo.registrarAtividades(atividades);
-    await this.periodoRepo.save(periodo);
-    return periodo;
-  }
 }</code></pre>
                 </div>
                 <div id="usecase-tab-test" class="code-container bg-slate-950 hidden">
 <pre><code class="language-typescript">// =========================================================================
-// DEMONSTRAÇÃO PRÁTICA DO CICLO TDD: RED-GREEN-REFACTOR
+// DEMONSTRAÇÃO PRÁTICA DO CICLO TDD: RED-GREEN-REFACTOR NO SAFRACAFÉ
 // =========================================================================
 
 // 🔴 FASE 1: RED (Escrever o teste ANTES do código de produção)
 // O teste define a invariante. Ao executar, FALHA porque a regra ainda não existe.
-describe('RegistrarAtividadesUseCase — Ciclo Red-Green-Refactor', () => {
-  it('🔴 RED: deve falhar quando o período de avaliação não for encontrado', async () => {
-    const fakeRepo = new PeriodoAvaliacaoRepositoryFake(); // Inicia com Map vazio
-    const useCase = new RegistrarAtividadesUseCase(fakeRepo);
+describe('RegistrarApontamento — Ciclo Red-Green-Refactor', () => {
+  it('🔴 RED: deve falhar quando o trabalhador do crachá não for encontrado', async () => {
+    const apontRepo = new InMemoryApontamentoRepository();
+    const trabRepo = new InMemoryTrabalhadorRepository(); // Inicia com Map vazio
+    const useCase = new RegistrarApontamento(apontRepo, trabRepo);
 
     // Asserção que falhará antes da implementação
-    await expect(useCase.execute({ periodoId: 'inexistente', descricao: 'Teste', horasTotais: 100, horasMinimas: 20, horasPeriodo: 10 }))
-      .rejects.toThrow('Período de avaliação não encontrado.');
+    await expect(useCase.execute({ trabalhadorId: 'inexistente', litros: 60, latitude: -21.2, longitude: -45.0 }))
+      .rejects.toThrow('Trabalhador não encontrado');
   });
-  // ➜ Terminal (RED): FAIL tests/usecases/RegistrarAtividadesUseCase.test.ts
+  // ➜ Terminal (RED): FAIL tests/usecases/RegistrarApontamento.test.ts
   // ✖ Error: Received function did not throw (ou Cannot read properties of undefined)
 });
 
 // 🟢 FASE 2: GREEN (Implementar o CÓDIGO MÍNIMO para o teste passar)
 // Escreve-se apenas a lógica necessária para satisfazer a asserção do teste.
-export class RegistrarAtividadesUseCase {
-  async execute(dto: RegistrarAtividadesDTO): Promise<PeriodoAvaliacao> {
-    const periodo = await this.periodoRepo.findById(dto.periodoId);
-    if (!periodo) throw new Error('Período de avaliação não encontrado.'); // Código mínimo para GREEN
+export class RegistrarApontamento {
+  async execute(input: RegistrarApontamentoDTO) {
+    const trabalhador = await this.trabalhadorRepository.findById(input.trabalhadorId);
+    if (!trabalhador) throw new Error('Trabalhador não encontrado'); // Código mínimo para GREEN
     // ...
   }
 }
-// ➜ Terminal (GREEN): PASS tests/usecases/RegistrarAtividadesUseCase.test.ts
-// ✔ deve falhar quando o período de avaliação não for encontrado (3 ms)
+// ➜ Terminal (GREEN): PASS tests/usecases/RegistrarApontamento.test.ts
+// ✔ deve falhar quando o trabalhador do crachá não for encontrado (4 ms)
 
 // 🔵 FASE 3: REFACTOR (Melhorar o design mantendo 100% dos testes verdes)
-// Extrai-se Value Objects (CargaHoraria), desacopla-se gateways e protege-se a Raiz de Agregação.
+// Extrai-se Value Objects (QuantidadeBalaio, Coordinates), enfileira-se na Outbox e protege-se a Raiz.
 // ➜ Suíte Completa: 57 Test Suites Aprovadas (100% PASS) | 234 Testes | 91.82% de Cobertura!</code></pre>
                 </div>
             </div>
@@ -1389,6 +1539,24 @@ export class RegistrarAtividadesUseCase {
                 <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 6</span>
                 <h2 class="text-3xl font-extrabold text-white">Hardware Desacoplado: Câmera & GPS</h2>
                 <p class="text-slate-400 text-sm mt-1">Interfaces no Domínio + Implementação Expo nos Adapters + Fakes em Memória nos Testes</p>
+            </div>
+            
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Permite testar a leitura de QR Code, fotografia de cupons fiscais e fixação de GPS instantaneamente em memória, sem depender de câmera física ou sinal real de satélite durante os testes automatizados.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Interfaces: <code>src/domain/gateways/CameraGateway.ts</code>, <code>LocationGateway.ts</code> · Fakes em memória: <code>src/infra/InMemoryCameraGateway.ts</code>, <code>InMemoryLocationGateway.ts</code>.</p>
+                    </div>
+                </div>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div class="bg-slate-900 p-5 rounded-xl border border-slate-800">
@@ -1432,59 +1600,84 @@ export class InMemoryLocationGateway implements LocationGateway {
         </section>
 
         <!-- SLIDE 14: PERSISTÊNCIA OFFLINE-FIRST -->
+                <!-- SLIDE 14: PERSISTÊNCIA OFFLINE-FIRST -->
         <section id="slide14" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-4 space-y-4">
+            <div class="lg:col-span-5 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 7</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Persistência Offline-First</h2>
+                    <p class="text-sm text-slate-300 mt-2">
+                        Por que zero banco físico agora? Persistência é detalhe de I/O em Clean Architecture. Banco físico acopla o domínio e deixa a suíte de testes lenta.
+                    </p>
                 </div>
-                <div class="space-y-3 text-xs text-slate-300">
-                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-1">Por que zero banco físico agora?</strong>
-                        Persistência é detalhe de I/O em Clean Architecture. Banco físico acopla o domínio e deixa a suíte de testes lenta.
+
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">No cafezal não há garantia de sinal 4G/5G. Todas as pesagens e despesas entram na fila Outbox local em memória e são despachadas atomicamente para o servidor com resolução LWW assim que a conexão retorna.</p>
                     </div>
-                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-1">Repositórios Fake em Memória:</strong>
-                        Estruturas <code>Map&lt;string, T&gt;</code> reproduzindo métodos <code>save</code>, <code>findById</code> e <code>findPendentesSincronizacao</code>.
-                    </div>
-                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-1">Fila de Sincronização:</strong>
-                        Status transita de <code>PENDING</code> para <code>SYNCED</code> ou <code>ERROR</code> via <code>SincronizarFilaUseCase</code>.
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Caso de Uso: <code>src/usecases/SyncPendingQueue.ts</code> · Entidade: <code>src/domain/entities/SyncQueueItem.ts</code> · Fakes com Map em <code>src/infra/</code>.</p>
                     </div>
                 </div>
             </div>
-            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/usecases/SincronizarFilaUseCase.ts</div>
+
+                <div class="space-y-2 text-xs text-slate-300">
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">Repositórios Fake em Memória:</strong>
+                        Estruturas <code>Map&lt;string, T&gt;</code> reproduzindo métodos <code>save</code>, <code>findById</code> e <code>findPending</code> com alta velocidade.
+                    </div>
+                    <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
+                        <strong class="text-emerald-400 block font-semibold mb-1">Fila de Sincronização Outbox:</strong>
+                        Apontamentos e despesas gravados na roça entram na fila outbox e são despachados para a nuvem via <code>SyncPendingQueue</code> com resolução LWW.
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/usecases/SyncPendingQueue.ts</div>
                 <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">export class SincronizarFilaUseCase {
+<pre><code class="language-typescript">export class SyncPendingQueue {
   constructor(
-    private readonly periodoRepo: PeriodoAvaliacaoRepository,
-    private readonly remoteSyncGateway?: RemoteSyncGateway
+    private readonly syncQueueRepository: SyncQueueRepository,
+    private readonly syncGateway: SyncGateway,
+    private readonly networkGateway: NetworkGateway,
+    private readonly sincronizacaoService: SincronizacaoService,
   ) {}
 
-  async execute(): Promise<SincronizarFilaResult> {
-    const pendentes = await this.periodoRepo.findPendentesSincronizacao();
-    let sincronizados = 0;
-    let falhas = 0;
+  async execute(agora: number = Date.now()): Promise<SyncResult> {
+    const pendentes = await this.syncQueueRepository.findPending();
+    if (!(await this.networkGateway.isConnected())) {
+      return { synchronized: 0, pending: pendentes.length, offline: true };
+    }
 
-    for (const periodo of pendentes) {
+    let synchronized = 0;
+    for (const item of pendentes) {
+      item.registrarTentativa(agora);
+      await this.syncQueueRepository.save(item);
       try {
-        if (this.remoteSyncGateway) {
-          await this.remoteSyncGateway.enviarPeriodo(periodo.getId(), {
-            status: periodo.getStatus(),
-            alunoId: periodo.getAlunoId(),
-          });
-        }
-        periodo.atualizarStatusSincronizacao(StatusSincronizacao.SYNCED);
-        periodo.marcarAssinaturasSincronizadas(true);
-        await this.periodoRepo.save(periodo);
-        sincronizados++;
-      } catch (err) {
-        periodo.atualizarStatusSincronizacao(StatusSincronizacao.ERROR);
-        falhas++;
+        const resultado = await this.syncGateway.push(item);
+        const conflito = this.sincronizacaoService.resolverConflito(
+          item.updatedAt,
+          resultado.serverUpdatedAt ?? item.updatedAt,
+        );
+        if (conflito === 'remoto') continue;
+        await this.syncQueueRepository.remove(item.id);
+        synchronized += 1;
+      } catch {
+        item.marcarErro(agora);
+        await this.syncQueueRepository.save(item);
       }
     }
-    return { totalPendentes: pendentes.length, sincronizados, falhas };
+    const restantes = await this.syncQueueRepository.findPending();
+    return { synchronized, pending: restantes.length, offline: false };
   }
 }</code></pre>
                 </div>
@@ -1492,15 +1685,36 @@ export class InMemoryLocationGateway implements LocationGateway {
         </section>
 
         <!-- SLIDE 15: CONTEXT API & HOOKS -->
+                <!-- SLIDE 15: CONTEXT API & CUSTOM HOOKS -->
         <section id="slide15" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-4 space-y-4">
+            <div class="lg:col-span-5 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 8</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Context API & Custom Hooks</h2>
                     <p class="text-sm text-slate-300 mt-2">
-                        Ponte desacoplada entre os Casos de Uso e o ciclo de vida dos componentes do React Native.
+                        Ponte desacoplada entre os Casos de Uso e o ciclo de vida dos componentes do React Native no SafraCafé.
                     </p>
                 </div>
+
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Elimina Prop Drilling e impede que as telas de React Native importem lógica de domínio ou de casos de uso diretamente. A Context API isola o ciclo de vida reativo e provê a sessão globalmente.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Localização: <code>src/adapters/auth/AuthContext.tsx</code>, <code>src/adapters/hooks/useAuth.ts</code>, <code>useApontamentos.ts</code>, <code>useTrabalhadores.ts</code>.</p>
+                    </div>
+                </div>
+            </div>
+
                 <div class="space-y-2.5 text-xs text-slate-300">
                     <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
                         <strong class="text-emerald-400 block font-semibold mb-1">Localização Arquitetural: Adapters/UI</strong>
@@ -1508,174 +1722,131 @@ export class InMemoryLocationGateway implements LocationGateway {
                     </div>
                     <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
                         <strong class="text-emerald-400 block font-semibold mb-1">AuthContext (Sem Prop Drilling):</strong>
-                        Disponibiliza sessão e papéis (<em>Aluno</em>, <em>Orientador</em>, <em>Coordenação</em>) globalmente na raiz da aplicação.
+                        Disponibiliza a sessão do operador cafeeiro (<code>pesquisador@ecofield.app</code>) globalmente na raiz da aplicação.
                     </div>
                     <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-1">Custom Hooks de Ponte (useAuth, useAtividades):</strong>
-                        Fronteira com as telas, adaptando os Use Cases ao ciclo de vida e gerenciando estados: <code>idle</code>, <code>salvando</code> e <code>salvo</code>.
+                        <strong class="text-emerald-400 block font-semibold mb-1">Custom Hooks de Campo (useAuth, useApontamentos):</strong>
+                        Fronteira com as telas do cafezal, adaptando os Use Cases ao ciclo de vida e gerenciando estados: <code>loading</code>, <code>authenticated</code> e <code>unauthenticated</code>.
                     </div>
                 </div>
             </div>
-            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/adapters/context/AuthContext.tsx</div>
+            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/adapters/auth/AuthContext.tsx</div>
                 <div class="code-container bg-slate-950">
 <pre><code class="language-typescript">export function AuthProvider({
-  children,
-  autenticarUseCase,
-  restoreSessionUseCase,
-  signOutUseCase
+    children,
+    authenticateUseCase,
+    restoreSessionUseCase,
+    signOutUseCase,
+    sessionStorage,
 }: AuthProviderProps) {
-  const auth = autenticarUseCase ?? container.autenticarUsuarioUseCase;
-  const restore = restoreSessionUseCase ?? container.restoreSession;
+    const auth = authenticateUseCase ?? container.authenticateUser;
+    const restore = restoreSessionUseCase ?? container.restoreSession;
+    const clear = signOutUseCase ?? container.signOut;
 
-  const [session, setSession] = useState<Session | null>(null);
-  const [papel, setPapel] = useState<PapelUsuario>('aluno');
-  const [status, setStatus] = useState<AuthStatus>('loading');
+    const [session, setSession] = useState&lt;Session | null&gt;(null);
+    const [status, setStatus] = useState&lt;string&gt;("loading");
 
-  useEffect(() => {
-    restore.execute().then((restored) => {
-      if (restored) {
-        setSession(restored);
-        setStatus('authenticated');
-      } else {
-        setStatus('unauthenticated');
-      }
-    });
-  }, [restore]);
-  // ...
+    useEffect(() => {
+        let active = true;
+        restore
+            .execute()
+            .then((s) => {
+                if (!active) return;
+                setSession(s);
+                setStatus(s ? "authenticated" : "unauthenticated");
+            })
+            .catch(() => {
+                if (!active) return;
+                setSession(null);
+                setStatus("unauthenticated");
+            });
+        return () => { active = false; };
+    }, [restore]);
+    // login / logout desacoplados consumidos nas telas
 }</code></pre>
                 </div>
             </div>
         </section>
 
         <!-- SLIDE 16: TELAS & TESTES RNTL -->
+                <!-- SLIDE 16: TELAS & TESTES RNTL -->
         <section id="slide16" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-4 space-y-4">
+            <div class="lg:col-span-5 space-y-4">
                 <div>
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 7 · Interface & Boundary</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Telas e Testes RNTL</h2>
                     <p class="text-sm text-slate-300 mt-2">
-                        Componentes construídos com React Native nativo (<code class="text-emerald-300">&lt;View&gt;</code>, <code class="text-emerald-300">&lt;Text&gt;</code>, <code class="text-emerald-300">StyleSheet</code>) testados com <strong>React Native Testing Library</strong> sem necessidade de emulador físico ou clique manual.
+                        Telas do SafraCafé construídas com React Native nativo (<code class="text-emerald-300">&lt;View&gt;</code>, <code class="text-emerald-300">&lt;Text&gt;</code>, <code class="text-emerald-300">StyleSheet</code>) testadas com <strong>React Native Testing Library</strong> sem necessidade de emulador físico ou clique manual.
                     </p>
                 </div>
-                <div class="space-y-2 text-xs text-slate-300">
-                    <button onclick="switchRntlTab('assinatura')" id="btn-rntl-assinatura" class="w-full text-left p-2.5 rounded-lg border transition bg-emerald-950/80 border-emerald-600 text-white">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">1. AssinaturaScreen</strong>
-                        Captura touch do aluno/supervisor, validação do payload base64 e vinculação ao período.
-                    </button>
-                    <button onclick="switchRntlTab('atividades')" id="btn-rntl-atividades" class="w-full text-left p-2.5 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">2. AtividadesFormScreen</strong>
-                        Formulário de horas de estágio, descrição obrigatória (min 5 chars) e GPS opcional.
-                    </button>
-                    <button onclick="switchRntlTab('historico')" id="btn-rntl-historico" class="w-full text-left p-2.5 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">3. HistoricoRelatoriosScreen</strong>
-                        Listagem reativa de períodos, indicador de sync e botão de emissão de PDF.
-                    </button>
+
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Permite validar renderização visual, preenchimento de inputs e navegação do operador sem necessidade de abrir emulador físico pesado ou realizar cliques manuais lentos.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Telas em: <code>app/login.tsx</code>, <code>app/(drawer)/(tabs)/apontamento.tsx</code>, <code>trabalhadores.tsx</code> · Testes RNTL em: <code>tests/screens/LoginScreen.test.tsx</code>.</p>
+                    </div>
                 </div>
             </div>
-            <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <!-- Aba 1: AssinaturaScreen -->
-                <div id="panel-rntl-assinatura">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                        <span class="text-xs font-mono text-slate-400">tests/screens/AssinaturaScreen.test.tsx (RNTL)</span>
-                        <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 90.90%</span>
+
+                <div class="space-y-2 text-xs text-slate-300">
+                    <div class="w-full text-left p-2.5 rounded-lg border bg-emerald-950/80 border-emerald-600 text-white">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">1. LoginScreen (Tela 0)</strong>
+                        Teste com preenchimento de credenciais, botão Entrar e injeção de fakes no AuthProvider.
                     </div>
-                    <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">it('deve registrar assinatura digital simulando toque nos botões e inputs', async () => {
-  const periodoRepo = InMemoryPeriodoAvaliacaoRepository.getInstance();
-  periodoRepo.clear();
-  await periodoRepo.save(new PeriodoAvaliacao({
-    id: 'p1', estagioId: 'e1', alunoId: 'aluno-01', numeroPeriodo: 1,
-    dataInicio: new Date('2026-01-01'), dataFim: new Date('2026-06-01'),
-  }));
-
-  const assinarUseCase = new AssinarRelatorioUseCase(periodoRepo);
-  const onConcluidoMock = jest.fn();
-
-  const { getByTestId, findByText } = render(
-    <AssinaturaScreen
-      periodoId="p1"
-      autorIdPadrao="aluno-01"
-      assinarUseCase={assinarUseCase}
-      onAssinaturaConcluida={onConcluidoMock}
-    />
-  );
-
-  // Simulação de eventos reais de toque do usuário
-  fireEvent.press(getByTestId('btn-papel-aluno'));
-  fireEvent.press(getByTestId('btn-assinar'));
-
-  expect(await findByText('Assinatura registrada e vinculada com sucesso!')).toBeTruthy();
-  expect(onConcluidoMock).toHaveBeenCalledTimes(1);
-
-  const periodoAtualizado = await periodoRepo.findById('p1');
-  expect(periodoAtualizado?.getAssinaturaAluno()).not.toBeNull();
-});</code></pre>
+                    <div class="w-full text-left p-2.5 rounded-lg border bg-slate-900 border-slate-800 text-slate-300">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">2. ApontamentoScreen (Tela 1)</strong>
+                        Contadores de balaios, entrada de litros, fixação de GPS do cafezal e feed diário reativo.
+                    </div>
+                    <div class="w-full text-left p-2.5 rounded-lg border bg-slate-900 border-slate-800 text-slate-300">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">3. TrabalhadoresScreen (Tela 2)</strong>
+                        Gestão de apanhadores com código de crachá (TRAB-001), CPF validado e busca reativa.
                     </div>
                 </div>
-
-                <!-- Aba 2: AtividadesFormScreen -->
-                <div id="panel-rntl-atividades" class="hidden">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                        <span class="text-xs font-mono text-slate-400">tests/screens/AtividadesFormScreen.test.tsx (RNTL)</span>
-                        <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 100.00%</span>
-                    </div>
-                    <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">it('deve preencher formulário e salvar atividades com useCase fake', async () => {
-  const periodoRepo = InMemoryPeriodoAvaliacaoRepository.getInstance();
-  periodoRepo.clear();
-  await periodoRepo.save(new PeriodoAvaliacao({
-    id: 'p1', estagioId: 'e1', alunoId: 'aluno-01', numeroPeriodo: 1,
-    dataInicio: new Date('2026-01-01'), dataFim: new Date('2026-06-01'),
-  }));
-
-  const registrarUseCase = new RegistrarAtividadesUseCase(periodoRepo);
-  const onSalvoMock = jest.fn();
-
-  const { getByPlaceholderText, getByText } = render(
-    <AtividadesFormScreen
-      periodoId="p1"
-      registrarUseCase={registrarUseCase}
-      onAtividadesSalvas={onSalvoMock}
-    />
-  );
-
-  fireEvent.changeText(getByPlaceholderText('Descreva as atividades desenvolvidas...'), 'Implementação do domínio DDD');
-  fireEvent.changeText(getByPlaceholderText('Horas do período (ex: 40)'), '40');
-  fireEvent.press(getByText('Salvar Atividades'));
-
-  await waitFor(() => {
-    expect(onSalvoMock).toHaveBeenCalled();
-  });
-});</code></pre>
-                    </div>
+            </div>
+            <div class="lg:col-span-7 bg-slate-900 p-4 rounded-xl border border-slate-800">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                    <span class="text-xs font-mono text-slate-400">tests/screens/LoginScreen.test.tsx (RNTL)</span>
+                    <span class="text-xs text-emerald-400 font-mono font-semibold">100% Pass</span>
                 </div>
+                <div class="code-container bg-slate-950">
+<pre><code class="language-typescript">describe('LoginScreen (RNTL + Fakes)', () => {
+    it('faz login com sucesso usando credenciais válidas e navega', async () => {
+        const { getByPlaceholderText, getByText } = await renderScreen();
 
-                <!-- Aba 3: HistoricoRelatoriosScreen -->
-                <div id="panel-rntl-historico" class="hidden">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                        <span class="text-xs font-mono text-slate-400">tests/screens/HistoricoRelatoriosScreen.test.tsx (RNTL)</span>
-                        <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 68.75%</span>
-                    </div>
-                    <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">it('deve listar relatórios e acionar geração de PDF quando aprovado', async () => {
-  const periodoRepo = InMemoryPeriodoAvaliacaoRepository.getInstance();
-  periodoRepo.clear();
-  const periodoAprovado = new PeriodoAvaliacao({
-    id: 'p-aprovado', estagioId: 'e1', alunoId: 'aluno-01', numeroPeriodo: 1,
-    dataInicio: new Date('2026-01-01'), dataFim: new Date('2026-06-01'),
-    status: StatusPeriodo.APROVADO,
-  });
-  await periodoRepo.save(periodoAprovado);
+        // Simula preenchimento real de credenciais do operador
+        fireEvent.changeText(getByPlaceholderText('Digite seu e-mail...'), 'pesquisador@ecofield.app');
+        fireEvent.changeText(getByPlaceholderText('Digite sua senha...'), '123456');
+        fireEvent.press(getByText('Entrar'));
 
-  const { findByText } = render(
-    <HistoricoRelatoriosScreen alunoId="aluno-01" periodoRepo={periodoRepo} />
-  );
+        await waitFor(() => {
+            expect(router.replace).toHaveBeenCalledWith('/(drawer)/(tabs)');
+        });
+    });
 
-  expect(await findByText('Período 1')).toBeTruthy();
-  expect(await findByText('APROVADO')).toBeTruthy();
+    it('exibe alerta de erro quando as credenciais são inválidas', async () => {
+        const { getByPlaceholderText, getByText } = await renderScreen();
+
+        fireEvent.changeText(getByPlaceholderText('Digite seu e-mail...'), 'invalido@ecofield.app');
+        fireEvent.changeText(getByPlaceholderText('Digite sua senha...'), 'senhaerrada');
+        fireEvent.press(getByText('Entrar'));
+
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('Erro', 'Credenciais inválidas');
+        });
+    });
 });</code></pre>
-                    </div>
                 </div>
             </div>
         </section>
@@ -1690,6 +1861,24 @@ export class InMemoryLocationGateway implements LocationGateway {
                         Armazenamento criptografado no hardware nativo do aparelho: <strong>Keychain no iOS</strong> e <strong>Keystore no Android</strong>.
                     </p>
                 </div>
+                
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Nunca utilizar AsyncStorage sem criptografia para tokens. O uso de hardware criptográfico (Keychain no iOS e Keystore no Android) protege as credenciais do operador mesmo em aparelhos perdidos.</p>
+                    </div>
+                </div>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Adaptador: <code>src/adapters/auth/SessionStorageSecureStore.ts</code> · Gateway: <code>src/domain/gateways/SessionStorage.ts</code> · Teste: <code>tests/adapters/SessionStorageSecureStore.test.ts</code>.</p>
+                    </div>
+                </div>
+            </div>
                 <div class="p-3.5 bg-slate-900 rounded-lg border border-slate-800 text-xs text-slate-300 leading-relaxed">
                     <strong class="text-emerald-400 block font-semibold mb-1">Virtualizado no Ambiente de Testes:</strong>
                     Em <code class="text-emerald-300">tests/setup.ts</code>, o SecureStore é interceptado por um Map em memória, garantindo isolamento total de hardware físico.
@@ -1864,11 +2053,11 @@ export class SessionStorageSecureStore implements SessionStorage {
                             </div>
                             <div class="bg-emerald-950/40 p-2 rounded border border-emerald-800 text-center">
                                 <span class="text-emerald-400 block text-[10px] uppercase">Telas RNTL (7 Testes)</span>
-                                <span class="text-white font-bold">AssinaturaScreen, Atividades, Login</span>
+                                <span class="text-white font-bold">LoginScreen, Apontamento, Trabalhadores</span>
                             </div>
                             <div class="bg-emerald-950/60 p-2 rounded border border-emerald-700 text-center">
                                 <span class="text-emerald-400 block text-[10px] uppercase">Context, Hooks & Infra Fakes (25 Testes)</span>
-                                <span class="text-white font-bold">AuthProvider, useAtividades, SessionStorage</span>
+                                <span class="text-white font-bold">AuthProvider, useAuth, useApontamentos, SessionStorage</span>
                             </div>
                             <div class="bg-emerald-950/80 p-2.5 rounded border border-emerald-600 text-center">
                                 <span class="text-emerald-400 block text-[10px] uppercase">Use Cases (55 Testes)</span>
@@ -1892,38 +2081,63 @@ export class SessionStorageSecureStore implements SessionStorage {
         </section>
 
         <!-- SLIDE 20: FUNDAMENTOS FINAIS -->
+                <!-- SLIDE 20: ENCERRAMENTO -->
         <section id="slide20">
-            <div class="text-center mb-10">
+            <div class="text-center mb-5">
                 <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Encerramento</span>
-                <h2 class="text-4xl font-extrabold text-white">5 Decisões Arquiteturais Fundamentais</h2>
+                <h2 class="text-3xl font-extrabold text-white">5 Decisões Arquiteturais Fundamentais</h2>
                 <p class="text-slate-400 text-sm mt-1">Conceitos consolidados do projeto SafraCafé</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-slate-900 p-6 rounded-xl border-t-2 border-emerald-500 border-x border-b border-slate-800">
-                    <h3 class="text-base font-bold text-white mb-2">1. Separação Persistência/Domínio</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Substituir memória por SQLite e Supabase ocorre na camada de infraestrutura via contratos já estabelecidos, sem tocar na regra de negócio.</p>
+
+            
+            <!-- Destaque: Por que é importante & Onde está no app -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 text-left">
+                <div class="bg-amber-950/40 border border-amber-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg text-base flex-shrink-0">🎯</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-amber-400">Por que é importante ter isso?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">Síntese para a banca avaliadora: o SafraCafé foi projetado desde o primeiro dia com princípios sólidos de engenharia de software corporativa, permitindo evolução contínua sem quebrar regras de negócio.</p>
+                    </div>
                 </div>
-                <div class="bg-slate-900 p-6 rounded-xl border-t-2 border-emerald-500 border-x border-b border-slate-800">
-                    <h3 class="text-base font-bold text-white mb-2">2. Invariantes Blindadas</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Raiz de Agregação (PeriodoAvaliacao) e Value Objects impedem que dados existam em estados ilegais ou inconsistentes na aplicação.</p>
-                </div>
-                <div class="bg-slate-900 p-6 rounded-xl border-t-2 border-emerald-500 border-x border-b border-slate-800">
-                    <h3 class="text-base font-bold text-white mb-2">3. Autenticação Híbrida Flexível</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Sessão segura cifrada via Keychain/Keystore para usuários cadastrados + TokenSupervisor temporário autorreferenciado para supervisores externos.</p>
-                </div>
-                <div class="bg-slate-900 p-6 rounded-xl border-t-2 border-emerald-500 border-x border-b border-slate-800">
-                    <h3 class="text-base font-bold text-white mb-2">4. IoC Container Centralizado</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">O arquivo <code class="text-emerald-400">src/factory/container.ts</code> é o ponto único de composição de dependências Singleton da aplicação.</p>
-                </div>
-                <div class="bg-slate-900 p-6 rounded-xl border-t-2 border-emerald-500 border-x border-b border-slate-800 md:col-span-2 lg:col-span-2">
-                    <h3 class="text-base font-bold text-white mb-2">5. Clean Architecture Estrita</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">O domínio é agnóstico de UI. Casos de uso só operam sobre interfaces. Os adaptadores traduzem o fluxo para o Expo/React Native sem acoplamento reverso.</p>
+                <div class="bg-blue-950/40 border border-blue-600/40 rounded-xl p-3 flex items-start space-x-2.5 shadow-sm">
+                    <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-base flex-shrink-0">📂</div>
+                    <div>
+                        <div class="text-[10.5px] font-mono font-bold uppercase tracking-wider text-blue-400">Onde está no nosso app?</div>
+                        <p class="text-xs text-slate-300 mt-0.5 font-mono leading-relaxed">Visão consolidada em <code>src/factory/container.ts</code> (wiring Singleton de toda a aplicação).</p>
+                    </div>
                 </div>
             </div>
-            <div class="mt-12 text-center">
-                <span class="inline-block px-4 py-2 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono text-xs font-bold">
-                    ✓ Defesa Técnica Concluída — Fase 1 Entregue com 100% de Conformidade
-                </span>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 max-w-6xl mx-auto mb-6 text-xs">
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                    <span class="text-emerald-400 font-bold block mb-1">1. Separação Persistência/Domínio</span>
+                    <p class="text-slate-300 leading-relaxed">Substituir memória por SQLite e Supabase ocorre na camada de infraestrutura via contratos já estabelecidos, sem tocar na regra de negócio.</p>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                    <span class="text-emerald-400 font-bold block mb-1">2. Invariantes Blindadas</span>
+                    <p class="text-slate-300 leading-relaxed">Raízes de Agregação (<code>Trabalhador</code>, <code>Apontamento</code>) e Value Objects (<code>QuantidadeBalaio</code>, <code>ValorMonetario</code>, <code>Coordinates</code>) impedem dados ilegais na colheita.</p>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                    <span class="text-emerald-400 font-bold block mb-1">3. Autenticação Segura & Modo Campo</span>
+                    <p class="text-slate-300 leading-relaxed">Sessão segura cifrada via Keychain/Keystore (<code>SessionStorageSecureStore</code>) para operadores de campo, garantindo acesso offline resiliente na lavoura.</p>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                    <span class="text-emerald-400 font-bold block mb-1">4. IoC Container Centralizado</span>
+                    <p class="text-slate-300 leading-relaxed">O arquivo <code>src/factory/container.ts</code> é o ponto único de composição de dependências Singleton da aplicação.</p>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+                    <span class="text-emerald-400 font-bold block mb-1">5. Clean Architecture Estrita</span>
+                    <p class="text-slate-300 leading-relaxed">O domínio é agnóstico de UI. Casos de uso só operam sobre interfaces. Os adaptadores traduzem o fluxo para o Expo/React Native sem acoplamento reverso.</p>
+                </div>
+                <div class="bg-emerald-950/60 p-4 rounded-xl border border-emerald-600 flex flex-col justify-center text-center">
+                    <span class="text-emerald-400 font-bold text-sm block mb-1">✓ Defesa Técnica Concluída</span>
+                    <p class="text-slate-300 text-xs">SafraCafé Entregue com 100% de Conformidade e 91.82% de Cobertura.</p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center space-x-4 pt-2">
+                <a href="#slide1" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg text-xs transition">⇤ Reiniciar Apresentação</a>
+                <a href="#slide19" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs transition">Ver Métricas Finais ➔</a>
             </div>
         </section>
 
@@ -1959,51 +2173,7 @@ export class SessionStorageSecureStore implements SessionStorage {
         }
 
         
-                // Controle de Abas de Domain Services (Slide 10)
-        function switchServiceTab(service) {
-            const panels = {
-                pdf: document.getElementById('panel-svc-pdf'),
-                devolucao: document.getElementById('panel-svc-devolucao'),
-                sync: document.getElementById('panel-svc-sync'),
-            };
-            const buttons = {
-                pdf: document.getElementById('btn-svc-pdf'),
-                devolucao: document.getElementById('btn-svc-devolucao'),
-                sync: document.getElementById('btn-svc-sync'),
-            };
-            Object.keys(panels).forEach(key => {
-                if (key === service) {
-                    panels[key].classList.remove('hidden');
-                    buttons[key].className = 'w-full text-left p-3 rounded-lg border transition bg-emerald-950/80 border-emerald-600 text-white';
-                } else {
-                    panels[key].classList.add('hidden');
-                    buttons[key].className = 'w-full text-left p-3 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300';
-                }
-            });
-        }
-
-        // Controle de Abas de Telas RNTL (Slide 16)
-        function switchRntlTab(screen) {
-            const panels = {
-                assinatura: document.getElementById('panel-rntl-assinatura'),
-                atividades: document.getElementById('panel-rntl-atividades'),
-                historico: document.getElementById('panel-rntl-historico'),
-            };
-            const buttons = {
-                assinatura: document.getElementById('btn-rntl-assinatura'),
-                atividades: document.getElementById('btn-rntl-atividades'),
-                historico: document.getElementById('btn-rntl-historico'),
-            };
-            Object.keys(panels).forEach(key => {
-                if (key === screen) {
-                    panels[key].classList.remove('hidden');
-                    buttons[key].className = 'w-full text-left p-2.5 rounded-lg border transition bg-emerald-950/80 border-emerald-600 text-white';
-                } else {
-                    panels[key].classList.add('hidden');
-                    buttons[key].className = 'w-full text-left p-2.5 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300';
-                }
-            });
-        }
+        
 
         // Controle de visualização da tela de Apontamento (Topo vs Registro)
         let currentApontamentoImg = PRINTS.apontamentoTopo;

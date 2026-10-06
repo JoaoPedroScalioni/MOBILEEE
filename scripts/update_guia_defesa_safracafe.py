@@ -1,4 +1,8 @@
-# SafraCafé — Guia Definitivo de Defesa Técnica da Prova
+# -*- coding: utf-8 -*-
+import os
+import shutil
+
+md_content = '''# SafraCafé — Guia Definitivo de Defesa Técnica da Prova
 ## Resumo Explicativo dos Códigos, Invariantes e Perguntas da Banca (100% SafraCafé)
 
 > **Fase:** "Domínio e Interface Primeiro" (100% Mock / 91.82% Cobertura / 234 Testes / Zero I/O)  
@@ -83,7 +87,7 @@ export class ValorMonetario {
 ```typescript
 import { ValorMonetario } from '../value-objects/ValorMonetario';
 
-const CPF_REGEX = /^\d{11}$/;
+const CPF_REGEX = /^\\d{11}$/;
 
 export class Trabalhador {
     private _id: string;
@@ -314,3 +318,9 @@ export class RegistrarApontamento {
 3. **Autenticação Segura & Modo Campo:** Sessão cifrada via hardware para operadores rurais.
 4. **IoC Container Centralizado:** `src/factory/container.ts` é o ponto único de injeção de dependências.
 5. **Clean Architecture Estrita:** Domínio agnóstico de UI; interface consome use cases através de adapters.
+'''
+
+with open(r'c:\PROJETOMOBILE\docs\GUIA_DEFESA_CODIGOS.md', 'w', encoding='utf-8') as f:
+    f.write(md_content)
+
+print("GUIA_DEFESA_CODIGOS.md updated with 100% SafraCafe content!")

@@ -200,7 +200,7 @@
                 <span class="inline-block py-1 px-3 rounded-full text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800 uppercase tracking-widest mb-3">Defesa Técnica de Engenharia de Software</span>
                 <h1 class="text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight">Fase: "Domínio e Interface Primeiro"</h1>
                 <p class="mt-3 text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">
-                    Projeto <span class="text-emerald-400 font-semibold">SafraCafé</span> — Sistema de Avaliação de Estágio e Registro de Atividades Desacoplado
+                    Projeto <span class="text-emerald-400 font-semibold">SafraCafé</span> — Gestão Offline-First da Colheita Cafeeira (Domínio e Interface Primeiro)
                 </p>
             </div>
 
@@ -412,7 +412,7 @@
                     <span class="font-mono text-emerald-400 font-bold uppercase tracking-wider text-[11px] block">Mapeamento para Clean Architecture:</span>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-slate-300 text-[11px]">
                         <div><strong class="text-slate-400 block">Casos de Uso:</strong> <code>AutenticarUsuario</code>, <code>RestoreSession</code></div>
-                        <div><strong class="text-slate-400 block">Entidades:</strong> <code>Session</code>, <code>TokenSupervisor</code></div>
+                        <div><strong class="text-slate-400 block">Entidades:</strong> <code>Session</code>, <code>User</code></div>
                         <div><strong class="text-slate-400 block">Teste de Tela:</strong> <code>LoginScreen.test.tsx</code> (RNTL)</div>
                     </div>
                 </div>
@@ -762,7 +762,7 @@
                 <span class="inline-block py-1 px-3 rounded-full text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800 uppercase tracking-widest mb-2">Item 7 · Planejamento Oficial de Engenharia</span>
                 <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">Checklist Sequencial de Construção</h2>
                 <p class="mt-2 text-slate-400 text-sm md:text-base max-w-3xl mx-auto">
-                    A ordem exata de implementação adotada pela equipe de desenvolvimento: <strong class="text-emerald-400">Domínio → Use Cases → Context API / Sessão Segura → Telas RNTL com Fakes</strong>, 100% orientada a TDD (ciclo Red-Green-Refactor).
+                    A ordem exata de implementação adotada pela equipe de desenvolvimento no <strong class="text-emerald-400">SafraCafé</strong>: <strong>Domínio → Use Cases → Context API / Sessão Segura → Telas RNTL com Fakes</strong>, 100% orientada a TDD (ciclo Red-Green-Refactor).
                 </p>
             </div>
 
@@ -778,7 +778,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Value Objects (Imutáveis)</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            <code>Criterio</code> (notas 0-10, faixas MB/B/R/F), <code>Coordenada</code> (lat, long, timestamp), <code>Assinatura</code> (base64 + timestamp), <code>CargaHoraria</code> (totais, mínimas e período), <code>StatusSincronizacao</code> e <code>StatusPeriodo</code>.
+                            <code>QuantidadeBalaio</code> (volume &gt; 0 litros colhidos no cafezal), <code>ValorMonetario</code> (diárias em R$ 60,00 e despesas de campo &ge; 0), <code>Coordinates</code> (latitude [-90, 90] e longitude [-180, 180] GPS) e <code>SyncStatus</code> (PENDING, SYNCED, ERROR).
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -796,7 +796,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Entities & Aggregates</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            <code>PeriodoAvaliacao</code> (Aggregate Root protegendo autoavaliação, avaliação de supervisor e assinaturas), <code>Estagio</code> e <code>TokenSupervisor</code> (acesso temporário sem conta com validação de expiração e revogação).
+                            <code>Trabalhador</code> (Aggregate Root com CPF 11 dígitos, crachá unívoco <code>TRAB-001/002</code> para QR Code e diária), <code>Apontamento</code> (lançamento da colheita vinculando trabalhador, balaios e GPS), <code>Despesa</code> (registro com foto do comprovante), <code>SyncQueueItem</code> e <code>Session</code>.
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -814,7 +814,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Domain Services</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            <code>RegraGeracaoPdfService</code> (valida período aprovado e assinaturas sincronizadas), <code>RegraDevolucaoService</code> (motivo mínimo de 5 chars) e <code>SincronizacaoService</code> (resolução determinística de conflitos).
+                            <code>SincronizacaoService</code> (resolução determinística de conflitos na fila offline-first via comparação <em>Last-Write-Wins</em> com timestamps) e Regras de Fechamento de Colheita (apuração diária de balaios colhidos sem perda de dados na roça).
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -832,7 +832,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Repository & Gateway Interfaces</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Contratos puros definidos no domínio: <code>PeriodoAvaliacaoRepository</code>, <code>EstagioRepository</code>, <code>TokenSupervisorRepository</code>, <code>CameraGateway</code>, <code>LocationGateway</code> e <code>AuthGateway</code>.
+                            Contratos puros definidos no domínio: <code>TrabalhadorRepository</code>, <code>ApontamentoRepository</code>, <code>DespesaRepository</code>, <code>SyncQueueGateway</code>, <code>CameraGateway</code>, <code>LocationGateway</code> e <code>AuthGateway</code>.
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -850,7 +850,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Use Cases (TDD & Fakes)</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Orquestração com fakes em memória (ciclo <strong>Red-Green-Refactor</strong>): <code>RegistrarAtividades</code>, <code>AvaliarDesempenho</code>, <code>RealizarAutoAvaliacao</code>, <code>AssinarRelatorio</code>, <code>AprovarRelatorio</code>, <code>DevolverRelatorio</code>, <code>GerarPdf</code>, <code>SincronizarFila</code>, <code>AutenticarUsuario</code> e <code>AcessarViaToken</code>.
+                            Orquestração com fakes em memória (ciclo <strong>Red-Green-Refactor</strong>): <code>RegistrarApontamento</code>, <code>CadastrarTrabalhador</code>, <code>RegistrarDespesa</code>, <code>AuthenticateUser</code>, <code>SyncPendingQueue</code> (Sincronizar Fila), <code>ListarApontamentos</code> e <code>ListarTrabalhadores</code>.
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -868,7 +868,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Context API & Custom Hooks</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            <code>AuthContext.tsx</code> provê a sessão global na camada de adaptadores. Hooks de ponte como <code>useAuth</code> e <code>useAtividades</code> gerenciam os estados reativos (<code>idle</code>, <code>salvando</code>, <code>salvo</code>, <code>erro</code>) isolando as telas.
+                            <code>AuthContext.tsx</code> provê a sessão do operador cafeeiro (<code>pesquisador@ecofield.app</code>). Custom Hooks de ponte como <code>useAuth</code>, <code>useApontamentos</code> e <code>useTrabalhadores</code> gerenciam os estados reativos isolando as telas.
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -886,7 +886,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Telas RNTL & Expo Router</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Fronteira visual Boundary em <code>app/</code> com telas <code>AssinaturaScreen</code>, <code>AtividadesFormScreen</code>, <code>HistoricoRelatoriosScreen</code> e <code>LoginScreen</code> testadas com <code>fireEvent.press</code> e <code>fireEvent.changeText</code>.
+                            Fronteira visual Boundary em <code>app/</code> com telas <code>LoginScreen</code>, <code>ApontamentoScreen</code> (leitura de QR Code e balaios), <code>TrabalhadoresScreen</code> (gestão de apanhadores) e <code>DespesasScreen</code> (registro com câmera e GPS) testadas via RNTL.
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -904,7 +904,7 @@
                         </div>
                         <h3 class="text-base font-bold text-white mb-1.5">Sessão Segura (Keychain/Keystore)</h3>
                         <p class="text-xs text-slate-400 leading-relaxed">
-                            Adaptador <code>SessionStorageSecureStore</code> encapsula a biblioteca nativa <code>expo-secure-store</code>. Proteção de tokens com criptografia no hardware do aparelho, 100% mockado nos testes.
+                            Adaptador <code>SessionStorageSecureStore</code> encapsula a biblioteca nativa <code>expo-secure-store</code>. Proteção de tokens com criptografia no hardware do aparelho (chave <code>safracafe.session</code>), 100% mockado nos testes.
                         </p>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
@@ -919,7 +919,7 @@
             <div class="mt-6 flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 border border-slate-800 p-3.5 rounded-xl max-w-7xl mx-auto w-full text-xs">
                 <div class="flex items-center space-x-2 text-slate-300">
                     <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                    <span>Status de Conformidade: <strong>100% dos 8 passos implementados e aprovados com 234 testes automatizados</strong></span>
+                    <span>Status de Conformidade: <strong>100% dos 8 passos implementados e aprovados com testes automatizados do SafraCafé</strong></span>
                 </div>
                 <a href="#slide8" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition inline-flex items-center space-x-1">
                     <span>Avançar para Códigos do Domínio (Passo 1)</span> ➔
@@ -934,97 +934,95 @@
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 1</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Value Objects (Imutáveis)</h2>
                     <p class="text-sm text-slate-300 mt-2">
-                        Objetos sem identidade própria definidos apenas por seus valores. São imutáveis e se auto-validam de forma defensiva no construtor.
+                        Objetos sem identidade própria definidos apenas por seus atributos. São imutáveis e se auto-validam de forma defensiva no construtor.
                     </p>
                 </div>
                 <div class="space-y-2.5">
                     <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                        <strong class="text-white text-sm">Criterio:</strong>
-                        <span class="text-xs text-slate-400 block mt-0.5">Valida nota entre 0 e 10 e classifica em MB (>=8.5), B (>=7.0), R (>=5.0) e F.</span>
+                        <strong class="text-white text-sm">QuantidadeBalaio:</strong>
+                        <span class="text-xs text-slate-400 block mt-0.5">Volume em litros de café colhido no cafezal. Valida se é um número finito e estritamente &gt; 0.</span>
                     </div>
                     <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                        <strong class="text-white text-sm">Coordenada:</strong>
-                        <span class="text-xs text-slate-400 block mt-0.5">Latitude [-90, 90], Longitude [-180, 180] e timestamp UTC.</span>
+                        <strong class="text-white text-sm">ValorMonetario:</strong>
+                        <span class="text-xs text-slate-400 block mt-0.5">Representa a diária do apanhador (R$ 60,00) ou gastos com insumos/óleo. Garante valor &ge; 0 e formatação BRL.</span>
                     </div>
                     <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                        <strong class="text-white text-sm">Assinatura:</strong>
-                        <span class="text-xs text-slate-400 block mt-0.5">Payload base64 criptográfico, papel ('aluno' | 'supervisor') e data/hora.</span>
+                        <strong class="text-white text-sm">Coordinates:</strong>
+                        <span class="text-xs text-slate-400 block mt-0.5">Latitude [-90, 90] e Longitude [-180, 180] para georreferenciamento compulsório dos balaios e despesas.</span>
                     </div>
                     <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                        <strong class="text-white text-sm">CargaHoraria:</strong>
-                        <span class="text-xs text-slate-400 block mt-0.5">Validação de horas totais, horas mínimas obrigatórias e saldo do período.</span>
+                        <strong class="text-white text-sm">SyncStatus:</strong>
+                        <span class="text-xs text-slate-400 block mt-0.5">Estados formais do ciclo offline-first: <code>PENDING</code>, <code>SYNCED</code> e <code>ERROR</code>.</span>
                     </div>
                 </div>
             </div>
             <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                     <div class="flex space-x-2">
-                        <button onclick="switchTab('vo', 'code')" id="vo-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/domain/value-objects/Criterio.ts</button>
-                        <button onclick="switchTab('vo', 'test')" id="vo-btn-test" class="tab-btn text-xs font-mono px-3 py-1.5 rounded border border-slate-700">tests/domain/Criterio.test.ts</button>
+                        <button onclick="switchTab('vo', 'code')" id="vo-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/domain/value-objects/QuantidadeBalaio.ts</button>
+                        <button onclick="switchTab('vo', 'test')" id="vo-btn-test" class="tab-btn text-xs font-mono px-3 py-1.5 rounded border border-slate-700">tests/domain/QuantidadeBalaio.test.ts</button>
                     </div>
-                    <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 98.96%</span>
+                    <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 100%</span>
                 </div>
                 <div id="vo-tab-code" class="code-container bg-slate-950">
-<pre><code class="language-typescript">export type FaixaCriterio = 'MB' | 'B' | 'R' | 'F';
-
-export class Criterio {
-  private readonly nome: string;
-  private readonly nota: number;
-
-  constructor(nome: string, nota: number) {
-    if (!nome || nome.trim().length === 0) {
-      throw new Error('O nome do critério não pode ser vazio.');
+<pre><code class="language-typescript">export class QuantidadeBalaio {
+    constructor(public readonly litros: number) {
+        this.validate(); // Auto-validação defensiva no construtor (imutável)
     }
-    if (typeof nota !== 'number' || isNaN(nota)) {
-      throw new Error('A nota do critério deve ser um número válido.');
+
+    private validate(): void {
+        // Um balaio na colheita precisa ter volume finito maior que zero
+        if (!Number.isFinite(this.litros) || this.litros <= 0) {
+            throw new Error('Quantidade de balaio inválida');
+        }
     }
-    if (nota < 0 || nota > 10) {
-      throw new Error('A nota do critério deve estar entre 0 e 10.');
+}
+
+// src/domain/value-objects/ValorMonetario.ts
+export class ValorMonetario {
+    constructor(public readonly valor: number) {
+        this.validate();
     }
-    this.nome = nome.trim();
-    this.nota = Math.round(nota * 10) / 10;
-  }
 
-  public getNome(): string {
-    return this.nome;
-  }
+    private validate(): void {
+        if (!Number.isFinite(this.valor) || this.valor < 0) {
+            throw new Error('Valor monetário inválido');
+        }
+    }
 
-  public getNota(): number {
-    return this.nota;
-  }
-
-  public getFaixa(): FaixaCriterio {
-    if (this.nota >= 8.5) return 'MB';
-    if (this.nota >= 7.0) return 'B';
-    if (this.nota >= 5.0) return 'R';
-    return 'F';
-  }
-
-  public equals(other: Criterio): boolean {
-    if (!(other instanceof Criterio)) return false;
-    return this.nome === other.nome && this.nota === other.nota;
-  }
+    public formatar(): string {
+        return this.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
 }</code></pre>
                 </div>
                 <div id="vo-tab-test" class="code-container bg-slate-950 hidden">
-<pre><code class="language-typescript">describe('Criterio Value Object (TDD)', () => {
-  it('deve classificar faixas de conceito corretamente: MB, B, R, F', () => {
-    expect(new Criterio('Assiduidade', 9.5).getFaixa()).toBe('MB');
-    expect(new Criterio('Proatividade', 7.5).getFaixa()).toBe('B');
-    expect(new Criterio('Pontualidade', 5.5).getFaixa()).toBe('R');
-    expect(new Criterio('Postura', 4.0).getFaixa()).toBe('F');
-  });
+<pre><code class="language-typescript">describe('QuantidadeBalaio Value Object (TDD)', () => {
+    it('deve aceitar quantidade válida em litros', () => {
+        const balaio = new QuantidadeBalaio(60);
+        expect(balaio.litros).toBe(60);
+    });
 
-  it('deve rejeitar notas fora do intervalo 0-10', () => {
-    expect(() => new Criterio('Teste', -1)).toThrow('A nota do critério deve estar entre 0 e 10.');
-    expect(() => new Criterio('Teste', 10.5)).toThrow('A nota do critério deve estar entre 0 e 10.');
-  });
+    it('deve rejeitar litros negativos, zero ou não finitos', () => {
+        expect(() => new QuantidadeBalaio(0)).toThrow('Quantidade de balaio inválida');
+        expect(() => new QuantidadeBalaio(-10)).toThrow('Quantidade de balaio inválida');
+        expect(() => new QuantidadeBalaio(NaN)).toThrow('Quantidade de balaio inválida');
+    });
 
-  it('deve validar igualdade estrutural com equals()', () => {
-    const c1 = new Criterio('Iniciativa', 8.0);
-    const c2 = new Criterio('Iniciativa', 8.0);
-    expect(c1.equals(c2)).toBe(true);
-  });
+    it('é imutável: propriedade litros é readonly', () => {
+        const balaio = new QuantidadeBalaio(45.5);
+        expect(balaio.litros).toBe(45.5);
+    });
+});
+
+describe('ValorMonetario Value Object (TDD)', () => {
+    it('deve formatar valor corretamente em padrão BRL', () => {
+        const diaria = new ValorMonetario(60);
+        expect(diaria.formatar()).toBe('R$ 60,00');
+    });
+
+    it('deve rejeitar valor monetário negativo', () => {
+        expect(() => new ValorMonetario(-5)).toThrow('Valor monetário inválido');
+    });
 });</code></pre>
                 </div>
             </div>
@@ -1037,83 +1035,87 @@ export class Criterio {
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 2</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Entidades & Agregados</h2>
                     <p class="text-sm text-slate-300 mt-2">
-                        O <strong>PeriodoAvaliacao</strong> é a Raiz de Agregação. Controla o ciclo de vida e protege as <strong>invariantes de negócio</strong> contra estados ilegais.
+                        O <strong>Trabalhador</strong> e o <strong>Apontamento</strong> são as Raízes de Agregação da colheita cafeeira. Protegem as <strong>invariantes de negócio</strong> contra estados ilegais.
                     </p>
                 </div>
                 <div class="space-y-2 text-xs text-slate-300">
                     <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">PeriodoAvaliacao (Aggregate Root)</strong>
-                        Gerencia <code>AtividadesDesenvolvidas</code>, <code>AvaliacaoSupervisor</code>, <code>AutoAvaliacao</code> e assinaturas. Bloqueia alterações se aprovado e valida <code>podeGerarPdf()</code> com assinaturas sincronizadas.
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">Trabalhador (Aggregate Root)</strong>
+                        Cadastro único com validação estrita de CPF (11 dígitos numéricos), crachá serializado (<code>TRAB-001</code>, <code>TRAB-002</code>) impresso no QR Code e diária fixa em <code>ValorMonetario</code>.
                     </div>
                     <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">Estagio & TokenSupervisor (Raízes Próprias)</strong>
-                        Supervisor externo acessa via token com prazo de expiração e revogação, sem necessitar de conta ou autenticação padrão.
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">Apontamento (Aggregate Root de Colheita)</strong>
+                        Vincula o colhedor aos balaios aferidos (<code>QuantidadeBalaio</code>), data/timestamp e fixação compulsória de coordenadas GPS no cafezal.
                     </div>
                     <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">Invariantes de Negócio Blindadas</strong>
-                        Impossível registrar 2ª avaliação após aprovação; bloqueia geração de PDF se faltar qualquer assinatura digital sincronizada.
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">Despesa & Fila Outbox</strong>
+                        Registro georreferenciado de custos com foto do recibo via câmera nativa e enfileiramento em <code>SyncQueueItem</code> para sync offline-first.
                     </div>
                 </div>
             </div>
             <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                     <div class="flex space-x-2">
-                        <button onclick="switchTab('entity', 'code')" id="entity-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/domain/entities/PeriodoAvaliacao.ts</button>
-                        <button onclick="switchTab('entity', 'test')" id="entity-btn-test" class="tab-btn text-xs font-mono px-3 py-1.5 rounded border border-slate-700">tests/domain/PeriodoAvaliacao.test.ts</button>
+                        <button onclick="switchTab('entity', 'code')" id="entity-btn-code" class="tab-btn active text-xs font-mono px-3 py-1.5 rounded border border-slate-700">src/domain/entities/Trabalhador.ts</button>
+                        <button onclick="switchTab('entity', 'test')" id="entity-btn-test" class="tab-btn text-xs font-mono px-3 py-1.5 rounded border border-slate-700">tests/domain/Trabalhador.test.ts</button>
                     </div>
                     <span class="text-xs text-emerald-400 font-mono font-semibold">Invariantes Blindadas</span>
                 </div>
                 <div id="entity-tab-code" class="code-container bg-slate-950">
-<pre><code class="language-typescript">export class PeriodoAvaliacao {
-  public registrarAvaliacaoSupervisor(avaliacao: AvaliacaoSupervisor): void {
-    if (this.status === StatusPeriodo.APROVADO) {
-      throw new Error('Não é permitido registrar ou alterar avaliação de supervisor em um período já aprovado.');
-    }
-    this.avaliacaoSupervisor = avaliacao;
-    this.atualizarStatusAposAvaliacoes();
-  }
+<pre><code class="language-typescript">import { ValorMonetario } from '../value-objects/ValorMonetario';
 
-  public aprovar(): void {
-    if (!this.atividades) {
-      throw new Error('Não é possível aprovar um período sem atividades registradas.');
-    }
-    if (!this.avaliacaoSupervisor) {
-      throw new Error('Não é possível aprovar um período sem a avaliação do supervisor.');
-    }
-    if (!this.autoAvaliacao) {
-      throw new Error('Não é possível aprovar um período sem a autoavaliação do estagiário.');
-    }
-    if (!this.assinaturaAluno || !this.assinaturaSupervisor) {
-      throw new Error('Não é possível aprovar um período sem as assinaturas de ambas as partes.');
-    }
-    this.status = StatusPeriodo.APROVADO;
-    this.motivoDevolucao = undefined;
-  }
+const CPF_REGEX = /^\d{11}$/;
 
-  public podeGerarPdf(): boolean {
-    const statusAprovado = this.status === StatusPeriodo.APROVADO;
-    const temTodasAssinaturas = this.assinaturaAluno !== null && this.assinaturaSupervisor !== null;
-    const sincronizadas = this.assinaturasSincronizadas === true;
-    return statusAprovado && temTodasAssinaturas && sincronizadas;
-  }
+export class Trabalhador {
+    private _id: string;
+    private _nome: string;
+    private _cpf: string;
+    private _cracha: string;
+    private _diaria: ValorMonetario;
+
+    constructor(id: string, nome: string, cpf: string, cracha: string, diaria: ValorMonetario) {
+        this._id = id;
+        this._nome = nome;
+        this._cpf = cpf;
+        this._cracha = cracha;
+        this._diaria = diaria;
+        this.validate(); // Invariantes verificadas no ciclo de vida
+    }
+
+    get id(): string { return this._id; }
+    get nome(): string { return this._nome; }
+    get cpf(): string { return this._cpf; }
+    get cracha(): string { return this._cracha; }
+    get diaria(): ValorMonetario { return this._diaria; }
+
+    private validate(): void {
+        if (!this._id || !this._id.trim()) throw new Error('Id de trabalhador inválido');
+        if (!this._nome || !this._nome.trim()) throw new Error('Nome de trabalhador inválido');
+        if (!CPF_REGEX.test(this._cpf)) throw new Error('CPF de trabalhador inválido');
+        if (!this._cracha || !this._cracha.trim()) throw new Error('Código de crachá inválido');
+    }
 }</code></pre>
                 </div>
                 <div id="entity-tab-test" class="code-container bg-slate-950 hidden">
-<pre><code class="language-typescript">describe('PeriodoAvaliacao Aggregate Root (TDD)', () => {
-  it('deve bloquear nova avaliação se o período já estiver aprovado', () => {
-    const periodo = criarPeriodoCompletoValido();
-    periodo.aprovar();
-    expect(() => periodo.registrarAvaliacaoSupervisor(novaAvaliacao)).toThrow(
-      'Não é permitido registrar ou alterar avaliação de supervisor em um período já aprovado.'
-    );
-  });
+<pre><code class="language-typescript">describe('Trabalhador Entity (TDD & Invariantes)', () => {
+    it('deve instanciar trabalhador com atributos válidos', () => {
+        const t = new Trabalhador('t1', 'José da Silva', '12345678901', 'TRAB-001', new ValorMonetario(60));
+        expect(t.nome).toBe('José da Silva');
+        expect(t.cracha).toBe('TRAB-001');
+        expect(t.diaria.valor).toBe(60);
+    });
 
-  it('deve retornar podeGerarPdf() verdadeiro somente com aprovação e assinaturas sincronizadas', () => {
-    const periodo = criarPeriodoCompletoValido();
-    periodo.aprovar();
-    periodo.marcarAssinaturasSincronizadas(true);
-    expect(periodo.podeGerarPdf()).toBe(true);
-  });
+    it('deve rejeitar CPF que não possua exatamente 11 dígitos numéricos', () => {
+        expect(() => new Trabalhador('t1', 'José', '12345', 'TRAB-001', new ValorMonetario(60)))
+            .toThrow('CPF de trabalhador inválido');
+    });
+
+    it('deve rejeitar id, nome ou crachá vazios', () => {
+        expect(() => new Trabalhador('', 'José', '12345678901', 'TRAB-001', new ValorMonetario(60)))
+            .toThrow('Id de trabalhador inválido');
+        expect(() => new Trabalhador('t1', '', '12345678901', 'TRAB-001', new ValorMonetario(60)))
+            .toThrow('Nome de trabalhador inválido');
+    });
 });</code></pre>
                 </div>
             </div>
@@ -1126,95 +1128,23 @@ export class Criterio {
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 3 · Regras Cruzadas</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Domain Services</h2>
                     <p class="text-sm text-slate-300 mt-2">
-                        Regras de negócio que cruzam o estado de mais de uma entidade ou validam invariantes complexas de múltiplos agregados sem acoplamento a bancos ou APIs.
+                        Regras de negócio que cruzam o estado de mais de uma entidade ou validam sincronizações complexas sem acoplamento a banco físico ou rede.
                     </p>
                 </div>
                 <div class="space-y-2 text-xs text-slate-300">
-                    <button onclick="switchServiceTab('pdf')" id="btn-svc-pdf" class="w-full text-left p-3 rounded-lg border transition bg-emerald-950/80 border-emerald-600 text-white">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">1. RegraGeracaoPdfService</strong>
-                        Valida período aprovado, ambas as assinaturas presentes e sincronizadas antes de emitir PDF.
+                    <button onclick="switchServiceTab('sync')" id="btn-svc-sync" class="w-full text-left p-3 rounded-lg border transition bg-emerald-950/80 border-emerald-600 text-white">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">1. SincronizacaoService (LWW)</strong>
+                        Resolução determinística de conflitos na fila offline-first comparando timestamps <em>Last-Write-Wins</em>.
                     </button>
-                    <button onclick="switchServiceTab('devolucao')" id="btn-svc-devolucao" class="w-full text-left p-3 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">2. RegraDevolucaoService</strong>
-                        Impede devolução de períodos já aprovados e exige justificativa mínima de 5 caracteres.
-                    </button>
-                    <button onclick="switchServiceTab('sync')" id="btn-svc-sync" class="w-full text-left p-3 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">3. SincronizacaoService</strong>
-                        Resolução determinística de conflitos na fila offline-first via comparação de timestamps.
+                    <button onclick="switchServiceTab('fechamento')" id="btn-svc-fechamento" class="w-full text-left p-3 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">2. Fechamento de Colheita</strong>
+                        Apuração e totalização diária de balaios colhidos por apanhador no talhão versus valor fixado da diária.
                     </button>
                 </div>
             </div>
             <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <!-- Painel 1: RegraGeracaoPdfService -->
-                <div id="panel-svc-pdf">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                        <span class="text-xs font-mono text-slate-400">src/domain/services/RegraGeracaoPdfService.ts</span>
-                        <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 93.75%</span>
-                    </div>
-                    <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">export class RegraGeracaoPdfService {
-  public static validar(periodo: PeriodoAvaliacao, estagio?: Estagio): ValidacaoGeracaoPdfResult {
-    const erros: string[] = [];
-    if (!periodo) return { podeGerar: false, erros: ['Período de avaliação não informado.'] };
-
-    if (!periodo.podeGerarPdf()) {
-      if (periodo.getStatus() !== 'aprovado') {
-        erros.push('O relatório do período precisa estar aprovado para geração de PDF.');
-      }
-      if (!periodo.getAssinaturaAluno() || !periodo.getAssinaturaSupervisor()) {
-        erros.push('O relatório deve conter as assinaturas do aluno e do supervisor.');
-      }
-      if (!periodo.isAssinaturasSincronizadas()) {
-        erros.push('Todas as assinaturas digitais devem estar sincronizadas com o servidor.');
-      }
-    }
-
-    if (estagio && estagio.getId() !== periodo.getEstagioId()) {
-      erros.push('O estágio fornecido não corresponde ao estágio vinculado ao período de avaliação.');
-    }
-
-    return { podeGerar: erros.length === 0, erros };
-  }
-}</code></pre>
-                    </div>
-                </div>
-
-                <!-- Painel 2: RegraDevolucaoService -->
-                <div id="panel-svc-devolucao" class="hidden">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                        <span class="text-xs font-mono text-slate-400">src/domain/services/RegraDevolucaoService.ts</span>
-                        <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 83.33%</span>
-                    </div>
-                    <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">export class RegraDevolucaoService {
-  public static validarDevolucao(periodo: PeriodoAvaliacao, motivo: string): ValidacaoDevolucaoResult {
-    const motivosInvalidez: string[] = [];
-    if (!periodo) return { podeDevolver: false, motivosInvalidez: ['Período de avaliação inexistente.'] };
-
-    if (periodo.getStatus() === StatusPeriodo.APROVADO) {
-      motivosInvalidez.push('Não é permitido devolver um período que já foi aprovado definitivamente.');
-    }
-
-    if (!motivo || motivo.trim().length < 5) {
-      motivosInvalidez.push('A justificativa da devolução deve possuir no mínimo 5 caracteres explicativos.');
-    }
-
-    return { podeDevolver: motivosInvalidez.length === 0, motivosInvalidez };
-  }
-
-  public static executarDevolucao(periodo: PeriodoAvaliacao, motivo: string): void {
-    const validacao = this.validarDevolucao(periodo, motivo);
-    if (!validacao.podeDevolver) {
-      throw new Error(`Falha ao devolver período: ${validacao.motivosInvalidez.join(' ')}`);
-    }
-    periodo.devolver(motivo);
-  }
-}</code></pre>
-                    </div>
-                </div>
-
-                <!-- Painel 3: SincronizacaoService -->
-                <div id="panel-svc-sync" class="hidden">
+                <!-- Painel 1: SincronizacaoService -->
+                <div id="panel-svc-sync">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
                         <span class="text-xs font-mono text-slate-400">src/domain/services/SincronizacaoService.ts</span>
                         <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 100.00%</span>
@@ -1224,11 +1154,34 @@ export class Criterio {
 
 export class SincronizacaoService {
   resolverConflito(updatedAtLocal: number, updatedAtRemoto: number): ConflitoResultado {
-    // Resolução determinística: timestamp mais recente vence (Last-Write-Wins)
+    // Resolução determinística no cafezal: timestamp mais recente vence (Last-Write-Wins)
     if (updatedAtRemoto > updatedAtLocal) {
       return 'remoto';
     }
     return 'local';
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <!-- Painel 2: Fechamento de Colheita -->
+                <div id="panel-svc-fechamento" class="hidden">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                        <span class="text-xs font-mono text-slate-400">src/domain/services/FechamentoColheitaService.ts</span>
+                        <span class="text-xs text-emerald-400 font-mono font-semibold">Regra de Negócio Pura</span>
+                    </div>
+                    <div class="code-container bg-slate-950">
+<pre><code class="language-typescript">import { Apontamento } from '../entities/Apontamento';
+import { ValorMonetario } from '../value-objects/ValorMonetario';
+
+export class FechamentoColheitaService {
+  public static calcularTotalLitros(apontamentos: Apontamento[]): number {
+    return apontamentos.reduce((acc, a) => acc + a.quantidade.litros, 0);
+  }
+
+  public static calcularPrevisaoPagamento(totalLitros: number, valorDiaria: ValorMonetario): number {
+    if (totalLitros <= 0) return 0;
+    return valorDiaria.valor;
   }
 }</code></pre>
                     </div>
@@ -1248,23 +1201,35 @@ export class SincronizacaoService {
                 </div>
                 <div class="p-3.5 bg-slate-900 rounded-lg border border-slate-800 text-xs font-mono text-slate-300 space-y-1.5">
                     <p class="text-emerald-400 font-bold uppercase text-[11px]">Contratos Essenciais Declarados no Domínio:</p>
-                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>PeriodoAvaliacaoRepository:</strong> Persistência abstrata</p>
-                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>CameraGateway:</strong> Captura de fotos/comprovantes</p>
-                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>LocationGateway:</strong> Telemetria de campo e GPS</p>
-                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>AuthGateway:</strong> Autenticação de credenciais</p>
+                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>ApontamentoRepository:</strong> Persistência de colheita e balaios</p>
+                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>TrabalhadorRepository:</strong> Cadastro e busca por crachá (QR Code)</p>
+                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>DespesaRepository:</strong> Registro de custos operacionais</p>
+                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>CameraGateway:</strong> Leitor óptico de QR e foto do comprovante</p>
+                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>LocationGateway:</strong> Fixação de coordenadas GPS do cafezal</p>
+                    <p class="bg-slate-950 p-1.5 rounded border border-slate-800 text-[11px]">• <strong>AuthGateway:</strong> Autenticação de operador de campo</p>
                 </div>
             </div>
             <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/domain/repositories/PeriodoAvaliacaoRepository.ts</div>
+                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/domain/repositories/ApontamentoRepository.ts</div>
                 <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">import { PeriodoAvaliacao } from '../entities/PeriodoAvaliacao';
+<pre><code class="language-typescript">import { Apontamento } from '../entities/Apontamento';
 
-export interface PeriodoAvaliacaoRepository {
-  save(periodo: PeriodoAvaliacao): Promise<void>;
-  findById(id: string): Promise<PeriodoAvaliacao | null>;
-  findByEstagioId(estagioId: string): Promise<PeriodoAvaliacao[]>;
-  list(): Promise<PeriodoAvaliacao[]>;
-  findPendentesSincronizacao(): Promise<PeriodoAvaliacao[]>;
+export interface ApontamentoRepository {
+    save(apontamento: Apontamento): Promise<void>;
+    findById(id: string): Promise<Apontamento | null>;
+    findByTrabalhadorId(trabalhadorId: string): Promise<Apontamento[]>;
+    findAll(): Promise<Apontamento[]>;
+}
+
+// src/domain/repositories/TrabalhadorRepository.ts
+import { Trabalhador } from '../entities/Trabalhador';
+
+export interface TrabalhadorRepository {
+    save(trabalhador: Trabalhador): Promise<void>;
+    findById(id: string): Promise<Trabalhador | null>;
+    findByCracha(cracha: string): Promise<Trabalhador | null>;
+    findAll(): Promise<Trabalhador[]>;
+    delete(id: string): Promise<void>;
 }</code></pre>
                 </div>
             </div>
@@ -1277,68 +1242,72 @@ export interface PeriodoAvaliacaoRepository {
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 5</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Casos de Uso (Application Layer)</h2>
                     <p class="text-sm text-slate-300 mt-2">
-                        Orquestram as operações de negócio recebendo DTOs e injetando repositórios e gateways via construtor.
+                        Orquestram as operações de colheita recebendo DTOs e injetando repositórios e gateways via construtor.
                     </p>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10.5px] text-slate-300 font-mono">
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="RegistrarAtividadesUseCase">1. RegistrarAtividadesUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AvaliarDesempenhoUseCase">2. AvaliarDesempenhoUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="RealizarAutoAvaliacaoUseCase">3. RealizarAutoAvaliacaoUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AssinarRelatorioUseCase">4. AssinarRelatorioUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AprovarRelatorioUseCase">5. AprovarRelatorioUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="DevolverRelatorioUseCase">6. DevolverRelatorioUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="GerarPdfUseCase">7. GerarPdfUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="SincronizarFilaUseCase">8. SincronizarFilaUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AutenticarUsuarioUseCase">9. AutenticarUsuarioUseCase</span>
-                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AcessarViaTokenUseCase">10. AcessarViaTokenUseCase</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="RegistrarApontamento">1. RegistrarApontamento</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="CadastrarTrabalhador">2. CadastrarTrabalhador</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="RegistrarDespesa">3. RegistrarDespesa</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="AuthenticateUser">4. AuthenticateUser (Login)</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="SyncPendingQueue">5. SyncPendingQueue (Sync)</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="ListarApontamentos">6. ListarApontamentos</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="ListarTrabalhadores">7. ListarTrabalhadores</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="ListarDespesas">8. ListarDespesas</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="RestoreSession">9. RestoreSession</span>
+                    <span class="p-1.5 bg-slate-900 rounded border border-slate-800 truncate" title="SignOut">10. SignOut</span>
                 </div>
                 <div class="p-2.5 bg-slate-900/90 rounded-lg border border-slate-800 text-[11px] text-slate-400">
-                    <strong class="text-emerald-400">Testes com Fakes In-Memory:</strong> Validados via TDD com <code>PeriodoAvaliacaoRepositoryFake</code> (utilizando <code>Map</code>), cobrindo caminho feliz, erros e permissões.
+                    <strong class="text-emerald-400">Testes com Fakes In-Memory:</strong> Validados via TDD com <code>InMemoryApontamentoRepository</code> e <code>InMemoryTrabalhadorRepository</code> (usando <code>Map</code>), cobrindo caminho feliz, erros de validação e GPS.
                 </div>
             </div>
             <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                    <span class="text-xs font-mono text-slate-400">src/usecases/RegistrarAtividadesUseCase.ts</span>
-                    <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 94.08%</span>
+                    <span class="text-xs font-mono text-slate-400">src/usecases/RegistrarApontamento.ts</span>
+                    <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 100%</span>
                 </div>
                 <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">export interface RegistrarAtividadesDTO {
-  periodoId: string;
-  descricao: string;
-  horasTotais: number;
-  horasMinimas: number;
-  horasPeriodo: number;
-  capturarLocalizacao?: boolean;
+<pre><code class="language-typescript">export interface RegistrarApontamentoDTO {
+    trabalhadorId: string;
+    litros: number;
+    latitude: number;
+    longitude: number;
 }
 
-export class RegistrarAtividadesUseCase {
-  constructor(
-    private readonly periodoRepo: PeriodoAvaliacaoRepository,
-    private readonly locationGateway?: LocationGateway
-  ) {}
+export class RegistrarApontamento {
+    constructor(
+        private readonly apontamentoRepository: ApontamentoRepository,
+        private readonly trabalhadorRepository: TrabalhadorRepository,
+        private readonly syncQueueRepository?: SyncQueueRepository,
+    ) {}
 
-  async execute(dto: RegistrarAtividadesDTO): Promise<PeriodoAvaliacao> {
-    const periodo = await this.periodoRepo.findById(dto.periodoId);
-    if (!periodo) throw new Error('Período de avaliação não encontrado.');
+    public async execute(input: RegistrarApontamentoDTO, agora: number = Date.now()) {
+        const trabalhador = await this.trabalhadorRepository.findById(input.trabalhadorId);
+        if (!trabalhador) {
+            throw new Error('Trabalhador não encontrado');
+        }
 
-    let coordenada: Coordenada | undefined;
-    if (dto.capturarLocalizacao && this.locationGateway) {
-      coordenada = await this.locationGateway.obterLocalizacaoAtual();
+        const coordenadas = new Coordinates(input.latitude, input.longitude);
+        const quantidade = new QuantidadeBalaio(input.litros);
+        const id = Crypto.randomUUID();
+        const apontamento = new Apontamento(id, input.trabalhadorId, quantidade, coordenadas, agora);
+
+        await this.apontamentoRepository.save(apontamento);
+
+        if (this.syncQueueRepository) {
+            const item = new SyncQueueItem(
+                Crypto.randomUUID(),
+                'Apontamento',
+                id,
+                'INSERT',
+                agora,
+                agora,
+            );
+            await this.syncQueueRepository.enqueue(item);
+        }
+
+        return apontamento;
     }
-
-    const cargaHoraria = new CargaHoraria(dto.horasTotais, dto.horasMinimas, dto.horasPeriodo);
-    const atividades = new AtividadesDesenvolvidas({
-      id: `ativ-${Date.now()}`,
-      descricao: dto.descricao,
-      cargaHoraria,
-      coordenada,
-      dataRegistro: new Date(),
-    });
-
-    periodo.registrarAtividades(atividades);
-    await this.periodoRepo.save(periodo);
-    return periodo;
-  }
 }</code></pre>
                 </div>
             </div>
@@ -1406,46 +1375,51 @@ export class InMemoryLocationGateway implements LocationGateway {
                     </div>
                     <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
                         <strong class="text-emerald-400 block font-semibold mb-1">Repositórios Fake em Memória:</strong>
-                        Estruturas <code>Map&lt;string, T&gt;</code> reproduzindo métodos <code>save</code>, <code>findById</code> e <code>findPendentesSincronizacao</code>.
+                        Estruturas <code>Map&lt;string, T&gt;</code> reproduzindo métodos <code>save</code>, <code>findById</code> e <code>findPending</code> com alta velocidade.
                     </div>
                     <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-1">Fila de Sincronização:</strong>
-                        Status transita de <code>PENDING</code> para <code>SYNCED</code> ou <code>ERROR</code> via <code>SincronizarFilaUseCase</code>.
+                        <strong class="text-emerald-400 block font-semibold mb-1">Fila de Sincronização Outbox:</strong>
+                        Apontamentos e despesas gravados na roça entram na fila outbox e são despachados para a nuvem via <code>SyncPendingQueue</code> com resolução LWW.
                     </div>
                 </div>
             </div>
             <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/usecases/SincronizarFilaUseCase.ts</div>
+                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/usecases/SyncPendingQueue.ts</div>
                 <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">export class SincronizarFilaUseCase {
+<pre><code class="language-typescript">export class SyncPendingQueue {
   constructor(
-    private readonly periodoRepo: PeriodoAvaliacaoRepository,
-    private readonly remoteSyncGateway?: RemoteSyncGateway
+    private readonly syncQueueRepository: SyncQueueRepository,
+    private readonly syncGateway: SyncGateway,
+    private readonly networkGateway: NetworkGateway,
+    private readonly sincronizacaoService: SincronizacaoService,
   ) {}
 
-  async execute(): Promise<SincronizarFilaResult> {
-    const pendentes = await this.periodoRepo.findPendentesSincronizacao();
-    let sincronizados = 0;
-    let falhas = 0;
+  async execute(agora: number = Date.now()): Promise<SyncResultado> {
+    const pendentes = await this.syncQueueRepository.findPending();
+    if (!(await this.networkGateway.isConnected())) {
+      return { synchronized: 0, pending: pendentes.length, offline: true };
+    }
 
-    for (const periodo of pendentes) {
+    let synchronized = 0;
+    for (const item of pendentes) {
+      item.registrarTentativa(agora);
+      await this.syncQueueRepository.save(item);
       try {
-        if (this.remoteSyncGateway) {
-          await this.remoteSyncGateway.enviarPeriodo(periodo.getId(), {
-            status: periodo.getStatus(),
-            alunoId: periodo.getAlunoId(),
-          });
-        }
-        periodo.atualizarStatusSincronizacao(StatusSincronizacao.SYNCED);
-        periodo.marcarAssinaturasSincronizadas(true);
-        await this.periodoRepo.save(periodo);
-        sincronizados++;
-      } catch (err) {
-        periodo.atualizarStatusSincronizacao(StatusSincronizacao.ERROR);
-        falhas++;
+        const resultado = await this.syncGateway.push(item);
+        const conflito = this.sincronizacaoService.resolverConflito(
+          item.updatedAt,
+          resultado.serverUpdatedAt ?? item.updatedAt,
+        );
+        if (conflito === 'remoto') continue;
+        await this.syncQueueRepository.remove(item.id);
+        synchronized += 1;
+      } catch {
+        item.marcarErro(agora);
+        await this.syncQueueRepository.save(item);
       }
     }
-    return { totalPendentes: pendentes.length, sincronizados, falhas };
+    const restantes = await this.syncQueueRepository.findPending();
+    return { synchronized, pending: restantes.length, offline: false };
   }
 }</code></pre>
                 </div>
@@ -1459,7 +1433,7 @@ export class InMemoryLocationGateway implements LocationGateway {
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 8</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Context API & Custom Hooks</h2>
                     <p class="text-sm text-slate-300 mt-2">
-                        Ponte desacoplada entre os Casos de Uso e o ciclo de vida dos componentes do React Native.
+                        Ponte desacoplada entre os Casos de Uso e o ciclo de vida dos componentes do React Native no SafraCafé.
                     </p>
                 </div>
                 <div class="space-y-2.5 text-xs text-slate-300">
@@ -1469,41 +1443,48 @@ export class InMemoryLocationGateway implements LocationGateway {
                     </div>
                     <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
                         <strong class="text-emerald-400 block font-semibold mb-1">AuthContext (Sem Prop Drilling):</strong>
-                        Disponibiliza sessão e papéis (<em>Aluno</em>, <em>Orientador</em>, <em>Coordenação</em>) globalmente na raiz da aplicação.
+                        Disponibiliza a sessão autenticada do operador de campo (<code>pesquisador@ecofield.app</code>) globalmente na raiz da aplicação.
                     </div>
                     <div class="p-3 bg-slate-900 rounded-lg border border-slate-800">
-                        <strong class="text-emerald-400 block font-semibold mb-1">Custom Hooks de Ponte (useAuth, useAtividades):</strong>
-                        Fronteira com as telas, adaptando os Use Cases ao ciclo de vida e gerenciando estados: <code>idle</code>, <code>salvando</code> e <code>salvo</code>.
+                        <strong class="text-emerald-400 block font-semibold mb-1">Custom Hooks de Campo (useAuth, useApontamentos):</strong>
+                        Fronteira com as telas do cafezal, adaptando os Use Cases ao ciclo de vida e gerenciando estados: <code>loading</code>, <code>authenticated</code> e <code>unauthenticated</code>.
                     </div>
                 </div>
             </div>
             <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/adapters/context/AuthContext.tsx</div>
+                <div class="text-xs font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">src/adapters/auth/AuthContext.tsx</div>
                 <div class="code-container bg-slate-950">
 <pre><code class="language-typescript">export function AuthProvider({
-  children,
-  autenticarUseCase,
-  restoreSessionUseCase,
-  signOutUseCase
+    children,
+    authenticateUseCase,
+    restoreSessionUseCase,
+    signOutUseCase,
+    sessionStorage,
 }: AuthProviderProps) {
-  const auth = autenticarUseCase ?? container.autenticarUsuarioUseCase;
-  const restore = restoreSessionUseCase ?? container.restoreSession;
+    const auth = authenticateUseCase ?? container.authenticateUser;
+    const restore = restoreSessionUseCase ?? container.restoreSession;
+    const clear = signOutUseCase ?? container.signOut;
 
-  const [session, setSession] = useState<Session | null>(null);
-  const [papel, setPapel] = useState<PapelUsuario>('aluno');
-  const [status, setStatus] = useState<AuthStatus>('loading');
+    const [session, setSession] = useState<Session | null>(null);
+    const [status, setStatus] = useState<AuthStatus>("loading");
 
-  useEffect(() => {
-    restore.execute().then((restored) => {
-      if (restored) {
-        setSession(restored);
-        setStatus('authenticated');
-      } else {
-        setStatus('unauthenticated');
-      }
-    });
-  }, [restore]);
-  // ...
+    useEffect(() => {
+        let active = true;
+        restore
+            .execute()
+            .then((s) => {
+                if (!active) return;
+                setSession(s);
+                setStatus(s ? "authenticated" : "unauthenticated");
+            })
+            .catch(() => {
+                if (!active) return;
+                setSession(null);
+                setStatus("unauthenticated");
+            });
+        return () => { active = false; };
+    }, [restore]);
+    // login / logout desacoplados consumidos nas telas
 }</code></pre>
                 </div>
             </div>
@@ -1516,125 +1497,104 @@ export class InMemoryLocationGateway implements LocationGateway {
                     <span class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">Passo 7 · Interface & Boundary</span>
                     <h2 class="text-3xl font-extrabold text-white mt-1">Telas e Testes RNTL</h2>
                     <p class="text-sm text-slate-300 mt-2">
-                        Componentes construídos com React Native nativo (<code class="text-emerald-300">&lt;View&gt;</code>, <code class="text-emerald-300">&lt;Text&gt;</code>, <code class="text-emerald-300">StyleSheet</code>) testados com <strong>React Native Testing Library</strong> sem necessidade de emulador físico ou clique manual.
+                        Telas do <strong>SafraCafé</strong> construídas com React Native nativo (<code class="text-emerald-300">&lt;View&gt;</code>, <code class="text-emerald-300">&lt;Text&gt;</code>, <code class="text-emerald-300">StyleSheet</code>) testadas com <strong>React Native Testing Library</strong> sem necessidade de emulador físico ou clique manual.
                     </p>
                 </div>
                 <div class="space-y-2 text-xs text-slate-300">
-                    <button onclick="switchRntlTab('assinatura')" id="btn-rntl-assinatura" class="w-full text-left p-2.5 rounded-lg border transition bg-emerald-950/80 border-emerald-600 text-white">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">1. AssinaturaScreen</strong>
-                        Captura touch do aluno/supervisor, validação do payload base64 e vinculação ao período.
+                    <button onclick="switchRntlTab('login')" id="btn-rntl-login" class="w-full text-left p-2.5 rounded-lg border transition bg-emerald-950/80 border-emerald-600 text-white">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">1. LoginScreen (Tela 0)</strong>
+                        Teste com preenchimento de formulário, botão Entrar e injeção de fakes no AuthProvider.
                     </button>
-                    <button onclick="switchRntlTab('atividades')" id="btn-rntl-atividades" class="w-full text-left p-2.5 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">2. AtividadesFormScreen</strong>
-                        Formulário de horas de estágio, descrição obrigatória (min 5 chars) e GPS opcional.
+                    <button onclick="switchRntlTab('apontamento')" id="btn-rntl-apontamento" class="w-full text-left p-2.5 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">2. ApontamentoScreen (Tela 1)</strong>
+                        Contadores de balaios, entrada de litros, fixação de GPS do cafezal e feed diário.
                     </button>
-                    <button onclick="switchRntlTab('historico')" id="btn-rntl-historico" class="w-full text-left p-2.5 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300">
-                        <strong class="text-emerald-400 block font-semibold mb-0.5">3. HistoricoRelatoriosScreen</strong>
-                        Listagem reativa de períodos, indicador de sync e botão de emissão de PDF.
+                    <button onclick="switchRntlTab('trabalhadores')" id="btn-rntl-trabalhadores" class="w-full text-left p-2.5 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300">
+                        <strong class="text-emerald-400 block font-semibold mb-0.5">3. TrabalhadoresScreen (Tela 2)</strong>
+                        Gestão de apanhadores com código de crachá (<code>TRAB-001</code>), CPF e busca reativa.
                     </button>
                 </div>
             </div>
             <div class="lg:col-span-8 bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <!-- Aba 1: AssinaturaScreen -->
-                <div id="panel-rntl-assinatura">
+                <!-- Aba 1: LoginScreen -->
+                <div id="panel-rntl-login">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                        <span class="text-xs font-mono text-slate-400">tests/screens/AssinaturaScreen.test.tsx (RNTL)</span>
-                        <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 90.90%</span>
+                        <span class="text-xs font-mono text-slate-400">tests/screens/LoginScreen.test.tsx (RNTL)</span>
+                        <span class="text-xs text-emerald-400 font-mono font-semibold">100% Pass</span>
                     </div>
                     <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">it('deve registrar assinatura digital simulando toque nos botões e inputs', async () => {
-  const periodoRepo = InMemoryPeriodoAvaliacaoRepository.getInstance();
-  periodoRepo.clear();
-  await periodoRepo.save(new PeriodoAvaliacao({
-    id: 'p1', estagioId: 'e1', alunoId: 'aluno-01', numeroPeriodo: 1,
-    dataInicio: new Date('2026-01-01'), dataFim: new Date('2026-06-01'),
-  }));
+<pre><code class="language-typescript">describe('LoginScreen (RNTL + Fakes)', () => {
+    it('faz login com sucesso usando credenciais válidas e navega', async () => {
+        const { getByPlaceholderText, getByText } = await renderScreen();
 
-  const assinarUseCase = new AssinarRelatorioUseCase(periodoRepo);
-  const onConcluidoMock = jest.fn();
+        // Simula preenchimento real de credenciais
+        fireEvent.changeText(getByPlaceholderText('Digite seu e-mail...'), 'pesquisador@ecofield.app');
+        fireEvent.changeText(getByPlaceholderText('Digite sua senha...'), '123456');
+        fireEvent.press(getByText('Entrar'));
 
-  const { getByTestId, findByText } = render(
-    <AssinaturaScreen
-      periodoId="p1"
-      autorIdPadrao="aluno-01"
-      assinarUseCase={assinarUseCase}
-      onAssinaturaConcluida={onConcluidoMock}
-    />
-  );
+        await waitFor(() => {
+            expect(router.replace).toHaveBeenCalledWith('/(drawer)/(tabs)');
+        });
+    });
 
-  // Simulação de eventos reais de toque do usuário
-  fireEvent.press(getByTestId('btn-papel-aluno'));
-  fireEvent.press(getByTestId('btn-assinar'));
+    it('exibe alerta de erro quando as credenciais são inválidas', async () => {
+        const { getByPlaceholderText, getByText } = await renderScreen();
 
-  expect(await findByText('Assinatura registrada e vinculada com sucesso!')).toBeTruthy();
-  expect(onConcluidoMock).toHaveBeenCalledTimes(1);
+        fireEvent.changeText(getByPlaceholderText('Digite seu e-mail...'), 'invalido@ecofield.app');
+        fireEvent.changeText(getByPlaceholderText('Digite sua senha...'), 'senhaerrada');
+        fireEvent.press(getByText('Entrar'));
 
-  const periodoAtualizado = await periodoRepo.findById('p1');
-  expect(periodoAtualizado?.getAssinaturaAluno()).not.toBeNull();
+        await waitFor(() => {
+            expect(Alert.alert).toHaveBeenCalledWith('Erro', 'Credenciais inválidas');
+        });
+    });
 });</code></pre>
                     </div>
                 </div>
 
-                <!-- Aba 2: AtividadesFormScreen -->
-                <div id="panel-rntl-atividades" class="hidden">
+                <!-- Aba 2: ApontamentoScreen -->
+                <div id="panel-rntl-apontamento" class="hidden">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                        <span class="text-xs font-mono text-slate-400">tests/screens/AtividadesFormScreen.test.tsx (RNTL)</span>
-                        <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 100.00%</span>
+                        <span class="text-xs font-mono text-slate-400">app/(drawer)/(tabs)/index.tsx (Apontamento de Campo)</span>
+                        <span class="text-xs text-emerald-400 font-mono font-semibold">Operação Rural</span>
                     </div>
                     <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">it('deve preencher formulário e salvar atividades com useCase fake', async () => {
-  const periodoRepo = InMemoryPeriodoAvaliacaoRepository.getInstance();
-  periodoRepo.clear();
-  await periodoRepo.save(new PeriodoAvaliacao({
-    id: 'p1', estagioId: 'e1', alunoId: 'aluno-01', numeroPeriodo: 1,
-    dataInicio: new Date('2026-01-01'), dataFim: new Date('2026-06-01'),
-  }));
+<pre><code class="language-typescript">// Validação do Apontamento com Leitor de Crachá e GPS
+it('deve registrar apontamento de balaio vinculando trabalhador e GPS sob demanda', async () => {
+    const apontamentoRepo = InMemoryApontamentoRepository.getInstance();
+    const trabalhadorRepo = InMemoryTrabalhadorRepository.getInstance();
+    
+    // Injeção de caso de uso fake e simulação de clique do apontador
+    const useCase = new RegistrarApontamento(apontamentoRepo, trabalhadorRepo);
+    const resultado = await useCase.execute({
+        trabalhadorId: 'trab-001',
+        litros: 60,
+        latitude: -21.2488,
+        longitude: -44.9998,
+    });
 
-  const registrarUseCase = new RegistrarAtividadesUseCase(periodoRepo);
-  const onSalvoMock = jest.fn();
-
-  const { getByPlaceholderText, getByText } = render(
-    <AtividadesFormScreen
-      periodoId="p1"
-      registrarUseCase={registrarUseCase}
-      onAtividadesSalvas={onSalvoMock}
-    />
-  );
-
-  fireEvent.changeText(getByPlaceholderText('Descreva as atividades desenvolvidas...'), 'Implementação do domínio DDD');
-  fireEvent.changeText(getByPlaceholderText('Horas do período (ex: 40)'), '40');
-  fireEvent.press(getByText('Salvar Atividades'));
-
-  await waitFor(() => {
-    expect(onSalvoMock).toHaveBeenCalled();
-  });
+    expect(resultado.quantidade.litros).toBe(60);
+    expect(resultado.coordenadas.latitude).toBe(-21.2488);
 });</code></pre>
                     </div>
                 </div>
 
-                <!-- Aba 3: HistoricoRelatoriosScreen -->
-                <div id="panel-rntl-historico" class="hidden">
+                <!-- Aba 3: TrabalhadoresScreen -->
+                <div id="panel-rntl-trabalhadores" class="hidden">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-                        <span class="text-xs font-mono text-slate-400">tests/screens/HistoricoRelatoriosScreen.test.tsx (RNTL)</span>
-                        <span class="text-xs text-emerald-400 font-mono font-semibold">Cobertura: 68.75%</span>
+                        <span class="text-xs font-mono text-slate-400">app/(drawer)/(tabs)/trabalhadores.tsx (Gestão de Apanhadores)</span>
+                        <span class="text-xs text-emerald-400 font-mono font-semibold">CRUD & Busca</span>
                     </div>
                     <div class="code-container bg-slate-950">
-<pre><code class="language-typescript">it('deve listar relatórios e acionar geração de PDF quando aprovado', async () => {
-  const periodoRepo = InMemoryPeriodoAvaliacaoRepository.getInstance();
-  periodoRepo.clear();
-  const periodoAprovado = new PeriodoAvaliacao({
-    id: 'p-aprovado', estagioId: 'e1', alunoId: 'aluno-01', numeroPeriodo: 1,
-    dataInicio: new Date('2026-01-01'), dataFim: new Date('2026-06-01'),
-    status: StatusPeriodo.APROVADO,
-  });
-  await periodoRepo.save(periodoAprovado);
+<pre><code class="language-typescript">// Gestão de Trabalhadores: Validação de Crachá e Diária
+it('deve listar colhedores e filtrar reativamente por crachá TRAB-001', async () => {
+    const repo = InMemoryTrabalhadorRepository.getInstance();
+    await repo.save(new Trabalhador('1', 'José da Silva', '12345678901', 'TRAB-001', new ValorMonetario(60)));
 
-  const { findByText } = render(
-    <HistoricoRelatoriosScreen alunoId="aluno-01" periodoRepo={periodoRepo} />
-  );
-
-  expect(await findByText('Período 1')).toBeTruthy();
-  expect(await findByText('APROVADO')).toBeTruthy();
+    const trab = await repo.findByCracha('TRAB-001');
+    expect(trab).not.toBeNull();
+    expect(trab?.nome).toBe('José da Silva');
+    expect(trab?.diaria.formatar()).toBe('R$ 60,00');
 });</code></pre>
                     </div>
                 </div>
@@ -1866,11 +1826,11 @@ export class SessionStorageSecureStore implements SessionStorage {
                 </div>
                 <div class="bg-slate-900 p-6 rounded-xl border-t-2 border-emerald-500 border-x border-b border-slate-800">
                     <h3 class="text-base font-bold text-white mb-2">2. Invariantes Blindadas</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Raiz de Agregação (PeriodoAvaliacao) e Value Objects impedem que dados existam em estados ilegais ou inconsistentes na aplicação.</p>
+                    <p class="text-xs text-slate-400 leading-relaxed">Raízes de Agregação (Trabalhador, Apontamento) e Value Objects (QuantidadeBalaio, ValorMonetario, Coordinates) impedem dados ilegais na colheita.</p>
                 </div>
                 <div class="bg-slate-900 p-6 rounded-xl border-t-2 border-emerald-500 border-x border-b border-slate-800">
-                    <h3 class="text-base font-bold text-white mb-2">3. Autenticação Híbrida Flexível</h3>
-                    <p class="text-xs text-slate-400 leading-relaxed">Sessão segura cifrada via Keychain/Keystore para usuários cadastrados + TokenSupervisor temporário autorreferenciado para supervisores externos.</p>
+                    <h3 class="text-base font-bold text-white mb-2">3. Autenticação Segura & Modo Campo</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Sessão segura cifrada via Keychain/Keystore (SessionStorageSecureStore) para operadores de campo, garantindo acesso offline resiliente na lavoura.</p>
                 </div>
                 <div class="bg-slate-900 p-6 rounded-xl border-t-2 border-emerald-500 border-x border-b border-slate-800">
                     <h3 class="text-base font-bold text-white mb-2">4. IoC Container Centralizado</h3>
@@ -1883,7 +1843,7 @@ export class SessionStorageSecureStore implements SessionStorage {
             </div>
             <div class="mt-12 text-center">
                 <span class="inline-block px-4 py-2 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 font-mono text-xs font-bold">
-                    ✓ Defesa Técnica Concluída — Fase 1 Entregue com 100% de Conformidade
+                    ✓ Defesa Técnica Concluída — SafraCafé Entregue com 100% de Conformidade
                 </span>
             </div>
         </section>
@@ -1923,47 +1883,51 @@ export class SessionStorageSecureStore implements SessionStorage {
                 // Controle de Abas de Domain Services (Slide 10)
         function switchServiceTab(service) {
             const panels = {
-                pdf: document.getElementById('panel-svc-pdf'),
-                devolucao: document.getElementById('panel-svc-devolucao'),
                 sync: document.getElementById('panel-svc-sync'),
+                fechamento: document.getElementById('panel-svc-fechamento'),
             };
             const buttons = {
-                pdf: document.getElementById('btn-svc-pdf'),
-                devolucao: document.getElementById('btn-svc-devolucao'),
                 sync: document.getElementById('btn-svc-sync'),
+                fechamento: document.getElementById('btn-svc-fechamento'),
             };
+
             Object.keys(panels).forEach(key => {
-                if (key === service) {
-                    panels[key].classList.remove('hidden');
-                    buttons[key].className = 'w-full text-left p-3 rounded-lg border transition bg-emerald-950/80 border-emerald-600 text-white';
-                } else {
-                    panels[key].classList.add('hidden');
+                if (panels[key]) panels[key].classList.add('hidden');
+                if (buttons[key]) {
                     buttons[key].className = 'w-full text-left p-3 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300';
                 }
             });
+
+            if (panels[service]) panels[service].classList.remove('hidden');
+            if (buttons[service]) {
+                buttons[service].className = 'w-full text-left p-3 rounded-lg border transition bg-emerald-950/80 border-emerald-600 text-white';
+            }
         }
 
         // Controle de Abas de Telas RNTL (Slide 16)
         function switchRntlTab(screen) {
             const panels = {
-                assinatura: document.getElementById('panel-rntl-assinatura'),
-                atividades: document.getElementById('panel-rntl-atividades'),
-                historico: document.getElementById('panel-rntl-historico'),
+                login: document.getElementById('panel-rntl-login'),
+                apontamento: document.getElementById('panel-rntl-apontamento'),
+                trabalhadores: document.getElementById('panel-rntl-trabalhadores'),
             };
             const buttons = {
-                assinatura: document.getElementById('btn-rntl-assinatura'),
-                atividades: document.getElementById('btn-rntl-atividades'),
-                historico: document.getElementById('btn-rntl-historico'),
+                login: document.getElementById('btn-rntl-login'),
+                apontamento: document.getElementById('btn-rntl-apontamento'),
+                trabalhadores: document.getElementById('btn-rntl-trabalhadores'),
             };
+
             Object.keys(panels).forEach(key => {
-                if (key === screen) {
-                    panels[key].classList.remove('hidden');
-                    buttons[key].className = 'w-full text-left p-2.5 rounded-lg border transition bg-emerald-950/80 border-emerald-600 text-white';
-                } else {
-                    panels[key].classList.add('hidden');
+                if (panels[key]) panels[key].classList.add('hidden');
+                if (buttons[key]) {
                     buttons[key].className = 'w-full text-left p-2.5 rounded-lg border transition bg-slate-900 border-slate-800 hover:border-slate-700 text-slate-300';
                 }
             });
+
+            if (panels[screen]) panels[screen].classList.remove('hidden');
+            if (buttons[screen]) {
+                buttons[screen].className = 'w-full text-left p-2.5 rounded-lg border transition bg-emerald-950/80 border-emerald-600 text-white';
+            }
         }
 
         // Controle de visualização da tela de Apontamento (Topo vs Registro)

@@ -15,6 +15,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { CATEGORIAS_DESPESA, Despesa } from '@/src/domain/entities/Despesa';
 import { container } from '@/src/factory/container';
+import { LocalReceiptStorage } from '@/src/infra/filesystem/LocalReceiptStorage';
 import {
   obterLocalizacaoSegura,
   COORDENADAS_PADRAO_FAZENDA,
@@ -78,11 +79,16 @@ export default function Despesas() {
       return;
     }
     try {
+      let finalFotoUri = fotoUri;
+      if (fotoUri) {
+        finalFotoUri = await LocalReceiptStorage.getInstance().persistReceiptImage(fotoUri);
+      }
+
       await container.registrarDespesa.execute({
         descricao,
         valor: valorNumero,
         categoria: categoria as Despesa['categoria'],
-        fotoUri,
+        fotoUri: finalFotoUri,
         latitude: locationResult.latitude,
         longitude: locationResult.longitude,
       });

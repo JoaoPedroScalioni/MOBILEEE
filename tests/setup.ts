@@ -62,3 +62,17 @@ jest.mock('expo-router', () => ({
     Tabs: ({ children }: any) => children,
     Redirect: () => null,
 }));
+
+// Mock expo-sqlite para testes unitários em ambiente Jest/Node
+jest.mock('expo-sqlite', () => ({
+    openDatabaseAsync: jest.fn(async () => null),
+    openDatabaseSync: jest.fn(() => null),
+}));
+
+// Mock expo-file-system para persistência de imagens em testes
+jest.mock('expo-file-system', () => ({
+    documentDirectory: 'file:///data/user/0/host.exp.exponent/files/',
+    getInfoAsync: jest.fn(async () => ({ exists: true })),
+    makeDirectoryAsync: jest.fn(async () => {}),
+    copyAsync: jest.fn(async () => {}),
+}));

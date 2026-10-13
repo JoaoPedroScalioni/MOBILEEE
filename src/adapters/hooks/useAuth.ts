@@ -1,1 +1,1 @@
-export { useAuth, PapelUsuario, AuthStatus } from '../context/AuthContext';
+export { useAuth, AuthStatus } from '../auth/AuthContext';

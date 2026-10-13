@@ -1,22 +1,16 @@
 import { Apontamento } from '../../src/domain/entities/Apontamento';
 import { Despesa } from '../../src/domain/entities/Despesa';
-import { Estagio } from '../../src/domain/entities/Estagio';
 import { SyncQueueItem } from '../../src/domain/entities/SyncQueueItem';
-import { TokenSupervisor } from '../../src/domain/entities/TokenSupervisor';
 import { Trabalhador } from '../../src/domain/entities/Trabalhador';
-import { CargaHoraria } from '../../src/domain/value-objects/CargaHoraria';
 import { Coordinates } from '../../src/domain/value-objects/Coordinates';
 import { QuantidadeBalaio } from '../../src/domain/value-objects/QuantidadeBalaio';
 import { SyncStatus } from '../../src/domain/value-objects/SyncStatus';
 import { ValorMonetario } from '../../src/domain/value-objects/ValorMonetario';
 import { InMemoryApontamentoRepository } from '../../src/infra/inMemoryApontamentoRepository';
-import { InMemoryCameraGateway } from '../../src/infra/InMemoryCameraGateway';
 import { InMemoryDespesaRepository } from '../../src/infra/inMemoryDespesaRepository';
-import { InMemoryEstagioRepository } from '../../src/infra/InMemoryEstagioRepository';
 import { InMemoryNetworkGateway } from '../../src/infra/inMemoryNetworkGateway';
 import { InMemorySyncGateway } from '../../src/infra/inMemorySyncGateway';
 import { InMemorySyncQueueRepository } from '../../src/infra/inMemorySyncQueueRepository';
-import { InMemoryTokenSupervisorRepository } from '../../src/infra/InMemoryTokenSupervisorRepository';
 import { InMemoryTrabalhadorRepository } from '../../src/infra/inMemoryTrabalhadorRepository';
 
 const AGORA = Date.now();
@@ -173,61 +167,6 @@ describe('Fakes In-Memory (infra) — repositórios e gateways', () => {
       net.setConnected(false);
       expect(await net.isConnected()).toBe(false);
       net.setConnected(true);
-    });
-  });
-
-  describe('InMemoryCameraGateway', () => {
-    it('deve devolver foto simulada padrão e permitir trocar a foto', async () => {
-      const camera = new InMemoryCameraGateway();
-      const padrao = await camera.capturarFoto();
-      expect(padrao.uri).toContain('mock');
-
-      camera.setFotoSimulada({ uri: 'file:///outra.jpg', base64: 'abc', largura: 1, altura: 1 });
-      expect((await camera.capturarFoto()).uri).toBe('file:///outra.jpg');
-    });
-  });
-
-  describe('InMemoryEstagioRepository e InMemoryTokenSupervisorRepository', () => {
-    it('Estagio: deve salvar, buscar, filtrar por aluno, listar e limpar', async () => {
-      const repo = InMemoryEstagioRepository.getInstance();
-      repo.clear();
-      const estagio = new Estagio({
-        id: 'e-1',
-        alunoId: 'aluno-1',
-        empresa: 'Tech Corp',
-        supervisorNome: 'Carlos',
-        supervisorEmail: 'carlos@tech.com',
-        cargaHorariaTotal: new CargaHoraria(400, 100, 0),
-        dataInicio: new Date('2026-01-10'),
-      });
-      await repo.save(estagio);
-
-      expect(await repo.findById('e-1')).toBe(estagio);
-      expect(await repo.findById('x')).toBeNull();
-      expect(await repo.findByAlunoId('aluno-1')).toHaveLength(1);
-      expect(await repo.list()).toHaveLength(1);
-      repo.clear();
-      expect(await repo.list()).toHaveLength(0);
-    });
-
-    it('Token: deve salvar, buscar por token e por período, e limpar', async () => {
-      const repo = InMemoryTokenSupervisorRepository.getInstance();
-      repo.clear();
-      const token = new TokenSupervisor({
-        token: 'tok-1',
-        estagioId: 'e-1',
-        periodoId: 'p-1',
-        emailSupervisor: 'sup@empresa.com',
-        expiraEm: new Date(Date.now() + 3600_000),
-      });
-      await repo.save(token);
-
-      expect(await repo.findByToken('tok-1')).toBe(token);
-      expect(await repo.findByToken('nada')).toBeNull();
-      expect(await repo.findByPeriodoId('p-1')).toHaveLength(1);
-      expect(await repo.findByPeriodoId('p-x')).toHaveLength(0);
-      repo.clear();
-      expect(await repo.findByToken('tok-1')).toBeNull();
     });
   });
 });

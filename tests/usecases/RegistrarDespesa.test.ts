@@ -27,8 +27,8 @@ class FakeSyncQueueRepository implements SyncQueueRepository {
     async enqueue(item: SyncQueueItem) {
         this.itens.push(item);
     }
-    async save(_item: SyncQueueItem) {}
-    async remove(_id: string) {}
+    async save(_item: SyncQueueItem) { }
+    async remove(_id: string) { }
     async findById(_id: string) {
         return null;
     }
@@ -94,3 +94,5 @@ describe('RegistrarDespesa Use Case', () => {
         expect(fila.itens).toHaveLength(0);
     });
 });
+
+##

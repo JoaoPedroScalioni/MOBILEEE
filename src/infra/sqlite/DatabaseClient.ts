@@ -47,6 +47,7 @@ export class DatabaseClient implements IDatabaseClient {
         this.activateFallback();
       }
 
+      await this.exec('PRAGMA foreign_keys = ON;');
       await this.createTables();
       await this.seedTrabalhadoresSeNecessario();
     } finally {
@@ -85,8 +86,8 @@ export class DatabaseClient implements IDatabaseClient {
 
       CREATE TABLE IF NOT EXISTS apontamentos (
         id TEXT PRIMARY KEY,
-        apontador_id TEXT,
-        trabalhador_id TEXT NOT NULL,
+        apontador_id TEXT REFERENCES apontadores(id),
+        trabalhador_id TEXT NOT NULL REFERENCES trabalhadores(id),
         litros REAL NOT NULL,
         latitude REAL NOT NULL,
         longitude REAL NOT NULL,
@@ -98,7 +99,7 @@ export class DatabaseClient implements IDatabaseClient {
 
       CREATE TABLE IF NOT EXISTS despesas (
         id TEXT PRIMARY KEY,
-        apontador_id TEXT,
+        apontador_id TEXT REFERENCES apontadores(id),
         descricao TEXT NOT NULL,
         valor REAL NOT NULL,
         categoria TEXT NOT NULL,

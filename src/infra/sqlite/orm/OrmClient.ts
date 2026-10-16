@@ -171,7 +171,6 @@ export class OrmClient {
       const targetTable = relation.targetTable as keyof typeof OrmSchema;
 
       if (relation.type === 'hasMany') {
-        const ids = records.map((r) => r.id);
         const allRelated = await this.findMany(targetTable);
         for (const record of records) {
           record[relName] = allRelated.filter((rel: any) => rel[relation.foreignKey] === record.id);

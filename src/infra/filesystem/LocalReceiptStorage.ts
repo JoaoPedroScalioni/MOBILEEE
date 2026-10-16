@@ -41,7 +41,7 @@ export class LocalReceiptStorage {
       });
 
       return permanentUri;
-    } catch (error) {
+    } catch {
       // Degradação graciosa em ambientes sem acesso ao FileSystem nativo
       return tempUri;
     }

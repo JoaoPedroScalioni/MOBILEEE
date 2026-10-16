@@ -51,11 +51,7 @@ export default function Apontamento() {
 
   useFocusEffect(
     useCallback(() => {
-      let active = true;
       carregarDados();
-      return () => {
-        active = false;
-      };
     }, [carregarDados]),
   );
 
@@ -72,7 +68,10 @@ export default function Apontamento() {
   }, []);
 
   useEffect(() => {
-    carregarLocalizacao();
+    const timer = setTimeout(() => {
+      carregarLocalizacao();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [carregarLocalizacao]);
 
   function selecionarPorCracha(codigo: string) {
@@ -201,7 +200,7 @@ export default function Apontamento() {
               Crachá {selecionado.cracha} · Diária {selecionado.diaria.formatar()}
             </Text>
           ) : (
-            <Text style={styles.workerMeta}>Toque em "Ler crachá" ou escolha abaixo</Text>
+            <Text style={styles.workerMeta}>Toque em &quot;Ler crachá&quot; ou escolha abaixo</Text>
           )}
         </View>
         <TouchableOpacity style={styles.scanButton} onPress={() => setMode('scan')}>

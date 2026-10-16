@@ -41,9 +41,17 @@ export class SupabaseSyncGateway implements SyncGateway {
     SupabaseSyncGateway.instance = instance;
   }
 
+  private normalizeTableName(entity: string): string {
+    const lower = entity.toLowerCase().trim();
+    if (lower === 'trabalhador' || lower === 'trabalhadores') return 'trabalhadores';
+    if (lower === 'apontamento' || lower === 'apontamentos') return 'apontamentos';
+    if (lower === 'despesa' || lower === 'despesas') return 'despesas';
+    return lower;
+  }
+
   async push(item: SyncQueueItem): Promise<SyncResultadoGateway> {
     const client = this.clientManager.getClient();
-    const tabela = item.entity;
+    const tabela = this.normalizeTableName(item.entity);
 
     // 1. Resolução de Conflitos: Last-Write-Wins (LWW)
     const { data: existing } = await client

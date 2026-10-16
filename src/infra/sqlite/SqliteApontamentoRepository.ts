@@ -21,20 +21,38 @@ export class SqliteApontamentoRepository implements ApontamentoRepository {
 
   async save(apontamento: Apontamento): Promise<void> {
     const agora = Date.now();
-    await this.db.run(
-      `INSERT INTO apontamentos (id, apontador_id, trabalhador_id, litros, latitude, longitude, data, updated_at, deleted_at, sync_status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 'pending')`,
-      [
-        apontamento.id,
-        null,
-        apontamento.trabalhadorId,
-        apontamento.quantidade.litros,
-        apontamento.coordenadas.latitude,
-        apontamento.coordenadas.longitude,
-        apontamento.data,
-        agora,
-      ]
-    );
+    const existente = await this.findById(apontamento.id);
+    if (existente) {
+      await this.db.run(
+        `UPDATE apontamentos
+         SET trabalhador_id = ?, litros = ?, latitude = ?, longitude = ?, data = ?, updated_at = ?, sync_status = 'pending'
+         WHERE id = ?`,
+        [
+          apontamento.trabalhadorId,
+          apontamento.quantidade.litros,
+          apontamento.coordenadas.latitude,
+          apontamento.coordenadas.longitude,
+          apontamento.data,
+          agora,
+          apontamento.id,
+        ]
+      );
+    } else {
+      await this.db.run(
+        `INSERT INTO apontamentos (id, apontador_id, trabalhador_id, litros, latitude, longitude, data, updated_at, deleted_at, sync_status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, 'pending')`,
+        [
+          apontamento.id,
+          null,
+          apontamento.trabalhadorId,
+          apontamento.quantidade.litros,
+          apontamento.coordenadas.latitude,
+          apontamento.coordenadas.longitude,
+          apontamento.data,
+          agora,
+        ]
+      );
+    }
   }
 
   async findById(id: string): Promise<Apontamento | null> {

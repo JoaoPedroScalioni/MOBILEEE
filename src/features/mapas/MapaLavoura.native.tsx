@@ -90,7 +90,10 @@ export function MapaLavoura() {
   }, []);
 
   useEffect(() => {
-    atualizarPosicao();
+    const timer = setTimeout(() => {
+      atualizarPosicao();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [atualizarPosicao]);
 
   useFocusEffect(

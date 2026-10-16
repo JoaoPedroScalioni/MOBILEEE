@@ -37,11 +37,7 @@ export default function Trabalhadores() {
 
   useFocusEffect(
     useCallback(() => {
-      let active = true;
       carregarTrabalhadores();
-      return () => {
-        active = false;
-      };
     }, [carregarTrabalhadores]),
   );
 

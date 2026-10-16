@@ -241,21 +241,24 @@ export class DatabaseClient implements IDatabaseClient {
       return { changes: 1, lastInsertRowId: 1 };
     }
 
-    if (normalized.startsWith('UPDATE TRABALHADORES')) {
-      const table = this.memoryTables.get('trabalhadores')!;
-      if (normalized.includes('DELETED_AT')) {
-        const [deleted_at, updated_at, id] = params;
-        const row = table.find(t => t.id === id);
-        if (row) { row.deleted_at = deleted_at; row.updated_at = updated_at; }
-      } else {
-        const [nome, cpf, cracha, diaria, updated_at, id] = params;
-        const row = table.find(t => t.id === id);
-        if (row) {
-          row.nome = nome; row.cpf = cpf; row.cracha = cracha;
-          row.diaria = diaria; row.updated_at = updated_at;
+    if (normalized.startsWith('UPDATE TRABALHADORES') || normalized.startsWith('UPDATE APONTAMENTOS') || normalized.startsWith('UPDATE DESPESAS') || normalized.startsWith('UPDATE SYNC_QUEUE')) {
+      const match = sql.match(/UPDATE\s+(\w+)\s+SET\s+(.+?)\s+WHERE\s+(.+)/i);
+      if (match) {
+        const tableName = match[1].toLowerCase();
+        const setPart = match[2];
+        const table = this.memoryTables.get(tableName);
+        if (table) {
+          const setCols = setPart.split(',').map((s) => s.trim().split('=')[0].trim().toLowerCase());
+          const id = params[params.length - 1];
+          const row = table.find((t) => t.id === id);
+          if (row) {
+            setCols.forEach((col, idx) => {
+              row[col] = params[idx];
+            });
+            return { changes: 1, lastInsertRowId: 1 };
+          }
         }
       }
-      return { changes: 1, lastInsertRowId: 1 };
     }
 
     if (normalized.startsWith('DELETE FROM TRABALHADORES')) {

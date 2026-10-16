@@ -18,6 +18,10 @@ import { InMemoryNetworkGateway } from "../infra/inMemoryNetworkGateway";
 import { InMemorySyncGateway } from "../infra/inMemorySyncGateway";
 import { SessionStorageSecureStore } from "../adapters/auth/SessionStorageSecureStore";
 import { SincronizacaoService } from "../domain/services/SincronizacaoService";
+import { OrmClient } from "../infra/sqlite/orm/OrmClient";
+import { SupabaseAuthGateway } from "../infra/supabase/SupabaseAuthGateway";
+import { SupabaseStorageGateway } from "../infra/supabase/SupabaseStorageGateway";
+import { SupabaseSyncGateway } from "../infra/supabase/SupabaseSyncGateway";
 
 import { AuthenticateUser } from "../usecases/AuthenticateUser";
 import { RestoreSession } from "../usecases/RestoreSession";
@@ -52,6 +56,11 @@ class Container {
     public readonly sessionStorage: SessionStorageSecureStore;
     public readonly sincronizacaoService: SincronizacaoService;
 
+    public readonly ormClient: OrmClient;
+    public readonly supabaseAuthGateway: SupabaseAuthGateway;
+    public readonly supabaseStorageGateway: SupabaseStorageGateway;
+    public readonly supabaseSyncGateway: SupabaseSyncGateway;
+
     public readonly cadastrarTrabalhador: CadastrarTrabalhador;
     public readonly editarTrabalhador: EditarTrabalhador;
     public readonly excluirTrabalhador: ExcluirTrabalhador;
@@ -84,6 +93,11 @@ class Container {
         this.syncGateway = InMemorySyncGateway.getInstance();
         this.sessionStorage = new SessionStorageSecureStore();
         this.sincronizacaoService = new SincronizacaoService();
+
+        this.ormClient = OrmClient.getInstance();
+        this.supabaseAuthGateway = SupabaseAuthGateway.getInstance();
+        this.supabaseStorageGateway = SupabaseStorageGateway.getInstance();
+        this.supabaseSyncGateway = SupabaseSyncGateway.getInstance();
 
         this.cadastrarTrabalhador = new CadastrarTrabalhador(
             this.trabalhadorRepository,

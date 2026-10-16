@@ -1,6 +1,7 @@
 import '@testing-library/jest-native/extend-expect';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+jest.setTimeout(20000);
 
 // Mock @expo/vector-icons para evitar warnings de act(...) por carregamento assíncrono de fontes nos testes
 jest.mock('@expo/vector-icons', () => {

@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estúdio de Apresentação & Teleprompter — SafraCafé (SINTEC)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        coffee: {
+                            500: '#8c5e3c',
+                            700: '#5c3a21',
+                            900: '#2c1810',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-full { width: 100% !important; margin: 0 !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+
+    <!-- Topbar com Cronômetro e Controles -->
+    <header class="no-print sticky top-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 py-3 shadow-lg">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <!-- Título do Projeto -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-amber-700 flex items-center justify-center shadow-md shadow-emerald-950/50 text-xl font-bold">
+                    ☕
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">SINTEC • CEFET-MG</span>
+                        <span class="text-xs text-slate-400">Varginha / MG</span>
+                    </div>
+                    <h1 class="text-sm sm:text-base font-bold text-white tracking-tight">SafraCafé — Guia do Apresentador</h1>
+                </div>
+            </div>
+
+            <!-- Cronômetro de Apresentação (5 a 10 min) -->
+            <div class="flex items-center bg-slate-900 border border-slate-800 rounded-2xl px-4 py-2 space-x-4 shadow-inner">
+                <div class="text-center">
+                    <div class="text-[10px] font-mono uppercase tracking-wider text-slate-400">Tempo de Gravação</div>
+                    <div id="timerDisplay" class="text-2xl font-mono font-extrabold text-emerald-400 tracking-wider">00:00</div>
+                </div>
+
+                <div class="flex items-center space-x-1.5 border-l border-slate-800 pl-3">
+                    <button id="btnPlayPause" onclick="toggleTimer()" class="p-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white transition font-medium text-xs flex items-center space-x-1 shadow-sm shadow-emerald-700/40">
+                        <span id="playIcon">▶</span>
+                        <span id="playText" class="hidden sm:inline">Iniciar</span>
+                    </button>
+                    <button onclick="resetTimer()" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 hover:text-white transition font-medium text-xs">
+                        🔄
+                    </button>
+                </div>
+
+                <!-- Indicador de Faixa -->
+                <div class="hidden md:flex flex-col text-[11px] font-medium border-l border-slate-800 pl-3">
+                    <span id="timerBadge" class="text-slate-400">Meta: 05:00 a 10:00 min</span>
+                    <span id="timerStatus" class="text-[10px] font-mono text-emerald-400">Ideal: ~07:30 min</span>
+                </div>
+            </div>
+
+            <!-- Ações Rápidas -->
+            <div class="flex items-center space-x-2">
+                <button onclick="openTipsModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition flex items-center space-x-1.5">
+                    <span>🎙️</span>
+                    <span class="hidden sm:inline">Dicas de Gravação</span>
+                </button>
+                <button onclick="window.print()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition flex items-center space-x-1.5">
+                    <span>🖨️</span>
+                    <span class="hidden sm:inline">Imprimir</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Barra de Progresso e Seletor de Slides -->
+    <nav class="no-print bg-slate-950 border-b border-slate-800/80 px-4 py-2 sticky top-[65px] z-40">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-3 overflow-x-auto custom-scroll py-1">
+            <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0" id="slideTabButtons">
+                <!-- Injetado dinamicamente via JS -->
+            </div>
+            <div class="flex items-center space-x-2 text-xs font-mono text-slate-400 flex-shrink-0 pl-2 border-l border-slate-800">
+                <span id="slideCounterText">Slide 1 de 10</span>
+                <span class="text-slate-600">•</span>
+                <span id="slideTimeEst" class="text-amber-400">~40s</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal: Split Screen (Slide Preview + Teleprompter) -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LADO ESQUERDO: O QUE COLOCAR NO SLIDE (Visual do Template SINTEC) -->
+        <section class="lg:col-span-6 flex flex-col space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-blue-400 font-mono">Lâmina do Slide (Template SINTEC)</h2>
+                </div>
+                <span class="text-xs text-slate-400 font-mono bg-slate-800 px-2 py-0.5 rounded">O que projetar</span>
+            </div>
+
+            <!-- Moldura simulando o Slide 16:9 em formato claro oficial -->
+            <div class="bg-white text-slate-900 rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-200 min-h-[480px] flex flex-col justify-between relative overflow-hidden transition-all duration-300" id="slideCanvas">
+                <!-- Cabeçalho Institucional do Slide -->
+                <div class="border-b border-slate-200 pb-3 flex items-center justify-between">
+                    <div>
+                        <div class="text-[11px] font-extrabold uppercase tracking-widest text-emerald-800">SINTEC • CEFET-MG VARGINHA</div>
+                        <div class="text-[10px] text-slate-500 font-medium">Simpósio de Inovação, Tecnologia, Empreendedorismo e Ciências Computacionais</div>
+                    </div>
+                    <div class="text-right">
+                        <span id="slideTagBadge" class="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-200">Slide 1</span>
+                    </div>
+                </div>
+
+                <!-- Corpo Central do Slide -->
+                <div class="py-6 flex-1 flex flex-col justify-center" id="slideBody">
+                    <!-- Injetado dinamicamente -->
+                </div>
+
+                <!-- Rodapé Oficial com Parceiros (SINTEC) -->
+                <div class="border-t border-slate-200 pt-3 mt-4 flex flex-wrap items-center justify-between text-[10px] text-slate-500 font-medium">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-slate-700">Realizadores:</span>
+                        <span>CEFET-MG Varginha • BSI • SITE</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-slate-700">Apoiadores:</span>
+                        <span>DEDC • Porto Inovação • Nascente • SEBRAE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guia de Itens Essenciais do Slide -->
+            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 text-xs space-y-2">
+                <div class="font-bold text-slate-200 flex items-center space-x-2">
+                    <span>📌</span>
+                    <span>Destaques Obrigatórios neste Slide:</span>
+                </div>
+                <ul id="slideHighlightsList" class="space-y-1.5 text-slate-400 pl-5 list-disc">
+                    <!-- Injetado dinamicamente -->
+                </ul>
+            </div>
+        </section>
+
+        <!-- LADO DIREITO: TELEPROMPTER / ROTEIRO DE FALA (O QUE FALAR NO VÍDEO) -->
+        <section class="lg:col-span-6 flex flex-col space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-emerald-400 font-mono">Teleprompter & Roteiro de Fala</h2>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="adjustSpeechFont(-1)" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs" title="Diminuir fonte">A-</button>
+                    <button onclick="adjustSpeechFont(1)" class="w-7 h-7 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs" title="Aumentar fonte">A+</button>
+                    <button onclick="copySpeechText()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center space-x-1" title="Copiar texto de fala">
+                        <span>📋</span>
+                        <span class="hidden sm:inline">Copiar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Caixa de Texto do Teleprompter -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-6 sm:p-7 shadow-2xl flex-1 flex flex-col justify-between relative custom-scroll overflow-y-auto max-h-[580px]">
+                <div class="space-y-4" id="speechContainer">
+                    <div class="flex items-center justify-between text-xs font-mono text-slate-400 pb-2 border-b border-slate-800">
+                        <span id="speechTimerGoal">Tempo sugerido: 40 segundos</span>
+                        <span id="speechWordCount">~115 palavras</span>
+                    </div>
+
+                    <!-- Texto de Fala -->
+                    <div id="speechText" class="text-slate-100 leading-relaxed text-base sm:text-lg font-medium transition-all duration-150">
+                        <!-- Injetado via JS -->
+                    </div>
+                </div>
+
+                <!-- Dica Rápida de Entonação -->
+                <div class="mt-6 pt-4 border-t border-slate-800/80 bg-slate-900/40 rounded-xl p-3 flex items-start space-x-3 text-xs">
+                    <span class="text-lg">🎯</span>
+                    <div>
+                        <div class="font-bold text-amber-400 uppercase tracking-wide text-[10px] font-mono">Tom e Postura para este Slide:</div>
+                        <p id="speechToneTip" class="text-slate-300 mt-0.5">Apresentação firme e clara. Olhe diretamente na lente da câmera e faça contato visual seguro.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navegação Inferior -->
+            <div class="no-print flex items-center justify-between pt-2">
+                <button onclick="prevSlide()" id="btnPrev" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition flex items-center space-x-2 border border-slate-700 disabled:opacity-40 disabled:cursor-not-allowed">
+                    <span>⬅️</span>
+                    <span>Slide Anterior</span>
+                </button>
+                <div class="text-center">
+                    <div class="text-[11px] font-mono text-slate-400">Use as setas [ ◀ ] [ ▶ ] do teclado</div>
+                </div>
+                <button onclick="nextSlide()" id="btnNext" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-semibold text-xs transition flex items-center space-x-2 shadow-lg shadow-emerald-900/50 disabled:opacity-40 disabled:cursor-not-allowed">
+                    <span>Próximo Slide</span>
+                    <span>➡️</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal: Dicas de Gravação do Vídeo -->
+    <div id="tipsModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative text-slate-200 space-y-5 max-h-[90vh] overflow-y-auto custom-scroll">
+            <button onclick="closeTipsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-xl font-bold">✕</button>
+
+            <div class="flex items-center space-x-3">
+                <div class="p-3 bg-emerald-500/20 text-emerald-400 rounded-2xl text-2xl">🎬</div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">Checklist de Gravação para o Vídeo (5 a 10 min)</h3>
+                    <p class="text-xs text-slate-400">Configuração recomendada para aprovação com louvor</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-emerald-400 flex items-center space-x-1.5">
+                        <span>🎙️</span>
+                        <span>Áudio & Local</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">Grave em ambiente silencioso. Use fone com microfone próximo da boca para evitar reverberação de cômodo vazio.</p>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-amber-400 flex items-center space-x-1.5">
+                        <span>💡</span>
+                        <span>Iluminação & Câmera</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">Câmera na altura dos olhos. Luz frontal no rosto (de frente para janela ou luminária). Evite luz vindo por trás.</p>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-blue-400 flex items-center space-x-1.5">
+                        <span>💻</span>
+                        <span>Software Recomendado</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed"><strong>OBS Studio</strong> (gratuito) gravando os slides na tela inteira com sua webcam pequena no canto (estilo PiP), ou o gravador do Canva/Loom.</p>
+                </div>
+
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+                    <div class="font-bold text-purple-400 flex items-center space-x-1.5">
+                        <span>⏱️</span>
+                        <span>Ritmo & Cronômetro</span>
+                    </div>
+                    <p class="text-slate-300 leading-relaxed">Mire em <strong>07:30 a 08:30 min</strong>. Assim você fica seguro no edital (5 a 10 min), com tempo para respirar e articular os termos técnicos.</p>
+                </div>
+            </div>
+
+            <div class="bg-emerald-950/40 border border-emerald-500/30 p-4 rounded-2xl text-xs space-y-1 text-slate-200">
+                <span class="font-bold text-emerald-400">💡 Dica de Ouro da Apresentação:</span>
+                <p>Enfatize sempre o conceito de <strong>Offline-First</strong>: "No SafraCafé, a ausência de sinal de internet não é tratada como um erro, mas sim como a condição padrão de trabalho no campo rural."</p>
+            </div>
+
+            <div class="text-right">
+                <button onclick="closeTipsModal()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs">Entendi, vamos gravar!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Dados e Lógica Interativa -->
+    <script>
+        const SLIDES = [
+            {
+                id: 1,
+                tag: "Slide 1 • Capa",
+                title: "Capa Institucional",
+                timeEst: "40s",
+                seconds: 40,
+                tone: "Apresentação firme e clara. Olhe diretamente na lente da câmera com postura confiante.",
+                highlights: [
+                    "Título completo do projeto ressaltando Offline-First",
+                    "Área Temática (Projeto de Iniciação Científica ou Extensão)",
+                    "Nome do Apresentador/Autor e do Orientador",
+                    "Afiliação ao CEFET-MG Campus Varginha e BSI"
+                ],
+                slideHtml: `
+                    <div class="text-center space-y-4">
+                        <span class="inline-block px-3 py-1 bg-amber-100 text-amber-900 border border-amber-300 text-xs font-mono font-bold rounded-full uppercase tracking-wider">
+                            SIMPÓSIO SINTEC 2026
+                        </span>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                            SafraCafé: Sistema Móvel Offline-First para Gestão Operacional e Rastreabilidade da Colheita Cafeeira
+                        </h1>
+                        <p class="text-sm font-semibold text-emerald-700 font-mono">
+                            Área Temática: Projeto de Iniciação Científica
+                        </p>
+                        <div class="pt-4 border-t border-slate-200 max-w-md mx-auto space-y-1">
+                            <p class="text-xs text-slate-700"><strong class="text-slate-900">Apresentador / Autor:</strong> João Pedro Scalioni</p>
+                            <p class="text-xs text-slate-700"><strong class="text-slate-900">Orientador(a):</strong> [Nome do Orientador]</p>
+                            <p class="text-[11px] text-slate-500">Bacharelado em Sistemas de Informação — CEFET-MG Campus Varginha</p>
+                        </div>
+                    </div>
+                `,
+                speech: `Olá a todos! Meu nome é <strong>João Pedro Scalioni</strong>, sou graduando em Sistemas de Informação pelo <strong>CEFET-MG Campus Varginha</strong>. Sob orientação do(a) professor(a) <em>[Nome do Orientador]</em>, apresento ao SINTEC o projeto <strong>SafraCafé: Sistema Móvel Offline-First para Gestão Operacional e Rastreabilidade da Colheita Cafeeira</strong>.<br><br>Este trabalho propõe uma solução de engenharia de software desenvolvida especificamente para a realidade do agronegócio no Sul de Minas, levando a computação móvel para a beira do eito da lavoura, onde o sinal de internet quase nunca está disponível.`
+            },
+            {
+                id: 2,
+                tag: "Slide 2 • Objetivo",
+                title: "Objetivos do Projeto",
+                timeEst: "45s",
+                seconds: 45,
+                tone: "Objetivo e direto. Destaque a robustez da solução e as metas claras.",
+                highlights: [
+                    "Objetivo Geral focado na arquitetura 100% Offline-First",
+                    "Leitura ágil de crachás via QR Code óptico",
+                    "Fixação compulsória de coordenadas GPS a cada balaio",
+                    "Controle de despesas com fotos de comprovantes fiscais"
+                ],
+                slideHtml: `
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-extrabold text-slate-900 border-b-2 border-emerald-600 pb-2 flex items-center space-x-2">
+                            <span>🎯</span>
+                            <span>OBJETIVOS DO PROJETO</span>
+                        </h2>
+                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-800 font-mono">Objetivo Geral</h3>
+                            <p class="text-xs sm:text-sm text-slate-800 mt-1 font-medium leading-relaxed">
+                                Desenvolver e validar um aplicativo mobile com arquitetura estritamente <strong>Offline-First</strong> para gestão operacional da colheita cafeeira, controle de trabalhadores e despesas, sem dependência de conectividade imediata.
+                            </p>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">Objetivos Específicos</h3>
+                            <ul class="text-xs text-slate-700 space-y-1.5 pl-4 list-disc font-medium">
+                                <li><strong>Identificação Óptica:</strong> Leitura de <em>QR Code</em> dos crachás em menos de 1 segundo;</li>
+                                <li><strong>Rastreabilidade Auditável:</strong> Fixação compulsória de coordenadas <em>GPS sob demanda</em> por apontamento;</li>
+                                <li><strong>Gestão de Custos:</strong> Registro de despesas com foto compactada de recibos fiscais;</li>
+                                <li><strong>Rigor Arquitetural:</strong> Construção via <em>Clean Architecture, DDD e TDD</em> com testes automatizados.</li>
+                            </ul>
+                        </div>
+                    </div>
+                `,
+                speech: `O objetivo central do SafraCafé é entregar ao gestor da fazenda e ao apontador de campo uma ferramenta ágil, que opere em modo <strong>100% offline</strong> — tratando a ausência de internet não como um erro, mas como a condição normal de uso no cafezal.<br><br>Dentre os objetivos específicos, o app agiliza a apuração através da <strong>leitura de QR Code</strong> dos crachás dos colhedores, amarra de forma compulsória a <strong>coordenada GPS</strong> de onde o café foi colhido, registra as despesas de combustível e insumos com fotos dos comprovantes e enfileira tudo para sincronização automática com a nuvem.`
+            },
+            {
+                id: 3,
+                tag: "Slide 3 • Justificativa",
+                title: "Justificativa & O Problema",
+                timeEst: "1m 00s",
+                seconds: 60,
+                tone: "Enfatize a dor real do cafeicultor. Fale com energia sobre os problemas do papel.",
+                highlights: [
+                    "Importância socioeconômica do Sul de Minas no café mundial",
+                    "Vulnerabilidade física dos cadernos de papel (chuva, poeira, perdas)",
+                    "Erros de pagamento e fraudes na contagem de balaios",
+                    "Inadequação de softwares convencionais que travam sem internet"
+                ],
+                slideHtml: `
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-extrabold text-slate-900 border-b-2 border-emerald-600 pb-2 flex items-center space-x-2">
+                            <span>🌾</span>
+                            <span>JUSTIFICATIVA & RELEVÂNCIA</span>
+                        </h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div class="bg-red-50 border border-red-200 p-3 rounded-xl space-y-1">
+                                <span class="font-bold text-red-800 uppercase tracking-wide text-[10px] font-mono">O Desafio no Cafezal</span>
+                                <ul class="space-y-1 text-slate-700 list-disc pl-3">
+                                    <li>Talhões afastados sem cobertura 3G/4G/5G;</li>
+                                    <li>Apuração em cadernos de papel vulneráveis a chuva, lama e rasuras;</li>
+                                    <li>Retrabalho de digitação noturna em planilhas;</li>
+                                    <li>Fraudes de volume e atritos no acerto de diárias.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl space-y-1">
+                                <span class="font-bold text-emerald-800 uppercase tracking-wide text-[10px] font-mono">A Solução SafraCafé</span>
+                                <ul class="space-y-1 text-slate-700 list-disc pl-3">
+                                    <li>Operação contínua mesmo em Modo Avião;</li>
+                                    <li>Transparência total para colhedor e produtor;</li>
+                                    <li>Rastreabilidade espacial do café colhido;</li>
+                                    <li>Armazenamento seguro com SQLite ACID.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 italic">
+                            "A cafeicultura do Sul de Minas mobiliza milhares de colhedores sazonais; informatizar o eito da lavoura com segurança jurídica e tecnológica é uma prioridade socioeconômica regional."
+                        </p>
+                    </div>
+                `,
+                speech: `Por que este trabalho é urgente? Quem conhece a colheita de café sabe que ela ocorre em talhões íngremes e distantes da sede. Historicamente, o apontamento é feito em pranchetas e folhas de caderno.<br><br>Isso traz três grandes prejuízos: primeiro, o <strong>risco físico</strong> — uma chuva forte ou uma folha perdida apaga o trabalho de dias; segundo, as <strong>divergências na pesagem</strong> e contagem de balaios, que geram atritos no pagamento dos colhedores; e terceiro, a <strong>perda de tempo</strong> com retrabalho de digitação manual ao final da jornada.<br><br>Softwares genéricos falham porque dependem de conexão contínua para abrir telas ou registrar ações. O SafraCafé resolve essa dor garantindo gravação local imediata e sincronização automática quando houver rede.`
+            },
+            {
+                id: 4,
+                tag: "Slide 4 • Metodologia",
+                title: "Metodologia & Stack",
+                timeEst: "1m 00s",
+                seconds: 60,
+                tone: "Tom técnico e profissional. Demonstre domínio das boas práticas de Engenharia de Software.",
+                highlights: [
+                    "Domain-Driven Design (DDD) com domínio puro e desacoplado",
+                    "Clean Architecture com inversão de dependências (DIP)",
+                    "Test-Driven Development (TDD) com Jest e RNTL",
+                    "Expo SDK 57, React Native 0.86, TypeScript e SQLite local"
+                ],
+                slideHtml: `
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-extrabold text-slate-900 border-b-2 border-emerald-600 pb-2 flex items-center space-x-2">
+                            <span>⚙️</span>
+                            <span>METODOLOGIA DE ENGENHARIA</span>
+                        </h2>
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div class="p-2.5 bg-slate-100 rounded-xl border border-slate-200">
+                                <div class="font-bold text-slate-900 font-mono">DDD</div>
+                                <div class="text-[10px] text-slate-600 mt-0.5">Domínio puro & VOs auto-validados</div>
+                            </div>
+                            <div class="p-2.5 bg-slate-100 rounded-xl border border-slate-200">
+                                <div class="font-bold text-slate-900 font-mono">Clean Arch</div>
+                                <div class="text-[10px] text-slate-600 mt-0.5">Camadas isoladas por contratos</div>
+                            </div>
+                            <div class="p-2.5 bg-slate-100 rounded-xl border border-slate-200">
+                                <div class="font-bold text-slate-900 font-mono">TDD</div>
+                                <div class="text-[10px] text-slate-600 mt-0.5">Construção orientada a testes</div>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-1.5 text-xs">
+                            <div class="font-bold text-slate-800 font-mono text-[11px] uppercase tracking-wide">Stack Tecnológica:</div>
+                            <div class="grid grid-cols-2 gap-2 text-slate-700">
+                                <div>• <strong>Framework:</strong> Expo SDK 57 / React Native</div>
+                                <div>• <strong>Linguagem:</strong> TypeScript rigoroso</div>
+                                <div>• <strong>Hardware:</strong> Câmera (QR Code) & GPS sob demanda</div>
+                                <div>• <strong>Persistência:</strong> SQLite ACID + Supabase BaaS</div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                speech: `Na metodologia, adotamos rigorosos padrões de Engenharia de Software: <strong>Domain-Driven Design (DDD)</strong> e <strong>Clean Architecture</strong>. Isso garante que a inteligência de negócio — o cálculo dos balaios, as regras de diárias e a validação de documentos — reside em uma camada de domínio 100% pura, sem nenhuma dependência de React, telas ou banco de dados físico.<br><br>Seguimos a disciplina de <strong>TDD (Test-Driven Development)</strong>. Na nossa stack, utilizamos React Native com o Expo SDK 57 e TypeScript. Para interagir com o smartphone de forma otimizada, isolamos o acesso à câmera para bipar crachás, acionamos o sensor de GPS apenas no clique da pesagem para poupar bateria e persistimos as credenciais de segurança no chip do aparelho via SecureStore.`
+            },
+            {
+                id: 5,
+                tag: "Slide 5.1 • Descrição",
+                title: "Arquitetura & Offline-First (Outbox)",
+                timeEst: "50s",
+                seconds: 50,
+                tone: "Explicação técnica sobre a resiliência do sistema e o algoritmo de sincronização.",
+                highlights: [
+                    "Padrão Outbox: gravação no SQLite + enfileiramento na SyncQueue",
+                    "Resposta imediata na UI sem espera de rede",
+                    "Resolução de conflitos Last-Write-Wins via timestamp UTC",
+                    "Retentativas com exponential backoff"
+                ],
+                slideHtml: `
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-extrabold text-slate-900 border-b-2 border-emerald-600 pb-2 flex items-center space-x-2">
+                            <span>🏗️</span>
+                            <span>ARQUITETURA OFFLINE-FIRST (OUTBOX)</span>
+                        </h2>
+                        <!-- Diagrama ASCII Estilizado -->
+                        <div class="bg-slate-900 text-emerald-400 font-mono text-[11px] p-3 rounded-xl border border-slate-800 text-center leading-relaxed">
+                            [Ação no Campo] ➔ [Validação no Domínio]<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+                            [SQLite Local (ACID)] + [Fila Outbox (SyncQueue)] ➔ ⚡ UI Instantânea<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓ (Quando houver sinal de internet)<br>
+                            [Sync Worker Assíncrono] ➔ [Supabase Cloud (PostgreSQL)]
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div class="bg-blue-50 border border-blue-200 p-2.5 rounded-xl">
+                                <strong class="text-blue-900">Zero Espera no Eito:</strong>
+                                <p class="text-slate-600 mt-0.5">Lançamento gravado localmente em menos de 10ms sem travar a interface.</p>
+                            </div>
+                            <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl">
+                                <strong class="text-amber-900">Last-Write-Wins:</strong>
+                                <p class="text-slate-600 mt-0.5">Desempate transparente de concorrência com base no timestamp UTC updatedAt.</p>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                speech: `Entrando na descrição da arquitetura, o núcleo do SafraCafé é sustentado pelo padrão <strong>Outbox Pattern</strong>. Quando o apontador registra um balaio de café, o dado é gravado no banco SQLite local com integridade transacional ACID, e uma mensagem é colocada na fila de sincronização.<br><br>Para o operador no campo, a resposta é imediata: não há telas travadas esperando internet. Um worker em segundo plano monitora a conectividade. Assim que o smartphone detecta Wi-Fi na sede ou sinal de celular, os lotes são enviados ao PostgreSQL no Supabase, resolvendo conflitos via <strong>Last-Write-Wins</strong> com retentativas automáticas.`
+            },
+            {
+                id: 6,
+                tag: "Slide 5.2 • Descrição",
+                title: "Módulos Centrais do Aplicativo",
+                timeEst: "50s",
+                seconds: 50,
+                tone: "Dinâmico e descritivo. Passeie pelos 4 módulos mostrando a abrangência do sistema.",
+                highlights: [
+                    "Apontamento de Colheita (litros, QR Code e GPS compulsório)",
+                    "Gestão de Trabalhadores (validação de CPF, diárias e crachá unívoco)",
+                    "Controle de Despesas (recibo fotográfico compactado)",
+                    "Mapa da Lavoura (georreferenciamento de talhões e rotas)"
+                ],
+                slideHtml: `
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-extrabold text-slate-900 border-b-2 border-emerald-600 pb-2 flex items-center space-x-2">
+                            <span>📱</span>
+                            <span>MÓDULOS CENTRAIS DE NEGÓCIO</span>
+                        </h2>
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div class="border border-slate-200 p-3 rounded-xl bg-slate-50 space-y-1">
+                                <div class="font-bold text-emerald-800 flex items-center space-x-1">
+                                    <span>🧺</span>
+                                    <span>1. Apontamento de Colheita</span>
+                                </div>
+                                <p class="text-slate-600">Aferição de balaios (litros), leitura óptica de crachá e amarração compulsória de GPS.</p>
+                            </div>
+                            <div class="border border-slate-200 p-3 rounded-xl bg-slate-50 space-y-1">
+                                <div class="font-bold text-blue-800 flex items-center space-x-1">
+                                    <span>👥</span>
+                                    <span>2. Equipe & Trabalhadores</span>
+                                </div>
+                                <p class="text-slate-600">Cadastro unívoco com validação matemática de CPF e chave sequencial (TRAB-001).</p>
+                            </div>
+                            <div class="border border-slate-200 p-3 rounded-xl bg-slate-50 space-y-1">
+                                <div class="font-bold text-amber-800 flex items-center space-x-1">
+                                    <span>🧾</span>
+                                    <span>3. Despesas de Campo</span>
+                                </div>
+                                <p class="text-slate-600">Lançamento de custos com captura de foto do recibo fiscal e geolocalização da compra.</p>
+                            </div>
+                            <div class="border border-slate-200 p-3 rounded-xl bg-slate-50 space-y-1">
+                                <div class="font-bold text-purple-800 flex items-center space-x-1">
+                                    <span>🗺️</span>
+                                    <span>4. Mapa da Lavoura</span>
+                                </div>
+                                <p class="text-slate-600">Telemetria e marcadores dos talhões colhidos na região de Varginha e Sul de Minas.</p>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                speech: `O aplicativo é dividido em quatro módulos complementares:<br><br>O módulo de <strong>Apontamento</strong>, que é o coração da colheita: o operador lê o QR Code do crachá do colhedor, informa o volume colhido em litros e o app trava a coordenada GPS daquele talhão.<br>O módulo de <strong>Trabalhadores</strong>, que gerencia a equipe, valida CPFs e automatiza o cálculo de diárias.<br>O módulo de <strong>Despesas</strong>, que registra notas de combustível, óleos e ferramentas agrícolas com fotos anexadas.<br>E o módulo de <strong>Mapas</strong>, que plota visualmente a mancha de colheita no mapa da fazenda.`
+            },
+            {
+                id: 7,
+                tag: "Slide 6.1 • Telas",
+                title: "Telas: Login & Apontamento no Eito",
+                timeEst: "1m 00s",
+                seconds: 60,
+                tone: "Entusiasmado ao mostrar a interface real. Aponte para os detalhes visuais e contraste.",
+                highlights: [
+                    "Tela de Login com SecureStore e persistência sem rede",
+                    "Tela de Apontamento com alto contraste e botões amplos",
+                    "Contadores dinâmicos de balaios e litros colhidos no dia",
+                    "Fluxo de gravação em menos de 3 segundos por trabalhador"
+                ],
+                slideHtml: `
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-extrabold text-slate-900 border-b-2 border-emerald-600 pb-2 flex items-center space-x-2">
+                            <span>📸</span>
+                            <span>INTERFACE REAL: LOGIN & APONTAMENTO</span>
+                        </h2>
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <!-- Card Mockup 1: Login -->
+                            <div class="border-2 border-slate-200 rounded-2xl p-4 bg-slate-900 text-slate-100 space-y-2 shadow-md">
+                                <div class="text-[11px] font-mono font-bold text-emerald-400">TELA DE ACESSO (LOGIN)</div>
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-left space-y-1 text-xs">
+                                    <div class="text-[10px] text-slate-400 font-mono">🔐 Expo SecureStore</div>
+                                    <div class="font-bold text-white">pesquisador@ecofield.app</div>
+                                    <div class="text-[10px] text-emerald-400">● Sessão ativa 100% offline</div>
+                                </div>
+                                <p class="text-[10px] text-slate-400">Tokens criptografados no hardware do smartphone.</p>
+                            </div>
+                            <!-- Card Mockup 2: Apontamento -->
+                            <div class="border-2 border-emerald-500 rounded-2xl p-4 bg-slate-900 text-slate-100 space-y-2 shadow-md">
+                                <div class="text-[11px] font-mono font-bold text-amber-400">APONTAMENTO DE COLHEITA</div>
+                                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-left space-y-1 text-xs">
+                                    <div class="flex justify-between font-bold text-white">
+                                        <span>🧺 0 Balaios</span>
+                                        <span>☕ 0 L Colhidos</span>
+                                    </div>
+                                    <div class="text-[10px] text-blue-400">📍 GPS: -21.2488, -44.9998</div>
+                                </div>
+                                <p class="text-[10px] text-slate-400">Alto contraste sob sol direto e leitura óptica rápida.</p>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                speech: `Vemos agora a interface real desenvolvida para o aplicativo.<br><br>À esquerda, temos a tela de autenticação segura. Toda a gestão de credenciais utiliza criptografia no <strong>SecureStore</strong> nativo do aparelho. Isso significa que, se o smartphone descarregar ou for reiniciado no cafezal, a sessão do operador continua ativa sem precisar consultar servidores remotos.<br><br>À direita, apresentamos a tela de <strong>Apontamento de Colheita</strong>. O layout foi desenhado para o ambiente hostil do campo: tipografia grande, excelente legibilidade sob luz solar e contadores em tempo real de balaios e litros colhidos no dia. O apontador tem acesso imediato à câmera para bipar o crachá do trabalhador, registrando a colheita em menos de três segundos.`
+            },
+            {
+                id: 8,
+                tag: "Slide 6.2 • Telas",
+                title: "Telas: Trabalhadores, Despesas e Mapas",
+                timeEst: "1m 00s",
+                seconds: 60,
+                tone: "Conecte as telas ao fluxo do produtor de café e à gestão da fazenda.",
+                highlights: [
+                    "Listagem reativa de trabalhadores com busca instantânea",
+                    "Registro de despesas com visualização do comprovante fiscal",
+                    "Mapa interativo com marcação dos talhões de colheita no Sul de Minas",
+                    "Navegação fluida via Expo Router com Tabs e Drawer"
+                ],
+                slideHtml: `
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-extrabold text-slate-900 border-b-2 border-emerald-600 pb-2 flex items-center space-x-2">
+                            <span>🗺️</span>
+                            <span>TRABALHADORES, DESPESAS & MAPA</span>
+                        </h2>
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 space-y-1">
+                                <div class="font-bold text-slate-900">Trabalhadores</div>
+                                <div class="text-[10px] text-slate-600">Busca instantânea e diária visível (R$ 60,00).</div>
+                                <div class="text-[10px] font-mono text-emerald-700 font-bold">TRAB-001 • TRAB-002</div>
+                            </div>
+                            <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 space-y-1">
+                                <div class="font-bold text-slate-900">Despesas</div>
+                                <div class="text-[10px] text-slate-600">Anexo fotográfico de notas fiscais de campo.</div>
+                                <div class="text-[10px] font-mono text-amber-700 font-bold">Recibo Fiscal Anexo</div>
+                            </div>
+                            <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 space-y-1">
+                                <div class="font-bold text-slate-900">Mapa da Lavoura</div>
+                                <div class="text-[10px] text-slate-600">Geolocalização de talhões colhidos em Varginha.</div>
+                                <div class="text-[10px] font-mono text-purple-700 font-bold">GPS em Tempo Real</div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 p-2.5 rounded-xl text-xs text-blue-900">
+                            <strong>Navegação Otimizada:</strong> Menus inferiores (Bottom Tabs) para ações diárias e Drawer lateral para relatórios e configurações administrativas.
+                        </div>
+                    </div>
+                `,
+                speech: `Nesta segunda lâmina de telas, apresentamos os módulos de gestão e cartografia.<br><br>Na tela de <strong>Trabalhadores</strong>, o apontador tem a lista de toda a equipe, com busca instantânea e visualização clara do crachá e da diária acordada.<br>Na tela de <strong>Despesas</strong>, registramos o valor, a categoria e a fotografia da nota fiscal, que é compactada no aparelho para envio econômico.<br>E na tela de <strong>Mapas</strong>, o gestor visualiza no mapa georreferenciado os pontos exatos onde houve colheita, permitindo auditar a produtividade por talhão e orientar o escoamento dos grãos até os terreiros de secagem.`
+            },
+            {
+                id: 9,
+                tag: "Slide 7 • Considerações Finais",
+                title: "Resultados & Considerações Finais",
+                timeEst: "50s",
+                seconds: 50,
+                tone: "Conclusivo e vitorioso. Destaque os 125 testes 100% aprovados como prova de qualidade.",
+                highlights: [
+                    "100% de sucesso em 125 testes automatizados (33 suítes Jest/RNTL)",
+                    "Comprovação prática da operação em Modo Avião (offline absoluto)",
+                    "Transparência para o colhedor e controle contábil para o produtor",
+                    "Próximos passos: Supabase em produção e relatórios em PDF"
+                ],
+                slideHtml: `
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-extrabold text-slate-900 border-b-2 border-emerald-600 pb-2 flex items-center space-x-2">
+                            <span>🏆</span>
+                            <span>CONSIDERAÇÕES FINAIS & RESULTADOS</span>
+                        </h2>
+                        <!-- Métrica de Qualidade em Destaque -->
+                        <div class="bg-emerald-900 text-white p-4 rounded-xl flex items-center justify-between shadow-md">
+                            <div>
+                                <div class="text-[10px] font-mono uppercase tracking-wider text-emerald-300">Garantia de Qualidade (TDD)</div>
+                                <div class="text-2xl font-extrabold text-white">125 Testes Aprovados (100%)</div>
+                                <div class="text-xs text-emerald-200">33 Test Suites • Pirâmide Completa (Domínio, Use Cases, RNTL)</div>
+                            </div>
+                            <div class="text-3xl">✅</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl space-y-1">
+                                <strong class="text-slate-900">Impactos Conquistados:</strong>
+                                <ul class="list-disc pl-3 text-slate-700 space-y-0.5">
+                                    <li>Fim definitivo dos cadernos de papel;</li>
+                                    <li>Segurança jurídica no acerto de diárias;</li>
+                                    <li>Rastreabilidade espacial do café.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl space-y-1">
+                                <strong class="text-slate-900">Trabalhos Futuros:</strong>
+                                <ul class="list-disc pl-3 text-slate-700 space-y-0.5">
+                                    <li>Deploy do sync engine no Supabase;</li>
+                                    <li>Geração de relatórios de safra em PDF;</li>
+                                    <li>Piloto em cooperativas da região.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                speech: `Para concluir, os resultados obtidos comprovam a excelência da engenharia do SafraCafé: nossa suíte automatizada atingiu <strong>100% de aprovação em 125 testes</strong> distribuídos em 33 suítes, cobrindo desde regras matemáticas de volume até a renderização visual de componentes com a React Native Testing Library.<br><br>O SafraCafé traz um benefício socioeconômico direto para a cafeicultura: assegura ao apanhador que sua produção está gravada com integridade e GPS, e dá ao cafeicultor segurança contábil, eliminando erros e perdas financeiras.<br><br>Como trabalhos futuros, estamos concluindo a esteira de sincronização com o banco Supabase em produção e a emissão automática de relatórios de fechamento de safra em PDF.`
+            },
+            {
+                id: 10,
+                tag: "Slide 8 • Referências",
+                title: "Referências Bibliográficas",
+                timeEst: "20s",
+                seconds: 20,
+                tone: "Agradecimento respeitoso, formal e acolhedor aos avaliadores e ouvintes.",
+                highlights: [
+                    "Eric Evans (Domain-Driven Design)",
+                    "Robert C. Martin (Clean Architecture)",
+                    "Documentação Oficial Expo SDK 57 / React Native",
+                    "Dados de Safra Cafeeira da CONAB / Embrapa",
+                    "Agradecimento à banca e ao CEFET-MG Varginha"
+                ],
+                slideHtml: `
+                    <div class="space-y-4">
+                        <h2 class="text-2xl font-extrabold text-slate-900 border-b-2 border-emerald-600 pb-2 flex items-center space-x-2">
+                            <span>📚</span>
+                            <span>REFERÊNCIAS BIBLIOGRÁFICAS</span>
+                        </h2>
+                        <ul class="text-[11px] text-slate-700 space-y-2 pl-4 list-disc font-medium leading-relaxed">
+                            <li><strong>EVANS, Eric.</strong> <em>Domain-Driven Design: Atacando as complexidades no coração do software.</em> Rio de Janeiro: Alta Books, 2014.</li>
+                            <li><strong>MARTIN, Robert C.</strong> <em>Clean Architecture: A Craftsman's Guide to Software Structure and Design.</em> Prentice Hall, 2017.</li>
+                            <li><strong>EXPO DOCUMENTATION.</strong> <em>Expo SDK 57 & React Native APIs Reference.</em> Disponível em: &lt;https://docs.expo.dev/&gt;. 2026.</li>
+                            <li><strong>CONAB.</strong> <em>Acompanhamento da Safra Brasileira de Café.</em> Brasília: Companhia Nacional de Abastecimento, 2025.</li>
+                            <li><strong>KLEPPMANN, Martin.</strong> <em>Designing Data-Intensive Applications.</em> O'Reilly Media, 2017.</li>
+                        </ul>
+                        <div class="text-center pt-2 text-xs font-bold text-emerald-800">
+                            Muito obrigado pela atenção! Estou à disposição para perguntas.
+                        </div>
+                    </div>
+                `,
+                speech: `Aqui estão as referências fundamentais de engenharia de software e do domínio cafeeiro que embasaram este projeto.<br><br>Gostaria de agradecer imensamente ao <strong>CEFET-MG Campus Varginha</strong>, à coordenação do curso de Sistemas de Informação, à comissão organizadora do SINTEC e a todos vocês que assistiram. Muito obrigado e estou aberto às considerações da banca!`
+            }
+        ];
+
+        let currentSlideIdx = 0;
+        let speechFontSize = 17; // px
+
+        // Renderiza botões da barra superior
+        function renderNavButtons() {
+            const container = document.getElementById('slideTabButtons');
+            container.innerHTML = SLIDES.map((s, idx) => `
+                <button onclick="goToSlide(${idx})" class="px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition ${idx === currentSlideIdx ? 'bg-emerald-600 text-white shadow-sm' : 'bg-slate-900 text-slate-400 hover:text-slate-200 hover:bg-slate-800'}">
+                    ${s.id}
+                </button>
+            `).join('');
+        }
+
+        // Renderiza conteúdo do slide ativo
+        function updateSlideView() {
+            const slide = SLIDES[currentSlideIdx];
+
+            // Canvas do Slide
+            document.getElementById('slideTagBadge').innerText = slide.tag;
+            document.getElementById('slideBody').innerHTML = slide.slideHtml;
+
+            // Destaques do Slide
+            const highlightsList = document.getElementById('slideHighlightsList');
+            highlightsList.innerHTML = slide.highlights.map(h => `<li>${h}</li>`).join('');
+
+            // Teleprompter
+            document.getElementById('speechText').innerHTML = slide.speech;
+            document.getElementById('speechTimerGoal').innerText = `Tempo sugerido: ${slide.timeEst}`;
+            document.getElementById('speechToneTip').innerText = slide.tone;
+
+            // Contador de Palavras
+            const plainText = slide.speech.replace(/<[^>]+>/g, ' ');
+            const wordCount = plainText.trim().split(/\s+/).length;
+            document.getElementById('speechWordCount').innerText = `~${wordCount} palavras`;
+
+            // Controles de Navegação
+            document.getElementById('slideCounterText').innerText = `Slide ${slide.id} de ${SLIDES.length}`;
+            document.getElementById('slideTimeEst').innerText = `~${slide.timeEst}`;
+            document.getElementById('btnPrev').disabled = currentSlideIdx === 0;
+            document.getElementById('btnNext').disabled = currentSlideIdx === SLIDES.length - 1;
+
+            renderNavButtons();
+        }
+
+        function goToSlide(idx) {
+            currentSlideIdx = idx;
+            updateSlideView();
+        }
+
+        function prevSlide() {
+            if (currentSlideIdx > 0) {
+                currentSlideIdx--;
+                updateSlideView();
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlideIdx < SLIDES.length - 1) {
+                currentSlideIdx++;
+                updateSlideView();
+            }
+        }
+
+        // Ajuste de Tamanho da Fonte do Teleprompter
+        function adjustSpeechFont(delta) {
+            speechFontSize = Math.max(14, Math.min(26, speechFontSize + delta * 2));
+            document.getElementById('speechText').style.fontSize = `${speechFontSize}px`;
+        }
+
+        // Copiar texto para o clipboard
+        function copySpeechText() {
+            const slide = SLIDES[currentSlideIdx];
+            const plainText = slide.speech.replace(/<[^>]+>/g, ' ');
+            navigator.clipboard.writeText(plainText).then(() => {
+                alert(`Roteiro do Slide ${slide.id} copiado para a área de transferência!`);
+            });
+        }
+
+        // Navegação por teclado
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') nextSlide();
+            if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevSlide();
+        });
+
+        // -------------------------------------------------------------
+        // CRONÔMETRO INTERATIVO DE APRESENTAÇÃO (5 a 10 min)
+        // -------------------------------------------------------------
+        let timerSeconds = 0;
+        let timerInterval = null;
+        let isRunning = false;
+
+        function toggleTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                document.getElementById('playIcon').innerText = '▶';
+                document.getElementById('playText').innerText = 'Continuar';
+            } else {
+                isRunning = true;
+                document.getElementById('playIcon').innerText = '⏸';
+                document.getElementById('playText').innerText = 'Pausar';
+                timerInterval = setInterval(() => {
+                    timerSeconds++;
+                    updateTimerDisplay();
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            timerSeconds = 0;
+            document.getElementById('playIcon').innerText = '▶';
+            document.getElementById('playText').innerText = 'Iniciar';
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSeconds / 60);
+            const secs = timerSeconds % 60;
+            const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            const display = document.getElementById('timerDisplay');
+            const status = document.getElementById('timerStatus');
+
+            display.innerText = formatted;
+
+            // Mudança de cores conforme as faixas de tempo
+            if (timerSeconds < 300) {
+                // Abaixo de 5 minutos
+                display.className = "text-2xl font-mono font-extrabold text-blue-400 tracking-wider";
+                status.innerText = "Em andamento (Mínimo: 05:00)";
+                status.className = "text-[10px] font-mono text-blue-400";
+            } else if (timerSeconds >= 300 && timerSeconds <= 480) {
+                // Entre 5 e 8 minutos (Faixa Ideal de Apresentação)
+                display.className = "text-2xl font-mono font-extrabold text-emerald-400 tracking-wider animate-pulse";
+                status.innerText = "🎯 Faixa Ideal de Gravação!";
+                status.className = "text-[10px] font-mono text-emerald-400 font-bold";
+            } else if (timerSeconds > 480 && timerSeconds <= 600) {
+                // Entre 8 e 10 minutos (Alerta de Conclusão)
+                display.className = "text-2xl font-mono font-extrabold text-amber-400 tracking-wider";
+                status.innerText = "⚠️ Finalize em breve (< 10:00)";
+                status.className = "text-[10px] font-mono text-amber-400 font-bold";
+            } else {
+                // Passou de 10 minutos (Tempo Excedido)
+                display.className = "text-2xl font-mono font-extrabold text-red-500 tracking-wider animate-bounce";
+                status.innerText = "🚨 Tempo limite excedido!";
+                status.className = "text-[10px] font-mono text-red-400 font-bold";
+            }
+        }
+
+        // Modal de Dicas
+        function openTipsModal() {
+            document.getElementById('tipsModal').classList.remove('hidden');
+            document.getElementById('tipsModal').classList.add('flex');
+        }
+
+        function closeTipsModal() {
+            document.getElementById('tipsModal').classList.add('hidden');
+            document.getElementById('tipsModal').classList.remove('flex');
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNavButtons();
+            updateSlideView();
+        });
+    </script>
+</body>
+</html>

@@ -72,6 +72,22 @@ export default function Despesas() {
     }
   }
 
+  async function escolherDaGaleria() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permissão negada', 'Precisamos de acesso à biblioteca de fotos para selecionar o recibo.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets.length > 0) {
+      setFotoUri(result.assets[0].uri);
+    }
+  }
+
   async function cadastrar() {
     const valorNumero = Number(valor.replace(',', '.'));
     if (!descricao.trim() || Number.isNaN(valorNumero) || valorNumero < 0) {
@@ -196,12 +212,30 @@ export default function Despesas() {
               ))}
             </View>
 
-            <TouchableOpacity style={styles.photoButton} onPress={tirarFoto}>
-              <Ionicons name={fotoUri ? 'checkmark-circle-outline' : 'camera-outline'} size={20} color="#2d6a4f" />
-              <Text style={styles.photoButtonText}>
-                {fotoUri ? 'Recibo anexado' : 'Fotografar recibo'}
-              </Text>
-            </TouchableOpacity>
+            {fotoUri ? (
+              <View style={styles.previewContainer}>
+                <Image source={{ uri: fotoUri }} style={styles.previewImage} />
+                <View style={styles.previewActions}>
+                  <Text style={styles.previewText}>Comprovante selecionado</Text>
+                  <TouchableOpacity onPress={() => setFotoUri(null)} style={styles.removePhotoButton}>
+                    <Ionicons name="trash-outline" size={16} color="#dc2626" />
+                    <Text style={styles.removePhotoText}>Remover</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.photoButtonsRow}>
+                <TouchableOpacity style={styles.photoButton} onPress={tirarFoto}>
+                  <Ionicons name="camera-outline" size={18} color="#2d6a4f" />
+                  <Text style={styles.photoButtonText}>Tirar foto</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.photoButton} onPress={escolherDaGaleria}>
+                  <Ionicons name="images-outline" size={18} color="#2d6a4f" />
+                  <Text style={styles.photoButtonText}>Galeria</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisivel(false)}>
@@ -341,20 +375,62 @@ const styles = StyleSheet.create({
     color: '#2d6a4f',
     fontWeight: '600',
   },
+  photoButtonsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 16,
+  },
   photoButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 16,
+    justifyContent: 'center',
+    gap: 6,
     paddingVertical: 12,
-    paddingHorizontal: 14,
     borderRadius: 12,
     borderWidth: 1.5,
     borderColor: '#2d6a4f',
     borderStyle: 'dashed',
+    backgroundColor: '#f0fdf4',
   },
   photoButtonText: {
     color: '#2d6a4f',
+    fontWeight: '600',
+    fontSize: 13,
+  },
+  previewContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+    padding: 10,
+    borderRadius: 12,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    gap: 12,
+  },
+  previewImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+  },
+  previewActions: {
+    flex: 1,
+  },
+  previewText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1e293b',
+  },
+  removePhotoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 4,
+  },
+  removePhotoText: {
+    fontSize: 12,
+    color: '#dc2626',
     fontWeight: '600',
   },
   modalActions: {

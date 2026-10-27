@@ -74,6 +74,7 @@ class Container {
     public readonly restoreSession: RestoreSession;
     public readonly signOut: SignOut;
     public readonly syncPendingQueue: SyncPendingQueue;
+    public readonly syncPendingQueueSupabase: SyncPendingQueue;
 
     private constructor() {
         // Instâncias em memória
@@ -133,6 +134,12 @@ class Container {
         this.syncPendingQueue = new SyncPendingQueue(
             this.syncQueueRepository,
             this.syncGateway,
+            this.networkGateway,
+            this.sincronizacaoService,
+        );
+        this.syncPendingQueueSupabase = new SyncPendingQueue(
+            this.syncQueueRepository,
+            this.supabaseSyncGateway,
             this.networkGateway,
             this.sincronizacaoService,
         );

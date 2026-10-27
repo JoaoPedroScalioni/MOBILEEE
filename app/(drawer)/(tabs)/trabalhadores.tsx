@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
   Alert,
@@ -40,6 +40,13 @@ export default function Trabalhadores() {
       carregarTrabalhadores();
     }, [carregarTrabalhadores]),
   );
+
+  function abrirDetalhes(item: Trabalhador) {
+    router.push({
+      pathname: '/trabalhador/[id]',
+      params: { id: item.id, origem: 'lista', tab: 'balaios' },
+    });
+  }
 
   function abrirModalCadastro() {
     setTrabalhadorEmEdicao(null);
@@ -192,13 +199,20 @@ export default function Trabalhadores() {
           </View>
         }
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <TouchableOpacity
+            style={styles.card}
+            activeOpacity={0.8}
+            onPress={() => abrirDetalhes(item)}
+          >
             <View style={styles.avatar}>
               <Ionicons name="person" size={22} color="#2d6a4f" />
             </View>
 
             <View style={styles.info}>
-              <Text style={styles.name}>{item.nome}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={styles.name}>{item.nome}</Text>
+                <Ionicons name="chevron-forward" size={16} color="#aaa" style={{ marginLeft: 4 }} />
+              </View>
               <Text style={styles.meta}>
                 Crachá {item.cracha} · {item.diaria.formatar()}/dia
               </Text>
@@ -209,7 +223,10 @@ export default function Trabalhadores() {
             <View style={styles.cardActions}>
               <TouchableOpacity
                 style={styles.actionBtnEdit}
-                onPress={() => abrirModalEdicao(item)}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  abrirModalEdicao(item);
+                }}
                 accessibilityLabel={`Editar ${item.nome}`}
               >
                 <Ionicons name="pencil" size={18} color="#2d6a4f" />
@@ -217,13 +234,16 @@ export default function Trabalhadores() {
 
               <TouchableOpacity
                 style={styles.actionBtnDelete}
-                onPress={() => confirmarExclusao(item)}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  confirmarExclusao(item);
+                }}
                 accessibilityLabel={`Excluir ${item.nome}`}
               >
                 <Ionicons name="trash-outline" size={18} color="#dc2626" />
               </TouchableOpacity>
             </View>
-          </View>
+          </TouchableOpacity>
         )}
       />
 

@@ -54,9 +54,17 @@ jest.mock('expo-router', () => ({
         push: jest.fn(),
         back: jest.fn(),
         navigate: jest.fn(),
+        setParams: jest.fn(),
     },
-    useRouter: () => ({ replace: jest.fn(), push: jest.fn(), back: jest.fn(), navigate: jest.fn() }),
-    useFocusEffect: (callback: () => void) => callback(),
+    useRouter: () => ({ replace: jest.fn(), push: jest.fn(), back: jest.fn(), navigate: jest.fn(), setParams: jest.fn() }),
+    useFocusEffect: (callback: () => void) => {
+        const React = require('react');
+        React.useEffect(() => {
+            return callback();
+        }, [callback]);
+    },
+    useLocalSearchParams: () => ({ id: 'test-trab-1', origem: 'lista', tab: 'balaios' }),
+    useGlobalSearchParams: () => ({}),
     Link: (props: any) => props.children,
     Slot: ({ children }: any) => children,
     Stack: ({ children }: any) => children,

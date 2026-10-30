@@ -12,7 +12,7 @@ global.Platform = {
 };
 
 // Mock TurboModuleRegistry
-global.__turboModuleProxy = {};
+global.__turboModuleProxy = (name) => null;
 
 // Mock expo-crypto randomUUID
 global.crypto = {

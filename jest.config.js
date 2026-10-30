@@ -11,5 +11,6 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^react-native/setup-env$': '<rootDir>/tests/mocks/setup-env.js',
+    '^react-native/react-private-interface$': '<rootDir>/node_modules/react-native/src/react-private-interface.js',
   },
 };

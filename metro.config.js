@@ -4,6 +4,11 @@ const fs = require('fs');
 
 const config = getDefaultConfig(__dirname);
 
+// Permite carregar binários WebAssembly (WASM) do expo-sqlite no Metro
+if (!config.resolver.assetExts.includes('wasm')) {
+  config.resolver.assetExts.push('wasm');
+}
+
 const defaultResolveRequest = config.resolver?.resolveRequest;
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {

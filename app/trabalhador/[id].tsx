@@ -2,12 +2,12 @@ import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Trabalhador } from '@/src/domain/entities/Trabalhador';
@@ -34,6 +34,7 @@ export default function TrabalhadorDetalhesScreen() {
   const [carregando, setCarregando] = useState(false);
 
   const carregarDados = useCallback(async () => {
+    setCarregando(true);
     try {
       const [todosTrabalhadores, todosApontamentos] = await Promise.all([
         container.listarTrabalhadores.execute(),
@@ -49,16 +50,14 @@ export default function TrabalhadorDetalhesScreen() {
       setBalaios(balaiosDoTrabalhador);
     } catch (err) {
       console.error('Erro ao carregar detalhes do trabalhador:', err);
+    } finally {
+      setCarregando(false);
     }
   }, [idTrabalhador]);
 
   useFocusEffect(
     useCallback(() => {
-      let isMounted = true;
       carregarDados();
-      return () => {
-        isMounted = false;
-      };
     }, [carregarDados]),
   );
 

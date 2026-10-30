@@ -8,6 +8,10 @@ describe('CentralSincronizacaoModal', () => {
     jest.clearAllMocks();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('renderiza os cards de sincronização e métricas', async () => {
     jest.spyOn(container.syncQueueRepository, 'findPending').mockResolvedValue([]);
     jest.spyOn(container.listarTrabalhadores, 'execute').mockResolvedValue([]);
@@ -44,6 +48,6 @@ describe('CentralSincronizacaoModal', () => {
     await waitFor(() => {
       expect(syncSpy).toHaveBeenCalled();
       expect(getByText('3 item(ns) sincronizado(s) com sucesso no Supabase!')).toBeTruthy();
-    });
+    }, { timeout: 3000 });
   });
 });

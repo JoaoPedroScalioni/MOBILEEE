@@ -89,7 +89,7 @@ export class SupabaseSyncGateway implements SyncGateway {
     }
 
     // 4. Upload de mídia para o Bucket S3 se houver foto local anexada (Marco de 06/nov)
-    if (tabela === 'despesas' && record.foto_uri && typeof record.foto_uri === 'string' && record.foto_uri.startsWith('file://')) {
+    if (tabela === 'despesas' && record.foto_uri && typeof record.foto_uri === 'string' && !record.foto_uri.startsWith('http')) {
       try {
         const destPath = `comprovantes/${item.entityId}_${Date.now()}.jpg`;
         const uploadResult = await this.storageGateway.uploadFile(record.foto_uri, destPath);
@@ -109,10 +109,14 @@ export class SupabaseSyncGateway implements SyncGateway {
       throw new Error(`Erro na sincronização com Supabase (${tabela}): ${upsertError.message}`);
     }
 
-    // 6. Atualiza sync_status local para 'synced'
+    // 6. Atualiza sync_status local para 'synced' (e URL pública da foto)
     if (typeof this.db?.run === 'function') {
       try {
-        await this.db.run(`UPDATE ${tabela} SET sync_status = 'synced' WHERE id = ?`, [item.entityId]);
+        if (tabela === 'despesas' && record.foto_uri) {
+          await this.db.run(`UPDATE despesas SET foto_uri = ?, sync_status = 'synced' WHERE id = ?`, [record.foto_uri, item.entityId]);
+        } else {
+          await this.db.run(`UPDATE ${tabela} SET sync_status = 'synced' WHERE id = ?`, [item.entityId]);
+        }
       } catch {
         // Silencioso se tabela mockada
       }

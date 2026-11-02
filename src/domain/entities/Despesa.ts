@@ -101,7 +101,7 @@ export class Despesa {
         if (!Number.isFinite(this._data) || this._data <= 0) {
             throw new Error('Data da despesa inválida');
         }
-        if (this._fotoUri !== null && !this._fotoUri.includes('://')) {
+        if (this._fotoUri !== null && !this._fotoUri.includes('://') && !this._fotoUri.startsWith('data:')) {
             throw new Error('Foto da despesa inválida');
         }
     }

@@ -71,7 +71,7 @@ export class SupabaseSyncGateway implements SyncGateway {
         .from(tabela)
         .update({
           deleted_at: Date.now(),
-          updated_at: Date.now(),
+          updated_at: item.updatedAt,
           sync_status: 'synced',
         })
         .eq('id', item.entityId);
@@ -79,7 +79,7 @@ export class SupabaseSyncGateway implements SyncGateway {
       if (error) {
         throw new Error(`Erro ao propagar exclusão no Supabase (${tabela}): ${error.message}`);
       }
-      return { serverUpdatedAt: Date.now() };
+      return { serverUpdatedAt: item.updatedAt };
     }
 
     // 3. Obtém o registro local para transmissão
@@ -109,6 +109,15 @@ export class SupabaseSyncGateway implements SyncGateway {
       throw new Error(`Erro na sincronização com Supabase (${tabela}): ${upsertError.message}`);
     }
 
-    return { serverUpdatedAt: Date.now() };
+    // 6. Atualiza sync_status local para 'synced'
+    if (typeof this.db?.run === 'function') {
+      try {
+        await this.db.run(`UPDATE ${tabela} SET sync_status = 'synced' WHERE id = ?`, [item.entityId]);
+      } catch {
+        // Silencioso se tabela mockada
+      }
+    }
+
+    return { serverUpdatedAt: item.updatedAt };
   }
 }

@@ -12,6 +12,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
+    "db:check": "node ./scripts/check_supabase.js",
     "postinstall": "node ./scripts/patch-expo-router-assets.js"
   },
   "dependencies": {

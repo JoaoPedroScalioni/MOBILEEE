@@ -66,24 +66,60 @@ export class SupabaseStorageGateway implements StorageGateway {
     const client = this.clientManager.getClient();
 
     let fileBody: any;
+    let bytesLength = 0;
+
+    // 1. Tenta carregar via expo-file-system/legacy ou expo-file-system
     try {
-      const FileSystem: any = await import('expo-file-system');
-      if (FileSystem && typeof FileSystem.readAsStringAsync === 'function' && localUri.startsWith('file://')) {
+      let FileSystem: any;
+      try {
+        FileSystem = await import('expo-file-system/legacy');
+      } catch {
+        FileSystem = await import('expo-file-system');
+      }
+
+      if (FileSystem && typeof FileSystem.readAsStringAsync === 'function' && (localUri.startsWith('file://') || localUri.startsWith('/'))) {
         const base64 = await FileSystem.readAsStringAsync(localUri, {
           encoding: 'base64',
         });
-        fileBody = decodeBase64ToUint8Array(base64);
-      } else {
-        const response = await fetch(localUri);
-        fileBody = await response.blob();
+        if (base64 && base64.length > 50) {
+          fileBody = decodeBase64ToUint8Array(base64);
+          bytesLength = fileBody.length;
+        }
+      } else if (FileSystem && FileSystem.File) {
+        const fileInstance = new FileSystem.File(localUri);
+        const arrayBuf = await fileInstance.arrayBuffer();
+        if (arrayBuf && arrayBuf.byteLength > 50) {
+          fileBody = new Uint8Array(arrayBuf);
+          bytesLength = fileBody.length;
+        }
       }
     } catch {
+      // Continua para tentar fallbacks
+    }
+
+    // 2. Fallback via fetch / blob
+    if (!fileBody || bytesLength === 0) {
       try {
         const response = await fetch(localUri);
-        fileBody = await response.blob();
+        const blob = await response.blob();
+        if (blob && blob.size > 50) {
+          fileBody = blob;
+          bytesLength = blob.size;
+        }
       } catch {
-        fileBody = localUri;
+        // Ignora
       }
+    }
+
+    // 3. Fallback via FormData nativo do React Native
+    if (!fileBody || bytesLength === 0) {
+      const formData = new FormData();
+      formData.append('', {
+        uri: localUri,
+        name: destinationPath.split('/').pop() || 'recibo.jpg',
+        type: contentType,
+      } as any);
+      fileBody = formData;
     }
 
     const { data, error } = await client.storage

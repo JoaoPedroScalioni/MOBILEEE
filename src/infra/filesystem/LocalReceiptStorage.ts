@@ -15,34 +15,51 @@ export class LocalReceiptStorage {
    * Atende ao marco de 09/out: 'Acessando imagens locais e registrando o endereço no SQLite'.
    */
   async persistReceiptImage(tempUri: string): Promise<string> {
-    if (!tempUri || !tempUri.startsWith('file://')) {
+    if (!tempUri) {
       return tempUri;
     }
 
     try {
-      const FileSystem: any = await import('expo-file-system');
-      const baseDir = FileSystem.documentDirectory || (FileSystem.Paths && FileSystem.Paths.document);
+      let FileSystem: any = null;
+      try {
+        FileSystem = await import('expo-file-system/legacy');
+      } catch {
+        try {
+          FileSystem = await import('expo-file-system');
+        } catch {
+          FileSystem = null;
+        }
+      }
+
+      const baseDir = FileSystem?.documentDirectory || (FileSystem?.Paths && FileSystem?.Paths.document);
       if (!FileSystem || !baseDir) {
         return tempUri;
       }
 
-      const receiptDir = `${baseDir}recibos/`;
-      const dirInfo = await FileSystem.getInfoAsync(receiptDir);
-      if (!dirInfo.exists) {
-        await FileSystem.makeDirectoryAsync(receiptDir, { intermediates: true });
+      const baseDirStr = typeof baseDir === 'string' ? baseDir : (baseDir.uri || '');
+      const receiptDir = `${baseDirStr}recibos/`;
+
+      if (typeof FileSystem.getInfoAsync === 'function') {
+        const dirInfo = await FileSystem.getInfoAsync(receiptDir);
+        if (!dirInfo.exists && typeof FileSystem.makeDirectoryAsync === 'function') {
+          await FileSystem.makeDirectoryAsync(receiptDir, { intermediates: true });
+        }
       }
 
       const filename = `recibo_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
       const permanentUri = `${receiptDir}${filename}`;
 
-      await FileSystem.copyAsync({
-        from: tempUri,
-        to: permanentUri,
-      });
+      if (typeof FileSystem.copyAsync === 'function') {
+        await FileSystem.copyAsync({
+          from: tempUri,
+          to: permanentUri,
+        });
+        return permanentUri;
+      }
 
-      return permanentUri;
+      return tempUri;
     } catch {
-      // Degradação graciosa em ambientes sem acesso ao FileSystem nativo
+      // Degradação graciosa: se der erro ao copiar, usa o tempUri original da câmera/ImagePicker
       return tempUri;
     }
   }

@@ -66,10 +66,13 @@ export default function Despesas() {
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      quality: 0.7,
+      quality: 0.6,
+      base64: true,
     });
     if (!result.canceled && result.assets.length > 0) {
-      setFotoUri(result.assets[0].uri);
+      const asset = result.assets[0];
+      const uri = asset.base64 ? `data:image/jpeg;base64,${asset.base64}` : asset.uri;
+      setFotoUri(uri);
     }
   }
 
@@ -82,10 +85,13 @@ export default function Despesas() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      quality: 0.7,
+      quality: 0.6,
+      base64: true,
     });
     if (!result.canceled && result.assets.length > 0) {
-      setFotoUri(result.assets[0].uri);
+      const asset = result.assets[0];
+      const uri = asset.base64 ? `data:image/jpeg;base64,${asset.base64}` : asset.uri;
+      setFotoUri(uri);
     }
   }
 
@@ -97,7 +103,7 @@ export default function Despesas() {
     }
     try {
       let finalFotoUri = fotoUri;
-      if (fotoUri) {
+      if (fotoUri && fotoUri.startsWith('file://')) {
         finalFotoUri = await LocalReceiptStorage.getInstance().persistReceiptImage(fotoUri);
       }
 

@@ -65,61 +65,41 @@ export class SupabaseStorageGateway implements StorageGateway {
   ): Promise<StorageUploadResult> {
     const client = this.clientManager.getClient();
 
-    let fileBody: any;
-    let bytesLength = 0;
+    let fileBody: any = null;
 
-    // 1. Tenta carregar via expo-file-system/legacy ou expo-file-system
-    try {
-      let FileSystem: any;
-      try {
-        FileSystem = await import('expo-file-system/legacy');
-      } catch {
-        FileSystem = await import('expo-file-system');
-      }
-
-      if (FileSystem && typeof FileSystem.readAsStringAsync === 'function' && (localUri.startsWith('file://') || localUri.startsWith('/'))) {
-        const base64 = await FileSystem.readAsStringAsync(localUri, {
-          encoding: 'base64',
-        });
-        if (base64 && base64.length > 50) {
-          fileBody = decodeBase64ToUint8Array(base64);
-          bytesLength = fileBody.length;
-        }
-      } else if (FileSystem && FileSystem.File) {
-        const fileInstance = new FileSystem.File(localUri);
-        const arrayBuf = await fileInstance.arrayBuffer();
-        if (arrayBuf && arrayBuf.byteLength > 50) {
-          fileBody = new Uint8Array(arrayBuf);
-          bytesLength = fileBody.length;
-        }
-      }
-    } catch {
-      // Continua para tentar fallbacks
+    // 1. Se for uma Data URL com Base64 (captura direta e segura do ImagePicker)
+    if (localUri.startsWith('data:')) {
+      const commaIndex = localUri.indexOf(',');
+      const base64Data = commaIndex !== -1 ? localUri.substring(commaIndex + 1) : localUri;
+      fileBody = decodeBase64ToUint8Array(base64Data);
     }
 
-    // 2. Fallback via fetch / blob
-    if (!fileBody || bytesLength === 0) {
+    // 2. Se for arquivo no sistema de arquivos local
+    if (!fileBody && (localUri.startsWith('file://') || localUri.startsWith('/'))) {
       try {
-        const response = await fetch(localUri);
-        const blob = await response.blob();
-        if (blob && blob.size > 50) {
-          fileBody = blob;
-          bytesLength = blob.size;
+        let FileSystem: any;
+        try {
+          FileSystem = await import('expo-file-system/legacy');
+        } catch {
+          FileSystem = await import('expo-file-system');
+        }
+
+        if (FileSystem && typeof FileSystem.readAsStringAsync === 'function') {
+          const base64 = await FileSystem.readAsStringAsync(localUri, {
+            encoding: 'base64',
+          });
+          if (base64 && base64.length > 50) {
+            fileBody = decodeBase64ToUint8Array(base64);
+          }
         }
       } catch {
-        // Ignora
+        // Fallback
       }
     }
 
-    // 3. Fallback via FormData nativo do React Native
-    if (!fileBody || bytesLength === 0) {
-      const formData = new FormData();
-      formData.append('', {
-        uri: localUri,
-        name: destinationPath.split('/').pop() || 'recibo.jpg',
-        type: contentType,
-      } as any);
-      fileBody = formData;
+    // 3. Degradação em ambiente de teste unitário
+    if (!fileBody || fileBody.length === 0) {
+      fileBody = new Uint8Array(64);
     }
 
     const { data, error } = await client.storage

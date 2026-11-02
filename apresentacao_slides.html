@@ -402,18 +402,6 @@
       margin-top: 2px;
     }
 
-    .prompt-box {
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px dashed var(--primary);
-      border-radius: 10px;
-      padding: 14px 18px;
-      font-size: 13.5px;
-      color: var(--primary-light);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 14px;
-    }
 
     /* PILLS & BADGES */
     .pill {
@@ -535,7 +523,7 @@
     <section class="slide active" data-topic="Apresentação do Projeto">
       <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
         <div class="slide-tag" style="font-size: 14px; margin-bottom: 14px;">
-          Engenharia de Software Mobile • Avaliação Oficial
+          Engenharia de Software Mobile • Projeto Aplicado
         </div>
         <h1 class="slide-title" style="font-size: 44px; margin-bottom: 12px; max-width: 900px;">
           SafraCafé: Câmera, Geolocalização e SQLite no Celular
@@ -742,42 +730,67 @@
 
     <!-- SLIDE 7: 🔴 DEMO AO VIVO 1 - QR CODE -->
     <section class="slide" data-topic="🔴 Demonstração Ao Vivo: Câmera">
-      <div class="live-demo-banner">
+      <div class="live-demo-banner" style="margin-bottom: 16px; padding: 16px 22px;">
         <div class="live-dot"></div>
         <div>
-          <div class="live-text-title">DEMONSTRAÇÃO AO VIVO NO CELULAR: Câmera & Leitura de QR Code</div>
-          <div class="live-text-desc">Hora de mostrar o aplicativo funcionando ao vivo para a banca examinadora</div>
+          <div class="live-text-title">DEMONSTRAÇÃO PRÁTICA: Câmera & Leitura de QR Code</div>
+          <div class="live-text-desc">Reconhecimento ótico em tempo real de crachás de colhedores via CameraView (Expo SDK 58)</div>
         </div>
       </div>
 
-      <div class="live-steps">
-        <div class="live-step-item">
-          <div class="step-number">1</div>
-          <div class="step-content">
-            <strong>Abrir o Leitor de QR Code no App:</strong>
-            <p>No aplicativo, toque no botão da Câmera na tela inicial para iniciar a leitura de crachás.</p>
+      <div class="grid-2" style="align-items: stretch; gap: 20px;">
+        <!-- PASSOS DA DEMONSTRAÇÃO -->
+        <div class="live-steps" style="justify-content: space-between;">
+          <div class="live-step-item">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <strong>Abrir o Leitor de QR Code no App:</strong>
+              <p>Na tela inicial do SafraCafé, toque no botão da Câmera para iniciar a captura ótica.</p>
+            </div>
+          </div>
+
+          <div class="live-step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <strong>Apontar a Câmera para o QR Code ao Lado:</strong>
+              <p>Aponte o celular diretamente para o crachá projetado nesta tela.</p>
+            </div>
+          </div>
+
+          <div class="live-step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <strong>Reconhecimento e Preenchimento Instantâneo:</strong>
+              <p>O colhedor <strong>José da Silva (TRAB-001)</strong> é selecionado na hora sem recarregar a tela.</p>
+            </div>
+          </div>
+
+          <div class="note-item" style="border-left-color: var(--primary); margin-top: 6px;">
+            <strong>Tecnologia:</strong> Visão computacional a 60fps executada 100% no dispositivo (sem dependência de internet).
           </div>
         </div>
 
-        <div class="live-step-item">
-          <div class="step-number">2</div>
-          <div class="step-content">
-            <strong>Apontar a Câmera para o QR Code do Trabalhador:</strong>
-            <p>O <code>CameraView</code> do Expo SDK 58 detecta o código imediatamente sem travar nem recarregar a tela.</p>
-          </div>
-        </div>
+        <!-- CRACHÁ OFICIAL COM QR CODE VETORIAL OFFLINE -->
+        <div class="card" style="background: #ffffff; color: #0f172a; align-items: center; justify-content: center; text-align: center; border: 3px solid #10b981; padding: 18px 24px;">
+          <div style="width: 36px; height: 8px; background: #cbd5e1; border-radius: 4px; margin-bottom: 8px;"></div>
+          <div style="font-size: 11px; font-weight: 800; color: #059669; letter-spacing: 1.5px; text-transform: uppercase;">FAZENDA SAFRACAFÉ</div>
+          <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 3px 0 10px 0;">CRACHÁ DE IDENTIFICAÇÃO</div>
 
-        <div class="live-step-item">
-          <div class="step-number">3</div>
-          <div class="step-content">
-            <strong>Observar o Preenchimento Instantâneo:</strong>
-            <p>O ID do trabalhador e o talhão são carregados diretamente no formulário de colheita.</p>
+          <div style="background: #ffffff; padding: 10px; border-radius: 12px; border: 2px dashed #94a3b8; display: inline-block;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 21 21" style="display: block;">
+              <rect style="fill:rgb(255, 255, 255);fill-opacity:1" x="0" y="0" width="21" height="21" />
+              <g id="elements">
+                <path style="fill:rgb(0, 0, 0)" d="M 0,0 l 1,0 0,1 -1,0 z M 1,0 l 1,0 0,1 -1,0 z M 2,0 l 1,0 0,1 -1,0 z M 3,0 l 1,0 0,1 -1,0 z M 4,0 l 1,0 0,1 -1,0 z M 5,0 l 1,0 0,1 -1,0 z M 6,0 l 1,0 0,1 -1,0 z M 9,0 l 1,0 0,1 -1,0 z M 12,0 l 1,0 0,1 -1,0 z M 14,0 l 1,0 0,1 -1,0 z M 15,0 l 1,0 0,1 -1,0 z M 16,0 l 1,0 0,1 -1,0 z M 17,0 l 1,0 0,1 -1,0 z M 18,0 l 1,0 0,1 -1,0 z M 19,0 l 1,0 0,1 -1,0 z M 20,0 l 1,0 0,1 -1,0 z M 0,1 l 1,0 0,1 -1,0 z M 6,1 l 1,0 0,1 -1,0 z M 8,1 l 1,0 0,1 -1,0 z M 11,1 l 1,0 0,1 -1,0 z M 14,1 l 1,0 0,1 -1,0 z M 20,1 l 1,0 0,1 -1,0 z M 0,2 l 1,0 0,1 -1,0 z M 2,2 l 1,0 0,1 -1,0 z M 3,2 l 1,0 0,1 -1,0 z M 4,2 l 1,0 0,1 -1,0 z M 6,2 l 1,0 0,1 -1,0 z M 9,2 l 1,0 0,1 -1,0 z M 14,2 l 1,0 0,1 -1,0 z M 16,2 l 1,0 0,1 -1,0 z M 17,2 l 1,0 0,1 -1,0 z M 18,2 l 1,0 0,1 -1,0 z M 20,2 l 1,0 0,1 -1,0 z M 0,3 l 1,0 0,1 -1,0 z M 2,3 l 1,0 0,1 -1,0 z M 3,3 l 1,0 0,1 -1,0 z M 4,3 l 1,0 0,1 -1,0 z M 6,3 l 1,0 0,1 -1,0 z M 8,3 l 1,0 0,1 -1,0 z M 11,3 l 1,0 0,1 -1,0 z M 14,3 l 1,0 0,1 -1,0 z M 16,3 l 1,0 0,1 -1,0 z M 17,3 l 1,0 0,1 -1,0 z M 18,3 l 1,0 0,1 -1,0 z M 20,3 l 1,0 0,1 -1,0 z M 0,4 l 1,0 0,1 -1,0 z M 2,4 l 1,0 0,1 -1,0 z M 3,4 l 1,0 0,1 -1,0 z M 4,4 l 1,0 0,1 -1,0 z M 6,4 l 1,0 0,1 -1,0 z M 10,4 l 1,0 0,1 -1,0 z M 11,4 l 1,0 0,1 -1,0 z M 12,4 l 1,0 0,1 -1,0 z M 14,4 l 1,0 0,1 -1,0 z M 16,4 l 1,0 0,1 -1,0 z M 17,4 l 1,0 0,1 -1,0 z M 18,4 l 1,0 0,1 -1,0 z M 20,4 l 1,0 0,1 -1,0 z M 0,5 l 1,0 0,1 -1,0 z M 6,5 l 1,0 0,1 -1,0 z M 8,5 l 1,0 0,1 -1,0 z M 9,5 l 1,0 0,1 -1,0 z M 10,5 l 1,0 0,1 -1,0 z M 12,5 l 1,0 0,1 -1,0 z M 14,5 l 1,0 0,1 -1,0 z M 20,5 l 1,0 0,1 -1,0 z M 0,6 l 1,0 0,1 -1,0 z M 1,6 l 1,0 0,1 -1,0 z M 2,6 l 1,0 0,1 -1,0 z M 3,6 l 1,0 0,1 -1,0 z M 4,6 l 1,0 0,1 -1,0 z M 5,6 l 1,0 0,1 -1,0 z M 6,6 l 1,0 0,1 -1,0 z M 8,6 l 1,0 0,1 -1,0 z M 10,6 l 1,0 0,1 -1,0 z M 12,6 l 1,0 0,1 -1,0 z M 14,6 l 1,0 0,1 -1,0 z M 15,6 l 1,0 0,1 -1,0 z M 16,6 l 1,0 0,1 -1,0 z M 17,6 l 1,0 0,1 -1,0 z M 18,6 l 1,0 0,1 -1,0 z M 19,6 l 1,0 0,1 -1,0 z M 20,6 l 1,0 0,1 -1,0 z M 10,7 l 1,0 0,1 -1,0 z M 11,7 l 1,0 0,1 -1,0 z M 12,7 l 1,0 0,1 -1,0 z M 0,8 l 1,0 0,1 -1,0 z M 1,8 l 1,0 0,1 -1,0 z M 2,8 l 1,0 0,1 -1,0 z M 3,8 l 1,0 0,1 -1,0 z M 4,8 l 1,0 0,1 -1,0 z M 6,8 l 1,0 0,1 -1,0 z M 7,8 l 1,0 0,1 -1,0 z M 8,8 l 1,0 0,1 -1,0 z M 9,8 l 1,0 0,1 -1,0 z M 12,8 l 1,0 0,1 -1,0 z M 13,8 l 1,0 0,1 -1,0 z M 15,8 l 1,0 0,1 -1,0 z M 17,8 l 1,0 0,1 -1,0 z M 19,8 l 1,0 0,1 -1,0 z M 0,9 l 1,0 0,1 -1,0 z M 1,9 l 1,0 0,1 -1,0 z M 3,9 l 1,0 0,1 -1,0 z M 4,9 l 1,0 0,1 -1,0 z M 5,9 l 1,0 0,1 -1,0 z M 7,9 l 1,0 0,1 -1,0 z M 12,9 l 1,0 0,1 -1,0 z M 15,9 l 1,0 0,1 -1,0 z M 18,9 l 1,0 0,1 -1,0 z M 1,10 l 1,0 0,1 -1,0 z M 4,10 l 1,0 0,1 -1,0 z M 6,10 l 1,0 0,1 -1,0 z M 11,10 l 1,0 0,1 -1,0 z M 13,10 l 1,0 0,1 -1,0 z M 16,10 l 1,0 0,1 -1,0 z M 17,10 l 1,0 0,1 -1,0 z M 19,10 l 1,0 0,1 -1,0 z M 1,11 l 1,0 0,1 -1,0 z M 5,11 l 1,0 0,1 -1,0 z M 8,11 l 1,0 0,1 -1,0 z M 9,11 l 1,0 0,1 -1,0 z M 15,11 l 1,0 0,1 -1,0 z M 16,11 l 1,0 0,1 -1,0 z M 19,11 l 1,0 0,1 -1,0 z M 20,11 l 1,0 0,1 -1,0 z M 1,12 l 1,0 0,1 -1,0 z M 3,12 l 1,0 0,1 -1,0 z M 4,12 l 1,0 0,1 -1,0 z M 6,12 l 1,0 0,1 -1,0 z M 7,12 l 1,0 0,1 -1,0 z M 11,12 l 1,0 0,1 -1,0 z M 13,12 l 1,0 0,1 -1,0 z M 16,12 l 1,0 0,1 -1,0 z M 17,12 l 1,0 0,1 -1,0 z M 18,12 l 1,0 0,1 -1,0 z M 8,13 l 1,0 0,1 -1,0 z M 11,13 l 1,0 0,1 -1,0 z M 12,13 l 1,0 0,1 -1,0 z M 13,13 l 1,0 0,1 -1,0 z M 14,13 l 1,0 0,1 -1,0 z M 15,13 l 1,0 0,1 -1,0 z M 19,13 l 1,0 0,1 -1,0 z M 0,14 l 1,0 0,1 -1,0 z M 1,14 l 1,0 0,1 -1,0 z M 2,14 l 1,0 0,1 -1,0 z M 3,14 l 1,0 0,1 -1,0 z M 4,14 l 1,0 0,1 -1,0 z M 5,14 l 1,0 0,1 -1,0 z M 6,14 l 1,0 0,1 -1,0 z M 8,14 l 1,0 0,1 -1,0 z M 10,14 l 1,0 0,1 -1,0 z M 12,14 l 1,0 0,1 -1,0 z M 14,14 l 1,0 0,1 -1,0 z M 15,14 l 1,0 0,1 -1,0 z M 17,14 l 1,0 0,1 -1,0 z M 19,14 l 1,0 0,1 -1,0 z M 0,15 l 1,0 0,1 -1,0 z M 6,15 l 1,0 0,1 -1,0 z M 9,15 l 1,0 0,1 -1,0 z M 11,15 l 1,0 0,1 -1,0 z M 12,15 l 1,0 0,1 -1,0 z M 13,15 l 1,0 0,1 -1,0 z M 14,15 l 1,0 0,1 -1,0 z M 15,15 l 1,0 0,1 -1,0 z M 17,15 l 1,0 0,1 -1,0 z M 0,16 l 1,0 0,1 -1,0 z M 2,16 l 1,0 0,1 -1,0 z M 3,16 l 1,0 0,1 -1,0 z M 4,16 l 1,0 0,1 -1,0 z M 6,16 l 1,0 0,1 -1,0 z M 8,16 l 1,0 0,1 -1,0 z M 12,16 l 1,0 0,1 -1,0 z M 15,16 l 1,0 0,1 -1,0 z M 16,16 l 1,0 0,1 -1,0 z M 18,16 l 1,0 0,1 -1,0 z M 19,16 l 1,0 0,1 -1,0 z M 0,17 l 1,0 0,1 -1,0 z M 2,17 l 1,0 0,1 -1,0 z M 3,17 l 1,0 0,1 -1,0 z M 4,17 l 1,0 0,1 -1,0 z M 6,17 l 1,0 0,1 -1,0 z M 8,17 l 1,0 0,1 -1,0 z M 9,17 l 1,0 0,1 -1,0 z M 10,17 l 1,0 0,1 -1,0 z M 12,17 l 1,0 0,1 -1,0 z M 15,17 l 1,0 0,1 -1,0 z M 17,17 l 1,0 0,1 -1,0 z M 0,18 l 1,0 0,1 -1,0 z M 2,18 l 1,0 0,1 -1,0 z M 3,18 l 1,0 0,1 -1,0 z M 4,18 l 1,0 0,1 -1,0 z M 6,18 l 1,0 0,1 -1,0 z M 8,18 l 1,0 0,1 -1,0 z M 11,18 l 1,0 0,1 -1,0 z M 13,18 l 1,0 0,1 -1,0 z M 15,18 l 1,0 0,1 -1,0 z M 17,18 l 1,0 0,1 -1,0 z M 18,18 l 1,0 0,1 -1,0 z M 0,19 l 1,0 0,1 -1,0 z M 6,19 l 1,0 0,1 -1,0 z M 8,19 l 1,0 0,1 -1,0 z M 10,19 l 1,0 0,1 -1,0 z M 15,19 l 1,0 0,1 -1,0 z M 17,19 l 1,0 0,1 -1,0 z M 18,19 l 1,0 0,1 -1,0 z M 20,19 l 1,0 0,1 -1,0 z M 0,20 l 1,0 0,1 -1,0 z M 1,20 l 1,0 0,1 -1,0 z M 2,20 l 1,0 0,1 -1,0 z M 3,20 l 1,0 0,1 -1,0 z M 4,20 l 1,0 0,1 -1,0 z M 5,20 l 1,0 0,1 -1,0 z M 6,20 l 1,0 0,1 -1,0 z M 8,20 l 1,0 0,1 -1,0 z M 9,20 l 1,0 0,1 -1,0 z M 10,20 l 1,0 0,1 -1,0 z M 11,20 l 1,0 0,1 -1,0 z M 13,20 l 1,0 0,1 -1,0 z M 15,20 l 1,0 0,1 -1,0 z M 18,20 l 1,0 0,1 -1,0 z " />
+              </g>
+            </svg>
           </div>
-        </div>
-      </div>
 
-      <div class="prompt-box">
-        🗣️ <strong>Fale para a banca:</strong> "Vejam que o leitor de QR Code utiliza a nova API CameraView do Expo 58 em 60fps, identificando o colhedor instantaneamente sem dependência de internet."
+          <div style="font-family: monospace; font-size: 17px; font-weight: 800; background: #e2e8f0; padding: 4px 14px; border-radius: 6px; margin: 10px 0 4px 0; color: #0f172a; letter-spacing: 1px;">
+            TRAB-001
+          </div>
+          <div style="font-size: 15px; font-weight: 700; color: #1e293b;">José da Silva</div>
+          <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Colhedor · Talhão 04</div>
+        </div>
       </div>
     </section>
 
@@ -838,11 +851,11 @@
 
     <!-- SLIDE 9: 🔴 DEMO AO VIVO 2 - FOTO DE DESPESA E GPS -->
     <section class="slide" data-topic="🔴 Demonstração Ao Vivo: Foto & GPS">
-      <div class="live-demo-banner">
+      <div class="live-demo-banner" style="margin-bottom: 16px; padding: 16px 22px;">
         <div class="live-dot"></div>
         <div>
-          <div class="live-text-title">DEMONSTRAÇÃO AO VIVO NO CELULAR: Foto de Recibo & Captura GPS</div>
-          <div class="live-text-desc">Registrando uma despesa com comprovação fiscal e coordenadas do talhão</div>
+          <div class="live-text-title">DEMONSTRAÇÃO PRÁTICA: Foto de Recibo & Captura GPS</div>
+          <div class="live-text-desc">Registro de despesa com comprovação fiscal permanente e coordenadas do talhão agrícola</div>
         </div>
       </div>
 
@@ -851,29 +864,29 @@
           <div class="step-number">1</div>
           <div class="step-content">
             <strong>Acessar o Formulário de 'Nova Despesa':</strong>
-            <p>Preencha a descrição (ex: <em>"Combustível Trator"</em>) e o valor (ex: <em>R$ 150,00</em>).</p>
+            <p>Preenchimento da descrição (ex: <em>"Combustível Trator"</em>), valor e categoria do insumo.</p>
           </div>
         </div>
 
         <div class="live-step-item">
           <div class="step-number">2</div>
           <div class="step-content">
-            <strong>Tocar no Botão 'Tirar Foto do Recibo':</strong>
-            <p>A câmera nativa fotografa o comprovante em papel. O preview aparece na hora na tela.</p>
+            <strong>Acionamento da Câmera Nativa:</strong>
+            <p>Fotografia do comprovante em papel via <code>launchCameraAsync</code> com compressão leve de 0.7.</p>
           </div>
         </div>
 
         <div class="live-step-item">
           <div class="step-number">3</div>
           <div class="step-content">
-            <strong>Ver a Latitude e Longitude Capturadas:</strong>
-            <p>O GPS registra automaticamente a localização exata do ponto de registro.</p>
+            <strong>Captura Automática de Latitude e Longitude:</strong>
+            <p>Auditoria geográfica via satélite GPS vinculada diretamente ao registro financeiro.</p>
           </div>
         </div>
       </div>
 
-      <div class="prompt-box">
-        🗣️ <strong>Fale para a banca:</strong> "Vejam que o recibo foi fotografado e o GPS capturou o local. Ao clicar em Salvar, esses dados são gravados atomicamente no SQLite local do celular."
+      <div class="note-item" style="border-left-color: var(--accent-gold); margin-top: 14px;">
+        <strong>Garantia de Persistência:</strong> O arquivo de imagem é preservado no diretório seguro do FileSystem e o caminho local (URI) é gravado no SQLite.
       </div>
     </section>
 
@@ -923,11 +936,11 @@
 
     <!-- SLIDE 11: 🔴 DEMO AO VIVO 3 - OFFLINE-FIRST NO SQLITE -->
     <section class="slide" data-topic="🔴 Demonstração Ao Vivo: Offline">
-      <div class="live-demo-banner">
+      <div class="live-demo-banner" style="margin-bottom: 16px; padding: 16px 22px;">
         <div class="live-dot"></div>
         <div>
-          <div class="live-text-title">DEMONSTRAÇÃO AO VIVO NO CELULAR: Conferência Offline no SQLite</div>
-          <div class="live-text-desc">Mostrando que os dados estão salvos e consultáveis sem nenhuma internet</div>
+          <div class="live-text-title">DEMONSTRAÇÃO PRÁTICA: Conferência Offline no SQLite</div>
+          <div class="live-text-desc">Preservação local dos registros e arquivos mesmo sem conexão com a internet</div>
         </div>
       </div>
 
@@ -935,30 +948,30 @@
         <div class="live-step-item">
           <div class="step-number">1</div>
           <div class="step-content">
-            <strong>Abrir a Listagem de Despesas ou Apontamentos:</strong>
-            <p>O dado que acabamos de cadastrar já aparece listado instantaneamente na tela.</p>
+            <strong>Consulta Instantânea às Listagens Locais:</strong>
+            <p>O dado registrado é recuperado na hora da tabela local sem dependência de requisição de rede.</p>
           </div>
         </div>
 
         <div class="live-step-item">
           <div class="step-number">2</div>
           <div class="step-content">
-            <strong>Mostrar o Preview da Foto e as Coordenadas:</strong>
-            <p>A foto do recibo é carregada do <code>FileSystem</code> local e a latitude/longitude do talhão é exibida com clareza.</p>
+            <strong>Carregamento Seguro da Imagem e Coordenadas:</strong>
+            <p>A miniatura é lida diretamente do <code>FileSystem</code> e as coordenadas são exibidas com precisão.</p>
           </div>
         </div>
 
         <div class="live-step-item">
           <div class="step-number">3</div>
           <div class="step-content">
-            <strong>Evidenciar o Status 'Pendente' de Sincronização:</strong>
-            <p>O registro está salvo no banco local aguardando a sincronização com a nuvem.</p>
+            <strong>Fila Outbox em Estado 'Pendente':</strong>
+            <p>O registro aguarda na tabela <code>sync_queue</code> para transmissão assim que houver conectividade.</p>
           </div>
         </div>
       </div>
 
-      <div class="prompt-box">
-        🗣️ <strong>Fale para a banca:</strong> "Mesmo se o celular estiver em modo avião ou sem sinal na fazenda, nenhum dado se perde. O SQLite garante integridade ACID e persistência definitiva."
+      <div class="note-item" style="border-left-color: var(--primary); margin-top: 14px;">
+        <strong>Confiabilidade Offline:</strong> O SQLite garante integridade transacional ACID no dispositivo móvel (<code>safracafe.db</code>), prevenindo perda de dados na lavoura.
       </div>
     </section>
 
@@ -1003,11 +1016,11 @@
 
     <!-- SLIDE 13: 🔴 DEMO AO VIVO 4 - SINCRONIZAR COM A NUVEM -->
     <section class="slide" data-topic="🔴 Demonstração Ao Vivo: Sincronização">
-      <div class="live-demo-banner">
+      <div class="live-demo-banner" style="margin-bottom: 16px; padding: 16px 22px;">
         <div class="live-dot"></div>
         <div>
-          <div class="live-text-title">DEMONSTRAÇÃO AO VIVO NO CELULAR: Sincronização com Supabase Cloud</div>
-          <div class="live-text-desc">Transmitindo a fila offline para o PostgreSQL e o Bucket S3 ao vivo</div>
+          <div class="live-text-title">DEMONSTRAÇÃO PRÁTICA: Sincronização com Supabase Cloud</div>
+          <div class="live-text-desc">Transmissão em lote da fila offline para o PostgreSQL remoto e o Bucket S3</div>
         </div>
       </div>
 
@@ -1015,37 +1028,37 @@
         <div class="live-step-item">
           <div class="step-number">1</div>
           <div class="step-content">
-            <strong>Abrir a Central de Sincronização no App:</strong>
-            <p>Toque no ícone de nuvem no cabeçalho do app. Veja a quantidade de itens pendentes na fila.</p>
+            <strong>Central de Sincronização no Aplicativo:</strong>
+            <p>Abertura do modal via cabeçalho, exibindo a contagem exata de registros pendentes na fila.</p>
           </div>
         </div>
 
         <div class="live-step-item">
           <div class="step-number">2</div>
           <div class="step-content">
-            <strong>Tocar no Botão 'Sincronizar Agora com a Nuvem':</strong>
-            <p>O aplicativo envia os pacotes e a foto para o Supabase (<code>ruujrkumwobhuzmwsqrp.supabase.co</code>).</p>
+            <strong>Transmissão em Duas Etapas:</strong>
+            <p>Upload binário do recibo para o Storage S3 e inserção idempotente no PostgreSQL (<code>ruujrkumwobhuzmwsqrp.supabase.co</code>).</p>
           </div>
         </div>
 
         <div class="live-step-item">
           <div class="step-number">3</div>
           <div class="step-content">
-            <strong>Ver a Mensagem de Sucesso:</strong>
-            <p>O alerta confirma: <em>"X item(ns) sincronizado(s) com sucesso no Supabase!"</em> e a fila zera.</p>
+            <strong>Confirmação e Limpeza da Fila:</strong>
+            <p>O alerta confirma os itens sincronizados e a fila local atualiza o status para <code>synced</code>.</p>
           </div>
         </div>
       </div>
 
-      <div class="prompt-box">
-        🗣️ <strong>Fale para a banca:</strong> "Pronto! O ciclo de vida dos dados está completo: captura offline pela câmera e GPS, persistência local e replicação definitiva na nuvem."
+      <div class="note-item" style="border-left-color: var(--accent-blue); margin-top: 14px;">
+        <strong>Arquitetura de Sincronização:</strong> Padrão Outbox não-bloqueante com resolução de conflitos Last-Write-Wins baseada em <code>updated_at</code>.
       </div>
     </section>
 
     <!-- SLIDE 14: EVIDÊNCIA DE TESTES & CONCLUSÃO -->
     <section class="slide" data-topic="Garantia de Qualidade & Conclusão">
       <div class="slide-tag">Garantia de Qualidade & Fechamento</div>
-      <h2 class="slide-title">130 Testes Aprovados & Pontuação Máxima</h2>
+      <h2 class="slide-title">134 Testes Aprovados & Conclusão Técnica</h2>
       <p class="slide-subtitle">Engenharia de software de ponta a ponta com Expo SDK 58 e arquitetura profissional.</p>
 
       <div class="grid-3" style="margin-bottom: 20px;">

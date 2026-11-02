@@ -13,6 +13,7 @@ import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Trabalhador } from '@/src/domain/entities/Trabalhador';
 import { Apontamento } from '@/src/domain/entities/Apontamento';
 import { container } from '@/src/factory/container';
+import { CrachaModal } from '@/src/shared/components/CrachaModal';
 
 /**
  * Tela de Detalhes do Trabalhador via Rota Dinâmica [id].
@@ -32,6 +33,7 @@ export default function TrabalhadorDetalhesScreen() {
   const [trabalhador, setTrabalhador] = useState<Trabalhador | null>(null);
   const [balaios, setBalaios] = useState<Apontamento[]>([]);
   const [carregando, setCarregando] = useState(false);
+  const [crachaModalVisivel, setCrachaModalVisivel] = useState(false);
 
   const carregarDados = useCallback(async () => {
     setCarregando(true);
@@ -131,6 +133,16 @@ export default function TrabalhadorDetalhesScreen() {
               <Text style={styles.diariaTagText}>Diária: {trabalhador.diaria.formatar()}</Text>
             </View>
           </View>
+
+          {/* Botão para Ver e Imprimir Crachá com QR Code */}
+          <TouchableOpacity
+            style={styles.btnVerCracha}
+            onPress={() => setCrachaModalVisivel(true)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="qr-code" size={16} color="#fff" style={{ marginRight: 6 }} />
+            <Text style={styles.btnVerCrachaText}>Ver / Imprimir Crachá Oficial</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -227,6 +239,22 @@ export default function TrabalhadorDetalhesScreen() {
           </View>
         </View>
       )}
+
+      {/* Modal do Crachá com QR Code */}
+      <CrachaModal
+        visible={crachaModalVisivel}
+        onClose={() => setCrachaModalVisivel(false)}
+        trabalhador={
+          trabalhador
+            ? {
+                nome: trabalhador.nome,
+                cracha: trabalhador.cracha,
+                cpf: trabalhador.cpf,
+                diariaFormatada: trabalhador.diaria.formatar(),
+              }
+            : null
+        }
+      />
     </SafeAreaView>
   );
 }
@@ -378,6 +406,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#334155',
     fontWeight: '600',
+  },
+  btnVerCracha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#2d6a4f',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  btnVerCrachaText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: '700',
   },
   tabBar: {
     flexDirection: 'row',

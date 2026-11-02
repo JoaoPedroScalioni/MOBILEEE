@@ -13,12 +13,17 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Trabalhador } from '@/src/domain/entities/Trabalhador';
 import { container } from '@/src/factory/container';
+import { CrachaModal } from '@/src/shared/components/CrachaModal';
+import { DadosCracha } from '@/src/shared/utils/crachaHelper';
 
 export default function Trabalhadores() {
   const [list, setList] = useState<Trabalhador[]>([]);
   const [busca, setBusca] = useState('');
   const [modalVisivel, setModalVisivel] = useState(false);
   const [trabalhadorEmEdicao, setTrabalhadorEmEdicao] = useState<Trabalhador | null>(null);
+
+  const [crachaModalVisivel, setCrachaModalVisivel] = useState(false);
+  const [crachaModalData, setCrachaModalData] = useState<DadosCracha | null>(null);
 
   const [nome, setNome] = useState('');
   const [cpf, setCpf] = useState('');
@@ -46,6 +51,16 @@ export default function Trabalhadores() {
       pathname: '/trabalhador/[id]',
       params: { id: item.id, origem: 'lista', tab: 'balaios' },
     });
+  }
+
+  function abrirCracha(item: Trabalhador) {
+    setCrachaModalData({
+      nome: item.nome,
+      cracha: item.cracha,
+      cpf: item.cpf,
+      diariaFormatada: item.diaria.formatar(),
+    });
+    setCrachaModalVisivel(true);
   }
 
   function abrirModalCadastro() {
@@ -106,7 +121,15 @@ export default function Trabalhadores() {
           cracha,
           diaria: valorDiaria,
         });
-        Alert.alert('Sucesso', 'Trabalhador cadastrado com sucesso!');
+
+        // Prepara dados do crachá para exibição e impressão imediata
+        setCrachaModalData({
+          nome,
+          cracha,
+          cpf: cpf.replace(/\D/g, ''),
+          diariaFormatada: `R$ ${valorDiaria.toFixed(2).replace('.', ',')}`,
+        });
+        setCrachaModalVisivel(true);
       }
 
       setModalVisivel(false);
@@ -219,8 +242,19 @@ export default function Trabalhadores() {
               <Text style={styles.cpf}>CPF {item.cpf}</Text>
             </View>
 
-            {/* Ações: Editar e Excluir */}
+            {/* Ações: Crachá, Editar e Excluir */}
             <View style={styles.cardActions}>
+              <TouchableOpacity
+                style={styles.actionBtnBadge}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  abrirCracha(item);
+                }}
+                accessibilityLabel={`Ver crachá de ${item.nome}`}
+              >
+                <Ionicons name="qr-code-outline" size={18} color="#059669" />
+              </TouchableOpacity>
+
               <TouchableOpacity
                 style={styles.actionBtnEdit}
                 onPress={(e) => {
@@ -321,6 +355,12 @@ export default function Trabalhadores() {
           </View>
         </View>
       </Modal>
+      {/* Modal do Crachá com QR Code */}
+      <CrachaModal
+        visible={crachaModalVisivel}
+        onClose={() => setCrachaModalVisivel(false)}
+        trabalhador={crachaModalData}
+      />
     </View>
   );
 }
@@ -432,6 +472,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  actionBtnBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#ecfdf5',
+    borderWidth: 1,
+    borderColor: '#a7f3d0',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   actionBtnEdit: {
     width: 36,

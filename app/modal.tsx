@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { container } from '@/src/factory/container';
+import { triggerAutoSync } from '@/src/shared/utils/autoSync';
 import { defaultSupabaseConfig } from '@/src/infra/supabase/SupabaseConfig';
 
 /**
@@ -50,6 +51,7 @@ export default function CentralSincronizacaoModal() {
   useFocusEffect(
     useCallback(() => {
       carregarMetricas();
+      triggerAutoSync().then(() => carregarMetricas());
     }, [carregarMetricas]),
   );
 

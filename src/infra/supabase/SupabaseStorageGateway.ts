@@ -2,6 +2,36 @@ import { StorageGateway, StorageUploadResult } from '../../domain/gateways/Stora
 import { SupabaseClientManager } from './SupabaseClient';
 import { defaultSupabaseConfig } from './SupabaseConfig';
 
+function decodeBase64ToUint8Array(base64: string): Uint8Array {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  const lookup = new Uint8Array(256);
+  for (let i = 0; i < chars.length; i++) lookup[chars.charCodeAt(i)] = i;
+
+  const clean = base64.replace(/[^A-Za-z0-9+/=]/g, '');
+  const len = clean.length;
+  if (len === 0) return new Uint8Array(0);
+
+  let placeHolders = 0;
+  if (clean.charAt(len - 1) === '=') placeHolders++;
+  if (clean.charAt(len - 2) === '=') placeHolders++;
+
+  const byteLength = (len * 3) / 4 - placeHolders;
+  const bytes = new Uint8Array(byteLength);
+
+  let cur = 0;
+  for (let i = 0; i < len; i += 4) {
+    const a = lookup[clean.charCodeAt(i)];
+    const b = lookup[clean.charCodeAt(i + 1)];
+    const c = lookup[clean.charCodeAt(i + 2)];
+    const d = lookup[clean.charCodeAt(i + 3)];
+
+    bytes[cur++] = (a << 2) | (b >> 4);
+    if (cur < byteLength) bytes[cur++] = ((b & 15) << 4) | (c >> 2);
+    if (cur < byteLength) bytes[cur++] = ((c & 3) << 6) | (d & 63);
+  }
+  return bytes;
+}
+
 /**
  * Gateway de armazenamento de arquivos em Bucket S3 no Supabase Storage.
  * Atende ao marco de 06/nov:
@@ -40,20 +70,20 @@ export class SupabaseStorageGateway implements StorageGateway {
       const FileSystem: any = await import('expo-file-system');
       if (FileSystem && typeof FileSystem.readAsStringAsync === 'function' && localUri.startsWith('file://')) {
         const base64 = await FileSystem.readAsStringAsync(localUri, {
-          encoding: FileSystem.EncodingType ? FileSystem.EncodingType.Base64 : 'base64',
+          encoding: 'base64',
         });
-        const byteCharacters = atob(base64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        fileBody = new Uint8Array(byteNumbers);
+        fileBody = decodeBase64ToUint8Array(base64);
       } else {
         const response = await fetch(localUri);
         fileBody = await response.blob();
       }
     } catch {
-      fileBody = new Uint8Array([0]);
+      try {
+        const response = await fetch(localUri);
+        fileBody = await response.blob();
+      } catch {
+        fileBody = localUri;
+      }
     }
 
     const { data, error } = await client.storage

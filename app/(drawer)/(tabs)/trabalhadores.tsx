@@ -13,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Trabalhador } from '@/src/domain/entities/Trabalhador';
 import { container } from '@/src/factory/container';
+import { triggerAutoSync } from '@/src/shared/utils/autoSync';
 import { CrachaModal } from '@/src/shared/components/CrachaModal';
 import { DadosCracha } from '@/src/shared/utils/crachaHelper';
 
@@ -134,6 +135,7 @@ export default function Trabalhadores() {
 
       setModalVisivel(false);
       await carregarTrabalhadores();
+      triggerAutoSync();
     } catch (error) {
       Alert.alert('Erro', error instanceof Error ? error.message : 'Não foi possível salvar.');
     } finally {
@@ -154,6 +156,7 @@ export default function Trabalhadores() {
             try {
               await container.excluirTrabalhador.execute({ id: item.id });
               await carregarTrabalhadores();
+              triggerAutoSync();
               Alert.alert('Sucesso', `${item.nome} foi removido.`);
             } catch (err) {
               Alert.alert('Erro', err instanceof Error ? err.message : 'Não foi possível excluir.');

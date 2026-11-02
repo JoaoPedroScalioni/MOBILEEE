@@ -15,6 +15,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { CATEGORIAS_DESPESA, Despesa } from '@/src/domain/entities/Despesa';
 import { container } from '@/src/factory/container';
+import { triggerAutoSync } from '@/src/shared/utils/autoSync';
 import { LocalReceiptStorage } from '@/src/infra/filesystem/LocalReceiptStorage';
 import {
   obterLocalizacaoSegura,
@@ -114,6 +115,7 @@ export default function Despesas() {
       setFotoUri(null);
       const res = await container.listarDespesas.execute();
       setList(res);
+      triggerAutoSync();
       Alert.alert('Sucesso', 'Despesa registrada!');
     } catch (error) {
       Alert.alert('Erro', error instanceof Error ? error.message : 'Não foi possível registrar.');
@@ -134,6 +136,7 @@ export default function Despesas() {
               await container.excluirDespesa.execute({ id: item.id });
               const res = await container.listarDespesas.execute();
               setList(res);
+              triggerAutoSync();
               Alert.alert('Sucesso', 'Despesa excluída com sucesso!');
             } catch (err: any) {
               Alert.alert('Erro', err?.message || 'Não foi possível excluir a despesa.');

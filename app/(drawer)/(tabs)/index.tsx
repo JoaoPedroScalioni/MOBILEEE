@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Trabalhador } from '@/src/domain/entities/Trabalhador';
 import { Apontamento as ApontamentoEntity } from '@/src/domain/entities/Apontamento';
 import { container } from '@/src/factory/container';
+import { triggerAutoSync } from '@/src/shared/utils/autoSync';
 import {
   obterLocalizacaoSegura,
   COORDENADAS_PADRAO_FAZENDA,
@@ -118,6 +119,9 @@ export default function Apontamento() {
       // Recarrega imediatamente a lista de apontamentos
       const listaAtualizada = await container.listarApontamentos.execute();
       setApontamentos(listaAtualizada);
+
+      // Sincronização automática com Supabase em segundo plano
+      triggerAutoSync();
 
       Alert.alert('Sucesso!', `Balaio de ${litrosNumero}L registrado para ${nomeTrabalhador}.`);
     } catch (error) {

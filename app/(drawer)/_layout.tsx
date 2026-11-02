@@ -1,8 +1,10 @@
 import { Drawer } from 'expo-router/drawer';
+import { useEffect } from 'react';
 import { Alert, TouchableOpacity, LogBox, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useAuth } from '@/src/adapters/auth/AuthContext';
+import { triggerAutoSync } from '@/src/shared/utils/autoSync';
 
 LogBox.ignoreLogs([
   "Codegen didn't run for REASharedTransitionBoundaryView",
@@ -11,6 +13,18 @@ LogBox.ignoreLogs([
 
 export default function DrawerLayout() {
   const { logout } = useAuth();
+
+  useEffect(() => {
+    // Sincronização automática na inicialização
+    triggerAutoSync();
+
+    // Verificação periódica a cada 15 segundos (envio automático assim que houver internet)
+    const timer = setInterval(() => {
+      triggerAutoSync();
+    }, 15000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const confirmarLogout = () => {
     Alert.alert('Sair da Conta', 'Deseja realmente sair do SafraCafé?', [

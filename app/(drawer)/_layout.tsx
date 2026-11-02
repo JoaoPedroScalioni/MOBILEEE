@@ -44,6 +44,8 @@ export default function DrawerLayout() {
     <Drawer
       screenOptions={{
         headerTintColor: '#1a1a1a',
+        headerLeft: () => null,
+        swipeEnabled: false,
         headerRight: () => (
           <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 12, gap: 4 }}>
             <TouchableOpacity

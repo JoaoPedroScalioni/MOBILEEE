@@ -48,6 +48,7 @@ export default function DrawerLayout() {
         swipeEnabled: false,
         headerRight: () => (
           <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 12, gap: 4 }}>
+            {/* Botão de nuvem/sincronização oculto para a apresentação atual (próxima etapa):
             <TouchableOpacity
               onPress={() => router.push('/modal')}
               style={{ padding: 6 }}
@@ -55,6 +56,7 @@ export default function DrawerLayout() {
             >
               <Ionicons name="cloud-upload-outline" size={24} color="#2d6a4f" />
             </TouchableOpacity>
+            */}
 
             <TouchableOpacity
               onPress={confirmarLogout}

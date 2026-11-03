@@ -1095,8 +1095,8 @@
         <div class="live-demo-left">
           <div class="live-dot"></div>
           <div>
-            <div class="live-text-title">DEMONSTRAÇÃO PRÁTICA 2: Captura de Foto de Comprovante e Geolocalização</div>
-            <div class="live-text-desc">Lançamento de uma despesa real tirando foto na hora e gravando coordenadas GPS no celular</div>
+            <div class="live-text-title">DEMONSTRAÇÃO PRÁTICA 2: Foto de Comprovante, GPS e Lista Local</div>
+            <div class="live-text-desc">Lançamento de despesa tirando foto na hora e visualização imediata do card com miniatura e coordenadas</div>
           </div>
         </div>
       </div>
@@ -1106,79 +1106,74 @@
           <div class="step-number">1</div>
           <div class="step-content">
             <strong>Abrir 'Nova Despesa' na Aba Despesas:</strong>
-            <p>Digite a descrição do gasto (ex: <em>"Óleo Diesel"</em>), o valor (ex: <em>R$ 50,00</em>) e selecione a categoria.</p>
+            <p>Toque no botão <strong>+</strong>, digite a descrição (ex: <em>"Óleo Diesel"</em>), o valor (ex: <em>50,00</em>) e escolha a categoria.</p>
           </div>
         </div>
 
         <div class="live-step-item">
           <div class="step-number">2</div>
           <div class="step-content">
-            <strong>Fotografar o Comprovante com a Câmera:</strong>
-            <p>Toque em <strong>Tirar Foto</strong>, fotografe o recibo e confirme. A foto é copiada para a pasta permanente do aplicativo no celular.</p>
+            <strong>Tirar Foto com a Câmera Nativa:</strong>
+            <p>Toque em <strong>Tirar foto</strong>, fotografe o comprovante e confirme o recorte para ver o preview na tela.</p>
           </div>
         </div>
 
         <div class="live-step-item">
           <div class="step-number">3</div>
           <div class="step-content">
-            <strong>Salvar no Banco Local (SQLite):</strong>
-            <p>Ao clicar em <strong>Salvar Despesa</strong>, o app associa a coordenada GPS atual (latitude/longitude) e o endereço local da foto no SQLite.</p>
+            <strong>Salvar e Conferir na Lista de Despesas:</strong>
+            <p>Ao salvar, o card aparece imediatamente na lista exibindo a <strong>miniatura da foto</strong>, o valor formatado e a <strong>latitude/longitude</strong> capturada do GPS.</p>
           </div>
         </div>
       </div>
 
       <div class="note-item" style="border-left-color: var(--accent-gold); margin-top: 10px;">
-        <strong>Como a foto fica salva sem nuvem?</strong> No slide a seguir mostramos exatamente como o <code>LocalReceiptStorage</code> guarda o arquivo <code>.jpg</code> no armazenamento interno do celular e registra seu endereço no SQLite.
+        <strong>Como esses dados e a foto ficam salvos no celular?</strong> Nos próximos slides mostramos o código exato do armazenamento local e da tabela SQLite.
       </div>
     </section>
 
-    <!-- SLIDE 10: 7. SALVANDO OS DADOS NO CELULAR (PARTE A: SISTEMA DE ARQUIVOS LOCAL) -->
+    <!-- SLIDE 10: 7. SALVANDO OS DADOS NO CELULAR (PARTE A: COMO AS FOTOS SÃO SALVAS LOCALMENTE) -->
     <section class="slide" data-topic="7. Salvando Fotos Localmente no Celular">
-      <div class="slide-tag">7. Salvando os Dados no Celular — Parte A: Armazenamento Local das Fotos</div>
-      <h2 class="slide-title">Como as Fotos São Salvas no Celular Sem Precisar de Nuvem?</h2>
-      <p class="slide-subtitle">A imagem não vai para o banco em formato pesado: o arquivo físico é salvo na Sandbox do aparelho e o SQLite guarda seu endereço (URI).</p>
+      <div class="slide-tag">7. Salvando os Dados no Celular — Parte A: Armazenamento Local da Foto</div>
+      <h2 class="slide-title">Como a Foto da Câmera É Salva Localmente no Aparelho?</h2>
+      <p class="slide-subtitle">A captura fotográfica gera uma URI persistente (Base64 / Sandbox local via <code>LocalReceiptStorage</code>) que é gravada no SQLite.</p>
 
       <div class="grid-2">
         <div class="code-window">
           <div class="code-window-header">
             <div class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
-            <span class="window-filename">src/infra/filesystem/LocalReceiptStorage.ts</span>
+            <span class="window-filename">src/infra/filesystem/LocalReceiptStorage.ts &amp; despesas.tsx</span>
           </div>
           <div class="code-container">
-<span class="code-kw">export class</span> <span class="code-type">LocalReceiptStorage</span> {
-  <span class="code-kw">async</span> <span class="code-fn">persistReceiptImage</span>(tempUri: <span class="code-type">string</span>): <span class="code-type">Promise</span>&lt;<span class="code-type">string</span>&gt; {
-    <span class="code-comm">// 1. Pasta permanente interna do app no celular</span>
-    <span class="code-kw">const</span> receiptDir = <span class="code-str">`${FileSystem.documentDirectory}recibos/`</span>;
-    <span class="code-kw">await</span> FileSystem.<span class="code-fn">makeDirectoryAsync</span>(receiptDir, {
-      intermediates: <span class="code-kw">true</span>
-    });
+<span class="code-comm">// 1. Captura da câmera com suporte a URI local e Base64</span>
+<span class="code-kw">const</span> result = <span class="code-kw">await</span> ImagePicker.<span class="code-fn">launchCameraAsync</span>({
+  mediaTypes: [<span class="code-str">'images'</span>],
+  allowsEditing: <span class="code-kw">true</span>,
+  quality: <span class="code-num">0.6</span>,
+  base64: <span class="code-kw">true</span>,
+});
 
-    <span class="code-comm">// 2. Gera nome único para o comprovante</span>
-    <span class="code-kw">const</span> filename = <span class="code-str">`recibo_${Date.now()}.jpg`</span>;
-    <span class="code-kw">const</span> permanentUri = <span class="code-str">`${receiptDir}${filename}`</span>;
-
-    <span class="code-comm">// 3. Copia do cache temporário para pasta definitiva</span>
-    <span class="code-kw">await</span> FileSystem.<span class="code-fn">copyAsync</span>({
-      from: tempUri,
-      to: permanentUri,
-    });
-    <span class="code-kw">return</span> permanentUri; <span class="code-comm">// file:///.../files/recibos/recibo_123.jpg</span>
-  }
-}
+<span class="code-comm">// 2. Persistência no diretório interno do app (Sandbox)</span>
+<span class="code-kw">const</span> receiptDir = <span class="code-str">`${FileSystem.documentDirectory}recibos/`</span>;
+<span class="code-kw">const</span> permanentUri = <span class="code-str">`${receiptDir}recibo_${Date.now()}.jpg`</span>;
+<span class="code-kw">await</span> FileSystem.<span class="code-fn">copyAsync</span>({
+  from: tempUri,
+  to: permanentUri,
+});
           </div>
         </div>
 
         <div class="card">
-          <div class="card-title"><span class="icon">📁</span> Por que usar Sistema de Arquivos + URI no SQLite?</div>
+          <div class="card-title"><span class="icon">📁</span> Funcionamento do Armazenamento Local</div>
           <div class="bullet-notes">
             <div class="note-item">
-              <strong>1. Sai do Cache Volátil para o Disco Permanente:</strong> Quando a câmera tira uma foto, o sistema operacional a coloca num cache temporário que pode ser apagado. O <code>LocalReceiptStorage</code> copia o arquivo para <code>documentDirectory/recibos/</code>, onde nunca é apagado.
+              <strong>1. Captura Direta pelo ImagePicker:</strong> A câmera captura a imagem já comprimida (<code>quality: 0.6</code>) gerando a string de dados (<code>data:image/jpeg;base64,...</code> ou <code>file://</code>).
             </div>
             <div class="note-item">
-              <strong>2. Banco SQLite Leve e Rápido:</strong> Em vez de travar o SQLite salvando megabytes de binários (BLOB), gravamos na coluna <code>foto_uri</code> apenas o caminho local (ex: <code>file:///data/user/0/.../recibos/recibo_123.jpg</code>).
+              <strong>2. Diretório Seguro no Aparelho (<code>LocalReceiptStorage</code>):</strong> Arquivos <code>file://</code> são copiados do cache temporário para a pasta definitiva <code>documentDirectory/recibos/</code> do celular.
             </div>
             <div class="note-item">
-              <strong>3. Exibição Instantânea 100% Offline:</strong> A tela lê a <code>foto_uri</code> do SQLite e renderiza o arquivo direto do disco do celular, sem gastar internet.
+              <strong>3. Renderização Imediata Sem Internet:</strong> O componente <code>&lt;Image source={{ uri: item.fotoUri }} /&gt;</code> lê a foto diretamente do banco local do aparelho, exibindo a miniatura na lista.
             </div>
           </div>
         </div>
@@ -1188,7 +1183,7 @@
     <!-- SLIDE 11: 7. SALVANDO OS DADOS NO CELULAR (PARTE B: TABELAS SQLITE E RECONSTRUÇÃO) -->
     <section class="slide" data-topic="7. Salvando no Banco de Dados Local (SQLite)">
       <div class="slide-tag">7. Salvando os Dados no Celular — Parte B: Persistência SQLite Relacional</div>
-      <h2 class="slide-title">Gravando Coordenadas GPS e Endereço da Foto no SQLite</h2>
+      <h2 class="slide-title">Gravando Coordenadas GPS e Foto no Banco Local SQLite</h2>
       <p class="slide-subtitle">Como o <code>SqliteDespesaRepository</code> e o <code>SqliteApontamentoRepository</code> persistem e reconstroem os objetos de domínio.</p>
 
       <div class="grid-2">
@@ -1206,7 +1201,7 @@
   categoria <span class="code-type">TEXT</span>,
   latitude <span class="code-type">REAL NOT NULL</span>,   <span class="code-comm">-- Coordenada GPS</span>
   longitude <span class="code-type">REAL NOT NULL</span>,  <span class="code-comm">-- Coordenada GPS</span>
-  foto_uri <span class="code-type">TEXT</span>,             <span class="code-comm">-- file:///.../recibos/recibo.jpg</span>
+  foto_uri <span class="code-type">TEXT</span>,             <span class="code-comm">-- URI local da foto</span>
   sync_status <span class="code-type">TEXT NOT NULL</span>
 );
 
@@ -1230,57 +1225,14 @@
               <strong>Remontagem no <code>mapRow()</code>:</strong> Na leitura (<code>SELECT * FROM despesas</code>), as colunas numéricas voltam a ser instâncias de <code>new Coordinates(lat, lng)</code> e <code>new ValorMonetario(valor)</code>.
             </div>
             <div class="note-item">
-              <strong>Persistência Definitiva no Aparelho:</strong> Mesmo que o celular seja desligado ou o app fechado, ao abrir novamente todos os balaios, fotos e coordenadas são carregados do SQLite local.
+              <strong>Persistência Definitiva no Aparelho:</strong> Mesmo que o aplicativo seja fechado, ao abrir novamente todos os balaios, fotos e coordenadas são carregados do SQLite local.
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- SLIDE 12: 🔴 DEMONSTRAÇÃO PRÁTICA 3: CONSULTA LOCAL E PERSISTÊNCIA OFFLINE -->
-    <section class="slide" data-topic="🔴 Demonstração 3: Dados Persistidos no SQLite">
-      <div class="live-demo-banner">
-        <div class="live-demo-left">
-          <div class="live-dot"></div>
-          <div>
-            <div class="live-text-title">DEMONSTRAÇÃO PRÁTICA 3: Conferência dos Dados Salvos no Celular</div>
-            <div class="live-text-desc">Comprovação de que fotos, coordenadas GPS e colheitas estão gravados localmente no aparelho</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="live-steps">
-        <div class="live-step-item">
-          <div class="step-number">1</div>
-          <div class="step-content">
-            <strong>Visualizar a Lista de Despesas e Miniaturas:</strong>
-            <p>Na aba <strong>Despesas</strong>, veja o card recém-criado exibindo a miniatura da foto carregada direto do caminho <code>file://</code> local e as coordenadas GPS capturadas.</p>
-          </div>
-        </div>
-
-        <div class="live-step-item">
-          <div class="step-number">2</div>
-          <div class="step-content">
-            <strong>Conferir Histórico de Colheita por Trabalhador:</strong>
-            <p>Na aba <strong>Colhedores</strong>, toque em Cleiton ou Ana para ver os balaios registrados com horário, litragem e localização geográfica.</p>
-          </div>
-        </div>
-
-        <div class="live-step-item">
-          <div class="step-number">3</div>
-          <div class="step-content">
-            <strong>Operação 100% Independente de Rede:</strong>
-            <p>Todo o fluxo de câmera, geolocalização e banco de dados funciona integralmente no dispositivo móvel sem depender de servidor externo.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="note-item" style="border-left-color: var(--primary); margin-top: 10px;">
-        <strong>E como esses dados locais chegarão ao escritório da fazenda?</strong> No próximo slide apresentamos a <strong>Próxima Etapa do Projeto</strong>: a sincronização com a nuvem!
-      </div>
-    </section>
-
-    <!-- SLIDE 13: PRÓXIMA ETAPA DO PROJETO (ROADMAP): SUPABASE & BUCKET S3 -->
+    <!-- SLIDE 12: PRÓXIMA ETAPA DO PROJETO (ROADMAP): SUPABASE & BUCKET S3 -->
     <section class="slide" data-topic="Próxima Etapa: Sincronização em Nuvem (Supabase)">
       <div class="slide-tag" style="color: var(--accent-blue);">🚀 Próxima Etapa do Projeto (Evolução Planejada)</div>
       <h2 class="slide-title">Próximo Marco: Sincronização em Nuvem com Supabase & Bucket S3</h2>
@@ -1380,12 +1332,11 @@
       { id: 6, tag: "5. O Teste", title: "TDD na Prática: Asserções no Jest" },
       { id: 7, tag: "🔴 Demo 1", title: "Câmera Lendo Crachá QR Code (TRAB-01 e TRAB-2)" },
       { id: 8, tag: "6. Infraestrutura", title: "Os Adaptadores Expo Adequando-se ao Domínio" },
-      { id: 9, tag: "🔴 Demo 2", title: "Foto de Comprovante & Captura de GPS" },
-      { id: 10, tag: "7. Banco Local (A)", title: "Como as Fotos São Salvas no Celular Sem Nuvem" },
-      { id: 11, tag: "7. Banco Local (B)", title: "Gravando Coordenadas e Endereço da Foto no SQLite" },
-      { id: 12, tag: "🔴 Demo 3", title: "Conferência dos Dados Persistidos Localmente" },
-      { id: 13, tag: "🚀 Próxima Etapa", title: "Roadmap: Sincronização Futura com Supabase & S3" },
-      { id: 14, tag: "Conclusão", title: "Síntese Técnica dos 7 Pontos do Roteiro" }
+      { id: 9, tag: "🔴 Demo 2", title: "Foto de Comprovante, GPS e Lista Local" },
+      { id: 10, tag: "7. Banco Local (A)", title: "Como a Foto da Câmera É Salva Localmente no Aparelho" },
+      { id: 11, tag: "7. Banco Local (B)", title: "Gravando Coordenadas e Foto no Banco Local SQLite" },
+      { id: 12, tag: "🚀 Próxima Etapa", title: "Roadmap: Sincronização Futura com Supabase & S3" },
+      { id: 13, tag: "Conclusão", title: "Síntese Técnica dos 7 Pontos do Roteiro" }
     ];
 
     function openIndex() {

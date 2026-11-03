@@ -880,11 +880,11 @@
       </div>
     </section>
 
-    <!-- SLIDE 6: 5. O TESTE (TDD NA PRÁTICA) -->
-    <section class="slide" data-topic="5. O Teste (TDD na Prática)">
-      <div class="slide-tag">5. O Teste (TDD na Prática)</div>
-      <h2 class="slide-title">Testes Unitários Reais no Jest: Coordenadas e Foto</h2>
-      <p class="slide-subtitle">Trechos reais da suíte de testes comprovando a validação de geolocalização e do endereço da foto da câmera.</p>
+    <!-- SLIDE 6: 5. O TESTE (TDD NA PRÁTICA) — PARTE A: COORDENADAS GPS -->
+    <section class="slide" data-topic="5. O Teste (TDD): Geolocalização">
+      <div class="slide-tag">5. O Teste (TDD na Prática) — Parte A: Geolocalização</div>
+      <h2 class="slide-title">Testando o Value Object Coordinates no Jest</h2>
+      <p class="slide-subtitle">Especificação executável que valida limites geográficos sem precisar de sinal de satélite real.</p>
 
       <div class="grid-2">
         <div class="code-window">
@@ -894,7 +894,7 @@
           </div>
           <div class="code-container">
 <span class="code-fn">describe</span>(<span class="code-str">'Coordinates Value Object'</span>, () =&gt; {
-  <span class="code-fn">it</span>(<span class="code-str">'deve criar coordenadas válidas'</span>, () =&gt; {
+  <span class="code-fn">it</span>(<span class="code-str">'deve instanciar coordenadas válidas'</span>, () =&gt; {
     <span class="code-kw">const</span> coord = <span class="code-kw">new</span> <span class="code-type">Coordinates</span>(-<span class="code-num">21.2497</span>, -<span class="code-num">45.5059</span>);
     <span class="code-fn">expect</span>(coord.latitude).<span class="code-fn">toBe</span>(-<span class="code-num">21.2497</span>);
     <span class="code-fn">expect</span>(coord.longitude).<span class="code-fn">toBe</span>(-<span class="code-num">45.5059</span>);
@@ -904,10 +904,39 @@
     <span class="code-fn">expect</span>(() =&gt; <span class="code-kw">new</span> <span class="code-type">Coordinates</span>(<span class="code-num">95</span>, -<span class="code-num">45</span>))
       .<span class="code-fn">toThrow</span>(<span class="code-str">'Latitude inválida'</span>);
   });
+
+  <span class="code-fn">it</span>(<span class="code-str">'deve rejeitar longitude fora de [-180, 180]'</span>, () =&gt; {
+    <span class="code-fn">expect</span>(() =&gt; <span class="code-kw">new</span> <span class="code-type">Coordinates</span>(-<span class="code-num">21</span>, -<span class="code-num">185</span>))
+      .<span class="code-fn">toThrow</span>(<span class="code-str">'Longitude inválida'</span>);
+  });
 });
           </div>
         </div>
 
+        <div class="card">
+          <div class="card-title"><span class="icon">🛰️</span> O que este teste explica e garante?</div>
+          <div class="bullet-notes">
+            <div class="note-item">
+              <strong>1. Caminho Feliz (Coordenadas Reais):</strong> Garante que coordenadas válidas da lavoura (ex: <code>-21.2497, -45.5059</code>) são armazenadas com precisão total e sem arredondamentos indevidos.
+            </div>
+            <div class="note-item">
+              <strong>2. Proteção de Fronteira Terrestre:</strong> Se o sensor de GPS retornar lixo ou valores fora do globo (<code>latitude &gt; 90</code> ou <code>longitude &lt; -180</code>), o construtor lança exceção na hora.
+            </div>
+            <div class="note-item">
+              <strong>3. Barreira Antes do Banco Local:</strong> Nenhum apontamento ou despesa chega ao SQLite com localização corrompida, pois o domínio barra o erro em memória.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: 5. O TESTE (TDD NA PRÁTICA) — PARTE B: FOTO DA CÂMERA E CASO DE USO -->
+    <section class="slide" data-topic="5. O Teste (TDD): Câmera & Caso de Uso">
+      <div class="slide-tag">5. O Teste (TDD na Prática) — Parte B: Foto da Câmera & Use Case</div>
+      <h2 class="slide-title">Testando o Caso de Uso RegistrarDespesa com Fake em Memória</h2>
+      <p class="slide-subtitle">Validação completa do fluxo de registro de comprovante fotográfico e coordenadas usando repositório simulado.</p>
+
+      <div class="grid-2">
         <div class="code-window">
           <div class="code-window-header">
             <div class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
@@ -921,6 +950,7 @@
   <span class="code-kw">const</span> output = <span class="code-kw">await</span> useCase.<span class="code-fn">execute</span>({
     descricao: <span class="code-str">'Combustível Trator'</span>,
     valor: <span class="code-num">150.0</span>,
+    categoria: <span class="code-str">'Transporte'</span>,
     latitude: -<span class="code-num">21.2497</span>,
     longitude: -<span class="code-num">45.5059</span>,
     fotoUri: <span class="code-str">'file:///documentos/recibos/nota_1.jpg'</span>
@@ -929,6 +959,21 @@
   <span class="code-fn">expect</span>(output.fotoUri).<span class="code-fn">toContain</span>(<span class="code-str">'file:///'</span>);
   <span class="code-fn">expect</span>(output.coordenadas.latitude).<span class="code-fn">toBe</span>(-<span class="code-num">21.2497</span>);
 });
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="icon">📸</span> O que este teste explica e garante?</div>
+          <div class="bullet-notes">
+            <div class="note-item">
+              <strong>1. Uso de Repositório Fake (Sem SQLite Real):</strong> Injetamos o <code>InMemoryDespesaRepository</code> no construtor do <code>RegistrarDespesa</code>, testando a regra de negócio pura em milissegundos.
+            </div>
+            <div class="note-item">
+              <strong>2. Simulação da Câmera via URI Local:</strong> Passamos o endereço <code>file:///documentos/recibos/nota_1.jpg</code> simulando exatamente o retorno do armazenamento local do celular.
+            </div>
+            <div class="note-item">
+              <strong>3. Garantia de Persistência Integrada:</strong> As asserções comprovam que a despesa salva mantém o vínculo entre o valor monetário, a foto do comprovante e a coordenada GPS.
+            </div>
           </div>
         </div>
       </div>
@@ -1329,14 +1374,15 @@
       { id: 3, tag: "2. Arquitetura", title: "Clean Architecture & DDD: Onde aparecem Câmera e GPS?" },
       { id: 4, tag: "3. Estratégia TDD", title: "Como Testamos Câmera e Geolocalização?" },
       { id: 5, tag: "4. Domínio", title: "O Domínio e as Interfaces (Coordinates & Despesa)" },
-      { id: 6, tag: "5. O Teste", title: "TDD na Prática: Asserções no Jest" },
-      { id: 7, tag: "🔴 Demo 1", title: "Câmera Lendo Crachá QR Code (TRAB-01 e TRAB-2)" },
-      { id: 8, tag: "6. Infraestrutura", title: "Os Adaptadores Expo Adequando-se ao Domínio" },
-      { id: 9, tag: "🔴 Demo 2", title: "Foto de Comprovante, GPS e Lista Local" },
-      { id: 10, tag: "7. Banco Local (A)", title: "Como a Foto da Câmera É Salva Localmente no Aparelho" },
-      { id: 11, tag: "7. Banco Local (B)", title: "Gravando Coordenadas e Foto no Banco Local SQLite" },
-      { id: 12, tag: "🚀 Próxima Etapa", title: "Roadmap: Sincronização Futura com Supabase & S3" },
-      { id: 13, tag: "Conclusão", title: "Síntese Técnica dos 7 Pontos do Roteiro" }
+      { id: 6, tag: "5. O Teste (A)", title: "TDD na Prática: Testando a Geolocalização (Coordinates)" },
+      { id: 7, tag: "5. O Teste (B)", title: "TDD na Prática: Testando Foto e Use Case com Fake" },
+      { id: 8, tag: "🔴 Demo 1", title: "Câmera Lendo Crachá QR Code (TRAB-01 e TRAB-2)" },
+      { id: 9, tag: "6. Infraestrutura", title: "Os Adaptadores Expo Adequando-se ao Domínio" },
+      { id: 10, tag: "🔴 Demo 2", title: "Foto de Comprovante, GPS e Lista Local" },
+      { id: 11, tag: "7. Banco Local (A)", title: "Como a Foto da Câmera É Salva Localmente no Aparelho" },
+      { id: 12, tag: "7. Banco Local (B)", title: "Gravando Coordenadas e Foto no Banco Local SQLite" },
+      { id: 13, tag: "🚀 Próxima Etapa", title: "Roadmap: Sincronização Futura com Supabase & S3" },
+      { id: 14, tag: "Conclusão", title: "Síntese Técnica dos 7 Pontos do Roteiro" }
     ];
 
     function openIndex() {

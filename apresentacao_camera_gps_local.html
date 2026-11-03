@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apresentação SafraCafé — Câmera e Geolocalização Salvando no Celular (10 min)</title>
+  <style>
+    :root {
+      --bg-dark: #0a0f16;
+      --bg-slide: #101722;
+      --bg-card: rgba(20, 29, 43, 0.78);
+      --border-color: rgba(255, 255, 255, 0.09);
+      --border-glow: rgba(16, 185, 129, 0.35);
+      --primary: #10b981;
+      --primary-light: #34d399;
+      --primary-dark: #065f46;
+      --accent-gold: #f59e0b;
+      --accent-blue: #38bdf8;
+      --accent-purple: #a855f7;
+      --live-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --code-bg: #070c13;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-dark);
+      background-image: 
+        radial-gradient(ellipse at 20% 10%, rgba(16, 185, 129, 0.08), transparent 60%),
+        radial-gradient(ellipse at 80% 90%, rgba(56, 189, 248, 0.06), transparent 60%);
+      color: var(--text-main);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP BAR & PROGRESS */
+    #progress-container {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+
+    #progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--accent-blue));
+      transition: width 0.3s ease;
+    }
+
+    header {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 24px;
+      background: rgba(10, 15, 22, 0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 50;
+      height: 52px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: -0.3px;
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .brand-badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--primary-light);
+      border: 1px solid var(--border-glow);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+      justify-content: center;
+      padding: 0 12px;
+    }
+
+    .topic-pill {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      max-width: 440px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .timer-badge {
+      font-family: monospace;
+      font-size: 12.5px;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 9px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .timer-badge:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .counter-badge {
+      font-family: monospace;
+      font-size: 13px;
+      color: var(--primary-light);
+      background: var(--code-bg);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .counter-badge:hover {
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .btn-header {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 5px 10px;
+      border-radius: 7px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+
+    .btn-header:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* SLIDE STAGE - RESPONSIVE FLEX */
+    #stage {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+    }
+
+    .slide {
+      position: absolute;
+      width: min(1280px, 94vw);
+      max-height: 100%;
+      height: auto;
+      background: var(--bg-slide);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 24px 34px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: scale(0.98) translateY(12px);
+      pointer-events: none;
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7);
+      overflow-y: auto;
+    }
+
+    .slide::-webkit-scrollbar {
+      width: 5px;
+    }
+    .slide::-webkit-scrollbar-thumb {
+      background: rgba(16, 185, 129, 0.35);
+      border-radius: 10px;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
+      z-index: 10;
+    }
+
+    /* TYPOGRAPHY */
+    .slide-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary-light);
+      margin-bottom: 4px;
+    }
+
+    .slide-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.2;
+      margin-bottom: 4px;
+      letter-spacing: -0.4px;
+    }
+
+    .slide-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      line-height: 1.4;
+    }
+
+    /* GRIDS & CARDS */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 15px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card p, .card li {
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.48;
+    }
+
+    .card ul {
+      padding-left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* CODE WINDOW */
+    .code-window {
+      background: var(--code-bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .code-window-header {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+
+    .window-filename {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .code-container {
+      padding: 11px 14px;
+      font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #e2e8f0;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .code-kw { color: #c084fc; font-weight: 600; }
+    .code-fn { color: #38bdf8; }
+    .code-str { color: #34d399; }
+    .code-type { color: #fcd34d; }
+    .code-num { color: #fb923c; }
+    .code-comm { color: #64748b; font-style: italic; }
+
+    /* BULLET NOTES */
+    .bullet-notes {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .note-item {
+      background: rgba(255, 255, 255, 0.03);
+      border-left: 3px solid var(--primary);
+      padding: 8px 12px;
+      border-radius: 0 8px 8px 0;
+      font-size: 12.5px;
+      color: #cbd5e1;
+      line-height: 1.42;
+    }
+
+    .note-item strong {
+      color: #ffffff;
+    }
+
+    code {
+      font-family: monospace;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: #7dd3fc;
+      font-size: 0.92em;
+    }
+
+    /* LIVE DEMO BANNER */
+    .live-demo-banner {
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.16), rgba(20, 29, 43, 0.85));
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      border-radius: 12px;
+      padding: 11px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .live-demo-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .live-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--live-red);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--live-red);
+      animation: pulse 1.5s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .live-text-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.3px;
+    }
+
+    .live-text-desc {
+      font-size: 12px;
+      color: #fca5a5;
+    }
+
+    .live-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .live-step-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .step-number {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border: 1px solid var(--live-red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .step-content strong {
+      color: #ffffff;
+      font-size: 13px;
+    }
+
+    .step-content p {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    /* INDEX MODAL */
+    #indexModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 8, 14, 0.88);
+      backdrop-filter: blur(14px);
+      z-index: 900;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    #indexModal.open {
+      display: flex;
+    }
+
+    .index-content {
+      background: #111927;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      width: min(840px, 92vw);
+      max-height: 82vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+    }
+
+    .index-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .index-header h3 {
+      font-size: 17px;
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .index-grid {
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 9px;
+      overflow-y: auto;
+    }
+
+    .index-item {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: 9px;
+      padding: 9px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+
+    .index-item:hover {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--primary);
+      transform: translateX(3px);
+    }
+
+    .index-num {
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 12.5px;
+      color: var(--primary-light);
+      background: rgba(16, 185, 129, 0.15);
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+
+    .index-text strong {
+      font-size: 13px;
+      color: #ffffff;
+      display: block;
+    }
+
+    .index-text span {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* PILLS & BADGES */
+    .pill {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: monospace;
+      white-space: nowrap;
+    }
+    .pill-green { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pill-blue { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .pill-amber { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .pill-purple { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    /* FOOTER CONTROLS - IN FLOW */
+    footer {
+      flex-shrink: 0;
+      width: 100%;
+      height: 44px;
+      padding: 6px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 15, 22, 0.94);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-color);
+      z-index: 50;
+    }
+
+    .shortcut-hint {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .key {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 10.5px;
+      color: #ffffff;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-nav {
+      background: var(--primary);
+      color: #052e16;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 7px;
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-nav:hover {
+      background: var(--primary-light);
+      transform: translateY(-1px);
+    }
+
+    .btn-nav.secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-nav.secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-nav:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- INDEX MODAL -->
+  <div id="indexModal" onclick="if(event.target.id==='indexModal') closeIndex()">
+    <div class="index-content">
+      <div class="index-header">
+        <h3>📋 Roteiro de 10 Minutos — Índice de Slides</h3>
+        <button class="btn-header" onclick="closeIndex()">✕ Fechar (I)</button>
+      </div>
+      <div class="index-grid" id="indexGridList"></div>
+    </div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+
+  <!-- TOP HEADER -->
+  <header>
+    <div class="brand">
+      <span>☕ SafraCafé</span>
+      <span class="brand-badge">Câmera & GPS Local</span>
+      <span class="brand-badge" style="background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border-color: rgba(56, 189, 248, 0.3);">Expo SDK 58 • SQLite</span>
+    </div>
+
+    <div class="header-center">
+      <div id="topicPill" class="topic-pill">Apresentação (10 Minutos)</div>
+    </div>
+
+    <div class="header-actions">
+      <div class="timer-badge" id="presentationTimer" title="Cronômetro de 10 minutos (Clique para pausar/reiniciar)">
+        <span>⏱️</span> <span id="timerDisplay">00:00</span>
+      </div>
+      <button class="btn-header" id="btnOpenIndex" title="Abrir Índice de Slides (I)">
+        <span>☰ Roteiro</span>
+      </button>
+      <div class="counter-badge" id="slideCounter" title="Abrir Índice">01 / 14</div>
+      <button class="btn-header" id="btnFullscreen" title="Tela Cheia (F)">
+        <span>⛶ Tela Cheia</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN STAGE -->
+  <main id="stage">
+
+    <!-- SLIDE 1: CAPA -->
+    <section class="slide active" data-topic="Apresentação do Projeto (10 min)">
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px 0;">
+        <div class="slide-tag" style="font-size: 13px; margin-bottom: 10px;">
+          Roteiro Oficial de Apresentação (10 Minutos)
+        </div>
+        <h1 class="slide-title" style="font-size: 36px; margin-bottom: 12px; max-width: 920px; letter-spacing: -0.8px;">
+          SafraCafé: Câmera e Geolocalização Salvando Dados no Banco Local do Celular
+        </h1>
+        <p class="slide-subtitle" style="font-size: 15.5px; max-width: 780px; margin-bottom: 24px; color: #cbd5e1;">
+          Clean Architecture, Domain-Driven Design (DDD), Test-Driven Development (TDD) e Persistência Offline-First com SQLite e Sistema de Arquivos Local.
+        </p>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; justify-content: center;">
+          <div class="pill pill-green" style="padding: 5px 12px; font-size: 12.5px;">📸 Câmera Nativa (QR Code + Recibos)</div>
+          <div class="pill pill-amber" style="padding: 5px 12px; font-size: 12.5px;">🛰️ Geolocalização (GPS + Fallback)</div>
+          <div class="pill pill-blue" style="padding: 5px 12px; font-size: 12.5px;">💾 Persistência Local (SQLite + Sandbox)</div>
+          <div class="pill pill-green" style="padding: 5px 12px; font-size: 12.5px;">✅ TDD com Jest (134 Testes)</div>
+        </div>
+
+        <div style="font-size: 12.5px; color: var(--text-muted); background: rgba(255,255,255,0.03); padding: 6px 16px; border-radius: 20px; border: 1px solid var(--border-color);">
+          Use as setas <span class="key">←</span> <span class="key">→</span> para navegar pelos 7 tópicos do roteiro. Pressione <span class="key">I</span> para abrir o índice.
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: 1. ABERTURA E CONTEXTUALIZAÇÃO -->
+    <section class="slide" data-topic="1. Abertura e Contextualização">
+      <div class="slide-tag">1. Abertura e Contextualização</div>
+      <h2 class="slide-title">O Projeto SafraCafé: O Problema e a Solução com Câmera e GPS</h2>
+      <p class="slide-subtitle">Breve relato de como o aplicativo substitui anotações manuais por captura ótica e auditoria geográfica direto no celular.</p>
+
+      <div class="grid-2">
+        <div class="card" style="border-left: 4px solid var(--accent-gold);">
+          <div class="card-title" style="color: var(--accent-gold);"><span class="icon">⚠️</span> O Problema no Campo</div>
+          <ul>
+            <li><strong>Ausência de Conectividade:</strong> As lavouras de café ficam em áreas rurais afastadas onde não há sinal de internet durante o dia.</li>
+            <li><strong>Perda de Notas e Recibos:</strong> Comprovantes físicos de óleo diesel, manutenção e insumos rasgam, molham ou se perdem no campo.</li>
+            <li><strong>Apontamento Lento e Manual:</strong> Anotar balaios em cadernetas de papel gera erros de digitação, rasuras e demora para identificar cada apanhador.</li>
+            <li><strong>Falta de Rastreabilidade Geográfica:</strong> Sem coordenada GPS, não há como comprovar em qual talhão da fazenda a colheita ou despesa ocorreu.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--primary);">
+          <div class="card-title" style="color: var(--primary-light);"><span class="icon">💡</span> A Solução (Câmera + Geolocalização Local)</div>
+          <ul>
+            <li><strong>Câmera 1 — Leitura de Crachá QR Code:</strong> O apontador escaneia o crachá do trabalhador (<code>TRAB-01</code>, <code>TRAB-2</code>) e o app o seleciona em menos de 1 segundo.</li>
+            <li><strong>Câmera 2 — Fotografia de Comprovantes:</strong> Ao lançar uma despesa, o app fotografa o recibo e salva o arquivo físico na memória permanente do celular.</li>
+            <li><strong>Geolocalização Automática (GPS):</strong> Cada balaio colhido e cada despesa registrada capturam automaticamente a <code>latitude</code> e <code>longitude</code> do local.</li>
+            <li><strong>Banco de Dados Local (SQLite):</strong> Todos os dados, coordenadas e endereços das fotos ficam gravados de forma relacional no próprio aparelho.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: 2. PRINCÍPIOS ARQUITETURAIS: CLEAN ARCHITECTURE E DDD -->
+    <section class="slide" data-topic="2. Princípios Arquiteturais: Clean Architecture e DDD">
+      <div class="slide-tag">2. Princípios Arquiteturais: Clean Architecture e DDD</div>
+      <h2 class="slide-title">Onde Aparecem a Câmera e a Geolocalização?</h2>
+      <p class="slide-subtitle">Separação estrita de responsabilidades: o Domínio desconhece totalmente o hardware do celular e o banco de dados.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><span class="icon">🏛️</span> Divisão em Camadas no Projeto</div>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+            <div style="background: rgba(16, 185, 129, 0.14); border: 1px solid var(--primary); padding: 9px 12px; border-radius: 7px;">
+              <strong style="color: var(--primary-light); font-size: 13.5px;">1. DOMAIN (src/domain/) — Núcleo Puro</strong>
+              <p style="font-size: 12px; margin-top: 2px;">Entidades (<code>Trabalhador</code>, <code>Apontamento</code>, <code>Despesa</code>), Value Objects (<code>Coordinates</code>, <code>ValorMonetario</code>) e Contratos. <strong>Zero código do Expo!</strong></p>
+            </div>
+
+            <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 9px 12px; border-radius: 7px;">
+              <strong style="color: #7dd3fc; font-size: 13.5px;">2. USE CASES (src/usecases/) — Casos de Uso</strong>
+              <p style="font-size: 12px; margin-top: 2px;"><code>RegistrarApontamento</code> e <code>RegistrarDespesa</code>. Recebem o repositório via <strong>Injeção de Dependência no construtor</strong>.</p>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.4); padding: 9px 12px; border-radius: 7px;">
+              <strong style="color: #fcd34d; font-size: 13.5px;">3. INFRASTRUCTURE & UI (src/infra/ & app/) — Adaptadores</strong>
+              <p style="font-size: 12px; margin-top: 2px;"><strong>É aqui que entram a Câmera e a Geolocalização!</strong> Módulos <code>expo-camera</code>, <code>expo-image-picker</code>, <code>expo-location</code>, <code>LocalReceiptStorage</code> e <code>SQLite</code>.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="justify-content: center;">
+          <div class="card-title"><span class="icon">🧭</span> Por que a Câmera e o GPS ficam fora do Domínio?</div>
+          <div class="bullet-notes">
+            <div class="note-item">
+              <strong>Domínio Protegido:</strong> Para a entidade <code>Despesa</code>, não importa qual modelo de câmera tirou a foto, apenas que exista um endereço <code>fotoUri</code> válido e um objeto <code>Coordinates</code> íntegro.
+            </div>
+            <div class="note-item">
+              <strong>Regra da Dependência:</strong> <code>domain/</code> nunca importa de <code>infra/</code> ou <code>usecases/</code>. As setas apontam sempre de fora (hardware/banco) para dentro (regras de negócio).
+            </div>
+            <div class="note-item">
+              <strong>Ponto Único de Wiring:</strong> O arquivo <code>src/infra/container.ts</code> conecta os repositórios Singleton do SQLite aos casos de uso da aplicação.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: 3. A ESTRATÉGIA DE TDD -->
+    <section class="slide" data-topic="3. A Estratégia de TDD">
+      <div class="slide-tag">3. A Estratégia de TDD</div>
+      <h2 class="slide-title">Como Testamos Câmera e Geolocalização?</h2>
+      <p class="slide-subtitle">Desenvolvimento orientado a testes validando regras geográficas e comprovantes fotográficos sem depender de sensores físicos.</p>
+
+      <div class="grid-2">
+        <div class="card" style="border-top: 3px solid var(--accent-blue);">
+          <div class="card-title" style="color: var(--accent-blue);"><span class="icon">🛠️</span> Como Foi Feito</div>
+          <ul>
+            <li><strong>Desacoplamento de Hardware:</strong> Em vez de acionar a lente física da câmera ou o chip GPS durante o teste, testamos os contratos e objetos que recebem esses sinais.</li>
+            <li><strong>Repositórios In-Memory (Fakes):</strong> Criamos <code>InMemoryDespesaRepository</code> e <code>InMemoryApontamentoRepository</code> implementando as exatas interfaces do domínio.</li>
+            <li><strong>Ciclo Red-Green-Refactor:</strong> Primeiro escrevemos os testes exigindo validação de coordenadas e URI de foto; depois implementamos as classes até todos os testes passarem.</li>
+            <li><strong>Execução Ultrarrápida:</strong> As 36 suítes (134 testes) rodam em poucos segundos no Jest sem precisar abrir emulador Android.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border-top: 3px solid var(--primary);">
+          <div class="card-title" style="color: var(--primary-light);"><span class="icon">✅</span> Nossos Testes Garantem Que:</div>
+          <ul>
+            <li><strong>Limites Geográficos Estritos:</strong> Nenhuma coordenada impossível (latitude fora de <code>-90° a 90°</code> ou longitude fora de <code>-180° a 180°</code>) entra no sistema.</li>
+            <li><strong>Validação de URI da Câmera:</strong> Uma despesa com comprovante inválido (string vazia ou sem protocolo <code>file://</code>) é bloqueada imediatamente com erro de domínio.</li>
+            <li><strong>Persistência Fiel dos Dados:</strong> Quando o caso de uso <code>RegistrarDespesa</code> ou <code>RegistrarApontamento</code> executa, o objeto salvo preserva exatamente a latitude, longitude e URI da foto recebidas.</li>
+            <li><strong>Prevenção de Regressões:</strong> Qualquer alteração futura nas telas não quebra as regras de validação de colheita e despesas.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: 4. O DOMÍNIO E AS INTERFACES (A BASE DO CONTRATO) -->
+    <section class="slide" data-topic="4. O Domínio e as Interfaces">
+      <div class="slide-tag">4. O Domínio e as Interfaces (A Base do Contrato)</div>
+      <h2 class="slide-title">Value Object Coordinates, Entidade Despesa e Contratos</h2>
+      <p class="slide-subtitle">A base do contrato: objetos imutáveis que se auto-validam no construtor e interfaces puras de repositório.</p>
+
+      <div class="grid-2">
+        <div class="code-window">
+          <div class="code-window-header">
+            <div class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+            <span class="window-filename">src/domain/value-objects/Coordinates.ts &amp; Despesa.ts</span>
+          </div>
+          <div class="code-container">
+<span class="code-comm">// Value Object Imutável de Geolocalização</span>
+<span class="code-kw">export class</span> <span class="code-type">Coordinates</span> {
+  <span class="code-kw">constructor</span>(
+    <span class="code-kw">public readonly</span> <span class="code-type">latitude</span>: <span class="code-type">number</span>,
+    <span class="code-kw">public readonly</span> <span class="code-type">longitude</span>: <span class="code-type">number</span>
+  ) {
+    <span class="code-kw">if</span> (latitude &lt; -<span class="code-num">90</span> || latitude &gt; <span class="code-num">90</span>)
+      <span class="code-kw">throw new</span> <span class="code-type">Error</span>(<span class="code-str">'Latitude inválida: deve estar entre -90 e 90.'</span>);
+    <span class="code-kw">if</span> (longitude &lt; -<span class="code-num">180</span> || longitude &gt; <span class="code-num">180</span>)
+      <span class="code-kw">throw new</span> <span class="code-type">Error</span>(<span class="code-str">'Longitude inválida: deve estar entre -180 e 180.'</span>);
+  }
+}
+
+<span class="code-comm">// Contrato do Repositório (Interface Pura)</span>
+<span class="code-kw">export interface</span> <span class="code-type">DespesaRepository</span> {
+  <span class="code-fn">save</span>(despesa: <span class="code-type">Despesa</span>): <span class="code-type">Promise</span>&lt;<span class="code-kw">void</span>&gt;;
+  <span class="code-fn">findAll</span>(): <span class="code-type">Promise</span>&lt;<span class="code-type">Despesa</span>[]&gt;;
+}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="icon">📐</span> Engenharia do Domínio</div>
+          <div class="bullet-notes">
+            <div class="note-item">
+              <strong>Auto-Validação no Construtor (Fail-Fast):</strong> A entidade <code>Despesa</code> e o Value Object <code>Coordinates</code> validam seus dados no exato momento do <code>new</code>. Não existe objeto inválido em memória.
+            </div>
+            <div class="note-item">
+              <strong>Validação da Foto na Entidade:</strong> Em <code>Despesa.validate()</code>, se <code>fotoUri</code> for informada sem formato de URI válido (ex: <code>file:///...</code>), a entidade lança <code>Error('URI da foto inválida')</code>.
+            </div>
+            <div class="note-item">
+              <strong>Contrato Desacoplado:</strong> A interface <code>DespesaRepository</code> exige apenas <code>save(despesa)</code>. O domínio não sabe se será salvo em memória, no SQLite ou na nuvem.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: 5. O TESTE (TDD NA PRÁTICA) -->
+    <section class="slide" data-topic="5. O Teste (TDD na Prática)">
+      <div class="slide-tag">5. O Teste (TDD na Prática)</div>
+      <h2 class="slide-title">Testes Unitários Reais no Jest: Coordenadas e Foto</h2>
+      <p class="slide-subtitle">Trechos reais da suíte de testes comprovando a validação de geolocalização e do endereço da foto da câmera.</p>
+
+      <div class="grid-2">
+        <div class="code-window">
+          <div class="code-window-header">
+            <div class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+            <span class="window-filename">tests/domain/Coordinates.test.ts</span>
+          </div>
+          <div class="code-container">
+<span class="code-fn">describe</span>(<span class="code-str">'Coordinates Value Object'</span>, () =&gt; {
+  <span class="code-fn">it</span>(<span class="code-str">'deve criar coordenadas válidas'</span>, () =&gt; {
+    <span class="code-kw">const</span> coord = <span class="code-kw">new</span> <span class="code-type">Coordinates</span>(-<span class="code-num">21.2497</span>, -<span class="code-num">45.5059</span>);
+    <span class="code-fn">expect</span>(coord.latitude).<span class="code-fn">toBe</span>(-<span class="code-num">21.2497</span>);
+    <span class="code-fn">expect</span>(coord.longitude).<span class="code-fn">toBe</span>(-<span class="code-num">45.5059</span>);
+  });
+
+  <span class="code-fn">it</span>(<span class="code-str">'deve rejeitar latitude fora de [-90, 90]'</span>, () =&gt; {
+    <span class="code-fn">expect</span>(() =&gt; <span class="code-kw">new</span> <span class="code-type">Coordinates</span>(<span class="code-num">95</span>, -<span class="code-num">45</span>))
+      .<span class="code-fn">toThrow</span>(<span class="code-str">'Latitude inválida'</span>);
+  });
+});
+          </div>
+        </div>
+
+        <div class="code-window">
+          <div class="code-window-header">
+            <div class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+            <span class="window-filename">tests/usecases/RegistrarDespesa.test.ts</span>
+          </div>
+          <div class="code-container">
+<span class="code-fn">it</span>(<span class="code-str">'deve registrar despesa com foto local e GPS'</span>, <span class="code-kw">async</span> () =&gt; {
+  <span class="code-kw">const</span> repo = <span class="code-kw">new</span> <span class="code-type">InMemoryDespesaRepository</span>();
+  <span class="code-kw">const</span> useCase = <span class="code-kw">new</span> <span class="code-type">RegistrarDespesa</span>(repo);
+
+  <span class="code-kw">const</span> output = <span class="code-kw">await</span> useCase.<span class="code-fn">execute</span>({
+    descricao: <span class="code-str">'Combustível Trator'</span>,
+    valor: <span class="code-num">150.0</span>,
+    latitude: -<span class="code-num">21.2497</span>,
+    longitude: -<span class="code-num">45.5059</span>,
+    fotoUri: <span class="code-str">'file:///documentos/recibos/nota_1.jpg'</span>
+  });
+
+  <span class="code-fn">expect</span>(output.fotoUri).<span class="code-fn">toContain</span>(<span class="code-str">'file:///'</span>);
+  <span class="code-fn">expect</span>(output.coordenadas.latitude).<span class="code-fn">toBe</span>(-<span class="code-num">21.2497</span>);
+});
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: 🔴 DEMONSTRAÇÃO PRÁTICA 1: CÂMERA & QR CODE -->
+    <section class="slide" data-topic="🔴 Demonstração 1: Câmera & Leitura QR Code">
+      <div class="live-demo-banner">
+        <div class="live-demo-left">
+          <div class="live-dot"></div>
+          <div>
+            <div class="live-text-title">DEMONSTRAÇÃO PRÁTICA 1: Câmera Lendo Crachá QR Code Real</div>
+            <div class="live-text-desc">Aponte a câmera do celular para qualquer um dos crachás abaixo para selecionar o trabalhador na hora</div>
+          </div>
+        </div>
+        <a href="crachas_colhedores.html" target="_blank" class="btn-header" style="text-decoration: none; color: #fff; background: rgba(16, 185, 129, 0.2); border-color: var(--primary);">
+          <span>🖨️ Abrir Crachás em Nova Aba</span>
+        </a>
+      </div>
+
+      <div class="grid-2" style="align-items: stretch; gap: 16px;">
+        <div class="live-steps">
+          <div class="live-step-item">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <strong>Acionar o Leitor na Aba Colheita:</strong>
+              <p>Toque no botão de QR Code ao lado da busca de trabalhador para abrir o <code>CameraView</code>.</p>
+            </div>
+          </div>
+
+          <div class="live-step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <strong>Apontar para o Crachá de Cleiton ou Ana:</strong>
+              <p>O sensor ótico decodifica <code>TRAB-01</code> ou <code>TRAB-2</code> instantaneamente.</p>
+            </div>
+          </div>
+
+          <div class="live-step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <strong>Registrar Balaio com GPS Local:</strong>
+              <p>Informe os litros colhidos e salve; o apontamento e a coordenada GPS vão direto para o SQLite local.</p>
+            </div>
+          </div>
+
+          <div class="note-item" style="border-left-color: var(--primary); margin-top: 2px;">
+            <strong>Agilidade no Campo:</strong> Elimina digitação de CPF ou busca manual em listas grandes de trabalhadores.
+          </div>
+        </div>
+
+        <!-- DOIS CRACHÁS OFICIAIS COM QR CODES VETORIAIS REAIS (TRAB-01 E TRAB-2) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <!-- CRACHÁ 1: CLEITON (TRAB-01) -->
+          <div class="card" style="background: #ffffff; color: #0f172a; align-items: center; justify-content: center; text-align: center; border: 3px solid #10b981; padding: 12px;">
+            <div style="width: 28px; height: 5px; background: #cbd5e1; border-radius: 4px; margin-bottom: 5px;"></div>
+            <div style="font-size: 9.5px; font-weight: 800; color: #059669; letter-spacing: 1.1px; text-transform: uppercase;">FAZENDA SAFRACAFÉ</div>
+            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin: 2px 0 6px 0;">CRACHÁ DO COLHEDOR</div>
+
+            <div style="background: #ffffff; padding: 6px; border-radius: 8px; border: 2px dashed #94a3b8; display: inline-block;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 21 21" style="display: block;" shape-rendering="crispEdges">
+                <rect style="fill:#ffffff;" x="0" y="0" width="21" height="21" />
+                <path style="fill:#000000;" d="M 0,0 l 1,0 0,1 -1,0 z M 1,0 l 1,0 0,1 -1,0 z M 2,0 l 1,0 0,1 -1,0 z M 3,0 l 1,0 0,1 -1,0 z M 4,0 l 1,0 0,1 -1,0 z M 5,0 l 1,0 0,1 -1,0 z M 6,0 l 1,0 0,1 -1,0 z M 10,0 l 1,0 0,1 -1,0 z M 11,0 l 1,0 0,1 -1,0 z M 12,0 l 1,0 0,1 -1,0 z M 14,0 l 1,0 0,1 -1,0 z M 15,0 l 1,0 0,1 -1,0 z M 16,0 l 1,0 0,1 -1,0 z M 17,0 l 1,0 0,1 -1,0 z M 18,0 l 1,0 0,1 -1,0 z M 19,0 l 1,0 0,1 -1,0 z M 20,0 l 1,0 0,1 -1,0 z M 0,1 l 1,0 0,1 -1,0 z M 6,1 l 1,0 0,1 -1,0 z M 8,1 l 1,0 0,1 -1,0 z M 9,1 l 1,0 0,1 -1,0 z M 10,1 l 1,0 0,1 -1,0 z M 12,1 l 1,0 0,1 -1,0 z M 14,1 l 1,0 0,1 -1,0 z M 20,1 l 1,0 0,1 -1,0 z M 0,2 l 1,0 0,1 -1,0 z M 2,2 l 1,0 0,1 -1,0 z M 3,2 l 1,0 0,1 -1,0 z M 4,2 l 1,0 0,1 -1,0 z M 6,2 l 1,0 0,1 -1,0 z M 10,2 l 1,0 0,1 -1,0 z M 11,2 l 1,0 0,1 -1,0 z M 12,2 l 1,0 0,1 -1,0 z M 14,2 l 1,0 0,1 -1,0 z M 16,2 l 1,0 0,1 -1,0 z M 17,2 l 1,0 0,1 -1,0 z M 18,2 l 1,0 0,1 -1,0 z M 20,2 l 1,0 0,1 -1,0 z M 0,3 l 1,0 0,1 -1,0 z M 2,3 l 1,0 0,1 -1,0 z M 3,3 l 1,0 0,1 -1,0 z M 4,3 l 1,0 0,1 -1,0 z M 6,3 l 1,0 0,1 -1,0 z M 8,3 l 1,0 0,1 -1,0 z M 9,3 l 1,0 0,1 -1,0 z M 12,3 l 1,0 0,1 -1,0 z M 14,3 l 1,0 0,1 -1,0 z M 16,3 l 1,0 0,1 -1,0 z M 17,3 l 1,0 0,1 -1,0 z M 18,3 l 1,0 0,1 -1,0 z M 20,3 l 1,0 0,1 -1,0 z M 0,4 l 1,0 0,1 -1,0 z M 2,4 l 1,0 0,1 -1,0 z M 3,4 l 1,0 0,1 -1,0 z M 4,4 l 1,0 0,1 -1,0 z M 6,4 l 1,0 0,1 -1,0 z M 9,4 l 1,0 0,1 -1,0 z M 12,4 l 1,0 0,1 -1,0 z M 14,4 l 1,0 0,1 -1,0 z M 16,4 l 1,0 0,1 -1,0 z M 17,4 l 1,0 0,1 -1,0 z M 18,4 l 1,0 0,1 -1,0 z M 20,4 l 1,0 0,1 -1,0 z M 0,5 l 1,0 0,1 -1,0 z M 6,5 l 1,0 0,1 -1,0 z M 8,5 l 1,0 0,1 -1,0 z M 11,5 l 1,0 0,1 -1,0 z M 14,5 l 1,0 0,1 -1,0 z M 20,5 l 1,0 0,1 -1,0 z M 0,6 l 1,0 0,1 -1,0 z M 1,6 l 1,0 0,1 -1,0 z M 2,6 l 1,0 0,1 -1,0 z M 3,6 l 1,0 0,1 -1,0 z M 4,6 l 1,0 0,1 -1,0 z M 5,6 l 1,0 0,1 -1,0 z M 6,6 l 1,0 0,1 -1,0 z M 8,6 l 1,0 0,1 -1,0 z M 10,6 l 1,0 0,1 -1,0 z M 12,6 l 1,0 0,1 -1,0 z M 14,6 l 1,0 0,1 -1,0 z M 15,6 l 1,0 0,1 -1,0 z M 16,6 l 1,0 0,1 -1,0 z M 17,6 l 1,0 0,1 -1,0 z M 18,6 l 1,0 0,1 -1,0 z M 19,6 l 1,0 0,1 -1,0 z M 20,6 l 1,0 0,1 -1,0 z M 9,7 l 1,0 0,1 -1,0 z M 0,8 l 1,0 0,1 -1,0 z M 1,8 l 1,0 0,1 -1,0 z M 2,8 l 1,0 0,1 -1,0 z M 3,8 l 1,0 0,1 -1,0 z M 4,8 l 1,0 0,1 -1,0 z M 6,8 l 1,0 0,1 -1,0 z M 7,8 l 1,0 0,1 -1,0 z M 8,8 l 1,0 0,1 -1,0 z M 11,8 l 1,0 0,1 -1,0 z M 13,8 l 1,0 0,1 -1,0 z M 15,8 l 1,0 0,1 -1,0 z M 17,8 l 1,0 0,1 -1,0 z M 19,8 l 1,0 0,1 -1,0 z M 3,9 l 1,0 0,1 -1,0 z M 4,9 l 1,0 0,1 -1,0 z M 5,9 l 1,0 0,1 -1,0 z M 8,9 l 1,0 0,1 -1,0 z M 9,9 l 1,0 0,1 -1,0 z M 10,9 l 1,0 0,1 -1,0 z M 11,9 l 1,0 0,1 -1,0 z M 12,9 l 1,0 0,1 -1,0 z M 13,9 l 1,0 0,1 -1,0 z M 14,9 l 1,0 0,1 -1,0 z M 15,9 l 1,0 0,1 -1,0 z M 18,9 l 1,0 0,1 -1,0 z M 20,9 l 1,0 0,1 -1,0 z M 2,10 l 1,0 0,1 -1,0 z M 4,10 l 1,0 0,1 -1,0 z M 5,10 l 1,0 0,1 -1,0 z M 6,10 l 1,0 0,1 -1,0 z M 7,10 l 1,0 0,1 -1,0 z M 8,10 l 1,0 0,1 -1,0 z M 9,10 l 1,0 0,1 -1,0 z M 10,10 l 1,0 0,1 -1,0 z M 12,10 l 1,0 0,1 -1,0 z M 14,10 l 1,0 0,1 -1,0 z M 15,10 l 1,0 0,1 -1,0 z M 18,10 l 1,0 0,1 -1,0 z M 0,11 l 1,0 0,1 -1,0 z M 1,11 l 1,0 0,1 -1,0 z M 3,11 l 1,0 0,1 -1,0 z M 7,11 l 1,0 0,1 -1,0 z M 10,11 l 1,0 0,1 -1,0 z M 11,11 l 1,0 0,1 -1,0 z M 12,11 l 1,0 0,1 -1,0 z M 13,11 l 1,0 0,1 -1,0 z M 14,11 l 1,0 0,1 -1,0 z M 15,11 l 1,0 0,1 -1,0 z M 18,11 l 1,0 0,1 -1,0 z M 0,12 l 1,0 0,1 -1,0 z M 2,12 l 1,0 0,1 -1,0 z M 4,12 l 1,0 0,1 -1,0 z M 6,12 l 1,0 0,1 -1,0 z M 10,12 l 1,0 0,1 -1,0 z M 12,12 l 1,0 0,1 -1,0 z M 17,12 l 1,0 0,1 -1,0 z M 19,12 l 1,0 0,1 -1,0 z M 8,13 l 1,0 0,1 -1,0 z M 9,13 l 1,0 0,1 -1,0 z M 10,13 l 1,0 0,1 -1,0 z M 12,13 l 1,0 0,1 -1,0 z M 15,13 l 1,0 0,1 -1,0 z M 17,13 l 1,0 0,1 -1,0 z M 18,13 l 1,0 0,1 -1,0 z M 19,13 l 1,0 0,1 -1,0 z M 0,14 l 1,0 0,1 -1,0 z M 1,14 l 1,0 0,1 -1,0 z M 2,14 l 1,0 0,1 -1,0 z M 3,14 l 1,0 0,1 -1,0 z M 4,14 l 1,0 0,1 -1,0 z M 5,14 l 1,0 0,1 -1,0 z M 6,14 l 1,0 0,1 -1,0 z M 8,14 l 1,0 0,1 -1,0 z M 9,14 l 1,0 0,1 -1,0 z M 11,14 l 1,0 0,1 -1,0 z M 13,14 l 1,0 0,1 -1,0 z M 15,14 l 1,0 0,1 -1,0 z M 18,14 l 1,0 0,1 -1,0 z M 19,14 l 1,0 0,1 -1,0 z M 0,15 l 1,0 0,1 -1,0 z M 6,15 l 1,0 0,1 -1,0 z M 9,15 l 1,0 0,1 -1,0 z M 10,15 l 1,0 0,1 -1,0 z M 15,15 l 1,0 0,1 -1,0 z M 17,15 l 1,0 0,1 -1,0 z M 19,15 l 1,0 0,1 -1,0 z M 0,16 l 1,0 0,1 -1,0 z M 2,16 l 1,0 0,1 -1,0 z M 3,16 l 1,0 0,1 -1,0 z M 4,16 l 1,0 0,1 -1,0 z M 6,16 l 1,0 0,1 -1,0 z M 8,16 l 1,0 0,1 -1,0 z M 9,16 l 1,0 0,1 -1,0 z M 10,16 l 1,0 0,1 -1,0 z M 11,16 l 1,0 0,1 -1,0 z M 13,16 l 1,0 0,1 -1,0 z M 15,16 l 1,0 0,1 -1,0 z M 18,16 l 1,0 0,1 -1,0 z M 0,17 l 1,0 0,1 -1,0 z M 2,17 l 1,0 0,1 -1,0 z M 3,17 l 1,0 0,1 -1,0 z M 4,17 l 1,0 0,1 -1,0 z M 6,17 l 1,0 0,1 -1,0 z M 8,17 l 1,0 0,1 -1,0 z M 9,17 l 1,0 0,1 -1,0 z M 11,17 l 1,0 0,1 -1,0 z M 12,17 l 1,0 0,1 -1,0 z M 13,17 l 1,0 0,1 -1,0 z M 14,17 l 1,0 0,1 -1,0 z M 15,17 l 1,0 0,1 -1,0 z M 17,17 l 1,0 0,1 -1,0 z M 0,18 l 1,0 0,1 -1,0 z M 2,18 l 1,0 0,1 -1,0 z M 3,18 l 1,0 0,1 -1,0 z M 4,18 l 1,0 0,1 -1,0 z M 6,18 l 1,0 0,1 -1,0 z M 8,18 l 1,0 0,1 -1,0 z M 12,18 l 1,0 0,1 -1,0 z M 14,18 l 1,0 0,1 -1,0 z M 15,18 l 1,0 0,1 -1,0 z M 17,18 l 1,0 0,1 -1,0 z M 18,18 l 1,0 0,1 -1,0 z M 0,19 l 1,0 0,1 -1,0 z M 6,19 l 1,0 0,1 -1,0 z M 8,19 l 1,0 0,1 -1,0 z M 10,19 l 1,0 0,1 -1,0 z M 11,19 l 1,0 0,1 -1,0 z M 12,19 l 1,0 0,1 -1,0 z M 13,19 l 1,0 0,1 -1,0 z M 14,19 l 1,0 0,1 -1,0 z M 16,19 l 1,0 0,1 -1,0 z M 17,19 l 1,0 0,1 -1,0 z M 18,19 l 1,0 0,1 -1,0 z M 0,20 l 1,0 0,1 -1,0 z M 1,20 l 1,0 0,1 -1,0 z M 2,20 l 1,0 0,1 -1,0 z M 3,20 l 1,0 0,1 -1,0 z M 4,20 l 1,0 0,1 -1,0 z M 5,20 l 1,0 0,1 -1,0 z M 6,20 l 1,0 0,1 -1,0 z M 8,20 l 1,0 0,1 -1,0 z M 10,20 l 1,0 0,1 -1,0 z M 12,20 l 1,0 0,1 -1,0 z M 15,20 l 1,0 0,1 -1,0 z M 18,20 l 1,0 0,1 -1,0 z M 19,20 l 1,0 0,1 -1,0 z" />
+              </svg>
+            </div>
+
+            <div style="font-family: monospace; font-size: 14px; font-weight: 800; background: #d1fae5; padding: 2px 10px; border-radius: 5px; margin: 6px 0 2px 0; color: #065f46; border: 1px solid #10b981;">
+              TRAB-01
+            </div>
+            <div style="font-size: 14px; font-weight: 800; color: #0f172a;">Cleiton</div>
+            <div style="font-size: 10.5px; color: #475569; margin-top: 2px;">CPF: 646.386.591-95 • Diária: R$ 100</div>
+          </div>
+
+          <!-- CRACHÁ 2: ANA (TRAB-2) -->
+          <div class="card" style="background: #ffffff; color: #0f172a; align-items: center; justify-content: center; text-align: center; border: 3px solid #38bdf8; padding: 12px;">
+            <div style="width: 28px; height: 5px; background: #cbd5e1; border-radius: 4px; margin-bottom: 5px;"></div>
+            <div style="font-size: 9.5px; font-weight: 800; color: #0284c7; letter-spacing: 1.1px; text-transform: uppercase;">FAZENDA SAFRACAFÉ</div>
+            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin: 2px 0 6px 0;">CRACHÁ DA COLHEDORA</div>
+
+            <div style="background: #ffffff; padding: 6px; border-radius: 8px; border: 2px dashed #94a3b8; display: inline-block;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 21 21" style="display: block;" shape-rendering="crispEdges">
+                <rect style="fill:#ffffff;" x="0" y="0" width="21" height="21" />
+                <path style="fill:#000000;" d="M 0,0 l 1,0 0,1 -1,0 z M 1,0 l 1,0 0,1 -1,0 z M 2,0 l 1,0 0,1 -1,0 z M 3,0 l 1,0 0,1 -1,0 z M 4,0 l 1,0 0,1 -1,0 z M 5,0 l 1,0 0,1 -1,0 z M 6,0 l 1,0 0,1 -1,0 z M 10,0 l 1,0 0,1 -1,0 z M 11,0 l 1,0 0,1 -1,0 z M 12,0 l 1,0 0,1 -1,0 z M 14,0 l 1,0 0,1 -1,0 z M 15,0 l 1,0 0,1 -1,0 z M 16,0 l 1,0 0,1 -1,0 z M 17,0 l 1,0 0,1 -1,0 z M 18,0 l 1,0 0,1 -1,0 z M 19,0 l 1,0 0,1 -1,0 z M 20,0 l 1,0 0,1 -1,0 z M 0,1 l 1,0 0,1 -1,0 z M 6,1 l 1,0 0,1 -1,0 z M 8,1 l 1,0 0,1 -1,0 z M 9,1 l 1,0 0,1 -1,0 z M 10,1 l 1,0 0,1 -1,0 z M 12,1 l 1,0 0,1 -1,0 z M 14,1 l 1,0 0,1 -1,0 z M 20,1 l 1,0 0,1 -1,0 z M 0,2 l 1,0 0,1 -1,0 z M 2,2 l 1,0 0,1 -1,0 z M 3,2 l 1,0 0,1 -1,0 z M 4,2 l 1,0 0,1 -1,0 z M 6,2 l 1,0 0,1 -1,0 z M 10,2 l 1,0 0,1 -1,0 z M 11,2 l 1,0 0,1 -1,0 z M 12,2 l 1,0 0,1 -1,0 z M 14,2 l 1,0 0,1 -1,0 z M 16,2 l 1,0 0,1 -1,0 z M 17,2 l 1,0 0,1 -1,0 z M 18,2 l 1,0 0,1 -1,0 z M 20,2 l 1,0 0,1 -1,0 z M 0,3 l 1,0 0,1 -1,0 z M 2,3 l 1,0 0,1 -1,0 z M 3,3 l 1,0 0,1 -1,0 z M 4,3 l 1,0 0,1 -1,0 z M 6,3 l 1,0 0,1 -1,0 z M 8,3 l 1,0 0,1 -1,0 z M 9,3 l 1,0 0,1 -1,0 z M 12,3 l 1,0 0,1 -1,0 z M 14,3 l 1,0 0,1 -1,0 z M 16,3 l 1,0 0,1 -1,0 z M 17,3 l 1,0 0,1 -1,0 z M 18,3 l 1,0 0,1 -1,0 z M 20,3 l 1,0 0,1 -1,0 z M 0,4 l 1,0 0,1 -1,0 z M 2,4 l 1,0 0,1 -1,0 z M 3,4 l 1,0 0,1 -1,0 z M 4,4 l 1,0 0,1 -1,0 z M 6,4 l 1,0 0,1 -1,0 z M 9,4 l 1,0 0,1 -1,0 z M 12,4 l 1,0 0,1 -1,0 z M 14,4 l 1,0 0,1 -1,0 z M 16,4 l 1,0 0,1 -1,0 z M 17,4 l 1,0 0,1 -1,0 z M 18,4 l 1,0 0,1 -1,0 z M 20,4 l 1,0 0,1 -1,0 z M 0,5 l 1,0 0,1 -1,0 z M 6,5 l 1,0 0,1 -1,0 z M 8,5 l 1,0 0,1 -1,0 z M 11,5 l 1,0 0,1 -1,0 z M 14,5 l 1,0 0,1 -1,0 z M 20,5 l 1,0 0,1 -1,0 z M 0,6 l 1,0 0,1 -1,0 z M 1,6 l 1,0 0,1 -1,0 z M 2,6 l 1,0 0,1 -1,0 z M 3,6 l 1,0 0,1 -1,0 z M 4,6 l 1,0 0,1 -1,0 z M 5,6 l 1,0 0,1 -1,0 z M 6,6 l 1,0 0,1 -1,0 z M 8,6 l 1,0 0,1 -1,0 z M 10,6 l 1,0 0,1 -1,0 z M 12,6 l 1,0 0,1 -1,0 z M 14,6 l 1,0 0,1 -1,0 z M 15,6 l 1,0 0,1 -1,0 z M 16,6 l 1,0 0,1 -1,0 z M 17,6 l 1,0 0,1 -1,0 z M 18,6 l 1,0 0,1 -1,0 z M 19,6 l 1,0 0,1 -1,0 z M 20,6 l 1,0 0,1 -1,0 z M 9,7 l 1,0 0,1 -1,0 z M 0,8 l 1,0 0,1 -1,0 z M 1,8 l 1,0 0,1 -1,0 z M 2,8 l 1,0 0,1 -1,0 z M 3,8 l 1,0 0,1 -1,0 z M 4,8 l 1,0 0,1 -1,0 z M 6,8 l 1,0 0,1 -1,0 z M 7,8 l 1,0 0,1 -1,0 z M 8,8 l 1,0 0,1 -1,0 z M 11,8 l 1,0 0,1 -1,0 z M 13,8 l 1,0 0,1 -1,0 z M 15,8 l 1,0 0,1 -1,0 z M 17,8 l 1,0 0,1 -1,0 z M 19,8 l 1,0 0,1 -1,0 z M 0,9 l 1,0 0,1 -1,0 z M 8,9 l 1,0 0,1 -1,0 z M 10,9 l 1,0 0,1 -1,0 z M 11,9 l 1,0 0,1 -1,0 z M 12,9 l 1,0 0,1 -1,0 z M 13,9 l 1,0 0,1 -1,0 z M 14,9 l 1,0 0,1 -1,0 z M 18,9 l 1,0 0,1 -1,0 z M 3,10 l 1,0 0,1 -1,0 z M 6,10 l 1,0 0,1 -1,0 z M 8,10 l 1,0 0,1 -1,0 z M 9,10 l 1,0 0,1 -1,0 z M 10,10 l 1,0 0,1 -1,0 z M 12,10 l 1,0 0,1 -1,0 z M 14,10 l 1,0 0,1 -1,0 z M 15,10 l 1,0 0,1 -1,0 z M 17,10 l 1,0 0,1 -1,0 z M 19,10 l 1,0 0,1 -1,0 z M 0,11 l 1,0 0,1 -1,0 z M 1,11 l 1,0 0,1 -1,0 z M 2,11 l 1,0 0,1 -1,0 z M 3,11 l 1,0 0,1 -1,0 z M 4,11 l 1,0 0,1 -1,0 z M 5,11 l 1,0 0,1 -1,0 z M 11,11 l 1,0 0,1 -1,0 z M 12,11 l 1,0 0,1 -1,0 z M 13,11 l 1,0 0,1 -1,0 z M 14,11 l 1,0 0,1 -1,0 z M 19,11 l 1,0 0,1 -1,0 z M 20,11 l 1,0 0,1 -1,0 z M 4,12 l 1,0 0,1 -1,0 z M 6,12 l 1,0 0,1 -1,0 z M 7,12 l 1,0 0,1 -1,0 z M 9,12 l 1,0 0,1 -1,0 z M 10,12 l 1,0 0,1 -1,0 z M 12,12 l 1,0 0,1 -1,0 z M 15,12 l 1,0 0,1 -1,0 z M 17,12 l 1,0 0,1 -1,0 z M 18,12 l 1,0 0,1 -1,0 z M 8,13 l 1,0 0,1 -1,0 z M 10,13 l 1,0 0,1 -1,0 z M 12,13 l 1,0 0,1 -1,0 z M 15,13 l 1,0 0,1 -1,0 z M 19,13 l 1,0 0,1 -1,0 z M 0,14 l 1,0 0,1 -1,0 z M 1,14 l 1,0 0,1 -1,0 z M 2,14 l 1,0 0,1 -1,0 z M 3,14 l 1,0 0,1 -1,0 z M 4,14 l 1,0 0,1 -1,0 z M 5,14 l 1,0 0,1 -1,0 z M 6,14 l 1,0 0,1 -1,0 z M 8,14 l 1,0 0,1 -1,0 z M 11,14 l 1,0 0,1 -1,0 z M 13,14 l 1,0 0,1 -1,0 z M 16,14 l 1,0 0,1 -1,0 z M 17,14 l 1,0 0,1 -1,0 z M 19,14 l 1,0 0,1 -1,0 z M 0,15 l 1,0 0,1 -1,0 z M 6,15 l 1,0 0,1 -1,0 z M 10,15 l 1,0 0,1 -1,0 z M 15,15 l 1,0 0,1 -1,0 z M 16,15 l 1,0 0,1 -1,0 z M 17,15 l 1,0 0,1 -1,0 z M 19,15 l 1,0 0,1 -1,0 z M 20,15 l 1,0 0,1 -1,0 z M 0,16 l 1,0 0,1 -1,0 z M 2,16 l 1,0 0,1 -1,0 z M 3,16 l 1,0 0,1 -1,0 z M 4,16 l 1,0 0,1 -1,0 z M 6,16 l 1,0 0,1 -1,0 z M 8,16 l 1,0 0,1 -1,0 z M 11,16 l 1,0 0,1 -1,0 z M 13,16 l 1,0 0,1 -1,0 z M 16,16 l 1,0 0,1 -1,0 z M 18,16 l 1,0 0,1 -1,0 z M 0,17 l 1,0 0,1 -1,0 z M 2,17 l 1,0 0,1 -1,0 z M 3,17 l 1,0 0,1 -1,0 z M 4,17 l 1,0 0,1 -1,0 z M 6,17 l 1,0 0,1 -1,0 z M 8,17 l 1,0 0,1 -1,0 z M 9,17 l 1,0 0,1 -1,0 z M 10,17 l 1,0 0,1 -1,0 z M 11,17 l 1,0 0,1 -1,0 z M 12,17 l 1,0 0,1 -1,0 z M 13,17 l 1,0 0,1 -1,0 z M 14,17 l 1,0 0,1 -1,0 z M 15,17 l 1,0 0,1 -1,0 z M 17,17 l 1,0 0,1 -1,0 z M 0,18 l 1,0 0,1 -1,0 z M 2,18 l 1,0 0,1 -1,0 z M 3,18 l 1,0 0,1 -1,0 z M 4,18 l 1,0 0,1 -1,0 z M 6,18 l 1,0 0,1 -1,0 z M 8,18 l 1,0 0,1 -1,0 z M 9,18 l 1,0 0,1 -1,0 z M 12,18 l 1,0 0,1 -1,0 z M 14,18 l 1,0 0,1 -1,0 z M 15,18 l 1,0 0,1 -1,0 z M 17,18 l 1,0 0,1 -1,0 z M 18,18 l 1,0 0,1 -1,0 z M 0,19 l 1,0 0,1 -1,0 z M 6,19 l 1,0 0,1 -1,0 z M 8,19 l 1,0 0,1 -1,0 z M 10,19 l 1,0 0,1 -1,0 z M 11,19 l 1,0 0,1 -1,0 z M 12,19 l 1,0 0,1 -1,0 z M 13,19 l 1,0 0,1 -1,0 z M 14,19 l 1,0 0,1 -1,0 z M 15,19 l 1,0 0,1 -1,0 z M 17,19 l 1,0 0,1 -1,0 z M 20,19 l 1,0 0,1 -1,0 z M 0,20 l 1,0 0,1 -1,0 z M 1,20 l 1,0 0,1 -1,0 z M 2,20 l 1,0 0,1 -1,0 z M 3,20 l 1,0 0,1 -1,0 z M 4,20 l 1,0 0,1 -1,0 z M 5,20 l 1,0 0,1 -1,0 z M 6,20 l 1,0 0,1 -1,0 z M 8,20 l 1,0 0,1 -1,0 z M 10,20 l 1,0 0,1 -1,0 z M 12,20 l 1,0 0,1 -1,0 z M 15,20 l 1,0 0,1 -1,0 z M 18,20 l 1,0 0,1 -1,0 z" />
+              </svg>
+            </div>
+
+            <div style="font-family: monospace; font-size: 14px; font-weight: 800; background: #e0f2fe; padding: 2px 10px; border-radius: 5px; margin: 6px 0 2px 0; color: #075985; border: 1px solid #38bdf8;">
+              TRAB-2
+            </div>
+            <div style="font-size: 14px; font-weight: 800; color: #0f172a;">Ana</div>
+            <div style="font-size: 10.5px; color: #475569; margin-top: 2px;">CPF: 646.465.629-29 • Diária: R$ 120</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: 6. A IMPLEMENTAÇÃO DA INFRAESTRUTURA (OS ADAPTADORES) -->
+    <section class="slide" data-topic="6. A Implementação da Infraestrutura">
+      <div class="slide-tag">6. A Implementação da Infraestrutura (Os Adaptadores)</div>
+      <h2 class="slide-title">APIs Modernas do Ecossistema Expo Adequando-se ao Domínio</h2>
+      <p class="slide-subtitle">A infraestrutura traduz os sinais brutos do hardware (câmera e satélite) para os tipos exigidos pelo domínio.</p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title"><span class="icon">📹</span> 1. expo-camera</div>
+          <div class="code-window" style="margin-top: 4px;">
+            <div class="code-window-header"><div class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div><span class="window-filename">CameraView (QR Code)</span></div>
+            <div class="code-container" style="font-size: 11px; padding: 8px;">
+<span class="code-kw">&lt;</span><span class="code-type">CameraView</span>
+  facing=<span class="code-str">"back"</span>
+  barcodeScannerSettings={{
+    barcodeTypes: [<span class="code-str">'qr'</span>]
+  }}
+  onBarcodeScanned={handleScan}
+<span class="code-kw">/&gt;</span>
+            </div>
+          </div>
+          <p style="font-size: 12px; margin-top: 8px; color: var(--text-muted);">
+            Lê o código ótico do crachá e entrega a string limpa (<code>TRAB-01</code>) para buscar a entidade <code>Trabalhador</code>.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="icon">🖼️</span> 2. expo-image-picker</div>
+          <div class="code-window" style="margin-top: 4px;">
+            <div class="code-window-header"><div class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div><span class="window-filename">launchCameraAsync</span></div>
+            <div class="code-container" style="font-size: 11px; padding: 8px;">
+<span class="code-kw">const</span> res = <span class="code-kw">await</span> ImagePicker
+  .<span class="code-fn">launchCameraAsync</span>({
+    quality: <span class="code-num">0.7</span>,
+    allowsEditing: <span class="code-kw">true</span>,
+  });
+<span class="code-kw">const</span> uri = res.assets[<span class="code-num">0</span>].uri;
+            </div>
+          </div>
+          <p style="font-size: 12px; margin-top: 8px; color: var(--text-muted);">
+            Aciona a câmera nativa, permite recortar o comprovante e devolve a URI temporária para persistência local.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="icon">📍</span> 3. expo-location</div>
+          <div class="code-window" style="margin-top: 4px;">
+            <div class="code-window-header"><div class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div><span class="window-filename">locationHelper.ts</span></div>
+            <div class="code-container" style="font-size: 11px; padding: 8px;">
+<span class="code-kw">const</span> pos = <span class="code-kw">await</span> Promise.<span class="code-fn">race</span>([
+  Location.<span class="code-fn">getCurrentPositionAsync</span>(),
+  <span class="code-fn">timeout</span>(<span class="code-num">4000</span>)
+]);
+<span class="code-comm">// Adequação ao Domínio:</span>
+<span class="code-kw">new</span> <span class="code-type">Coordinates</span>(lat, lng);
+            </div>
+          </div>
+          <p style="font-size: 12px; margin-top: 8px; color: var(--text-muted);">
+            Obtém o sinal de satélite com fallback não-bloqueante de 4s e converte no Value Object <code>Coordinates</code>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: 🔴 DEMONSTRAÇÃO PRÁTICA 2: FOTO DE RECIBO & GPS -->
+    <section class="slide" data-topic="🔴 Demonstração 2: Foto do Recibo & GPS">
+      <div class="live-demo-banner">
+        <div class="live-demo-left">
+          <div class="live-dot"></div>
+          <div>
+            <div class="live-text-title">DEMONSTRAÇÃO PRÁTICA 2: Captura de Foto de Comprovante e Geolocalização</div>
+            <div class="live-text-desc">Lançamento de uma despesa real tirando foto na hora e gravando coordenadas GPS no celular</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="live-steps">
+        <div class="live-step-item">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <strong>Abrir 'Nova Despesa' na Aba Despesas:</strong>
+            <p>Digite a descrição do gasto (ex: <em>"Óleo Diesel"</em>), o valor (ex: <em>R$ 50,00</em>) e selecione a categoria.</p>
+          </div>
+        </div>
+
+        <div class="live-step-item">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <strong>Fotografar o Comprovante com a Câmera:</strong>
+            <p>Toque em <strong>Tirar Foto</strong>, fotografe o recibo e confirme. A foto é copiada para a pasta permanente do aplicativo no celular.</p>
+          </div>
+        </div>
+
+        <div class="live-step-item">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <strong>Salvar no Banco Local (SQLite):</strong>
+            <p>Ao clicar em <strong>Salvar Despesa</strong>, o app associa a coordenada GPS atual (latitude/longitude) e o endereço local da foto no SQLite.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-item" style="border-left-color: var(--accent-gold); margin-top: 10px;">
+        <strong>Como a foto fica salva sem nuvem?</strong> No slide a seguir mostramos exatamente como o <code>LocalReceiptStorage</code> guarda o arquivo <code>.jpg</code> no armazenamento interno do celular e registra seu endereço no SQLite.
+      </div>
+    </section>
+
+    <!-- SLIDE 10: 7. SALVANDO OS DADOS NO CELULAR (PARTE A: SISTEMA DE ARQUIVOS LOCAL) -->
+    <section class="slide" data-topic="7. Salvando Fotos Localmente no Celular">
+      <div class="slide-tag">7. Salvando os Dados no Celular — Parte A: Armazenamento Local das Fotos</div>
+      <h2 class="slide-title">Como as Fotos São Salvas no Celular Sem Precisar de Nuvem?</h2>
+      <p class="slide-subtitle">A imagem não vai para o banco em formato pesado: o arquivo físico é salvo na Sandbox do aparelho e o SQLite guarda seu endereço (URI).</p>
+
+      <div class="grid-2">
+        <div class="code-window">
+          <div class="code-window-header">
+            <div class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+            <span class="window-filename">src/infra/filesystem/LocalReceiptStorage.ts</span>
+          </div>
+          <div class="code-container">
+<span class="code-kw">export class</span> <span class="code-type">LocalReceiptStorage</span> {
+  <span class="code-kw">async</span> <span class="code-fn">persistReceiptImage</span>(tempUri: <span class="code-type">string</span>): <span class="code-type">Promise</span>&lt;<span class="code-type">string</span>&gt; {
+    <span class="code-comm">// 1. Pasta permanente interna do app no celular</span>
+    <span class="code-kw">const</span> receiptDir = <span class="code-str">`${FileSystem.documentDirectory}recibos/`</span>;
+    <span class="code-kw">await</span> FileSystem.<span class="code-fn">makeDirectoryAsync</span>(receiptDir, {
+      intermediates: <span class="code-kw">true</span>
+    });
+
+    <span class="code-comm">// 2. Gera nome único para o comprovante</span>
+    <span class="code-kw">const</span> filename = <span class="code-str">`recibo_${Date.now()}.jpg`</span>;
+    <span class="code-kw">const</span> permanentUri = <span class="code-str">`${receiptDir}${filename}`</span>;
+
+    <span class="code-comm">// 3. Copia do cache temporário para pasta definitiva</span>
+    <span class="code-kw">await</span> FileSystem.<span class="code-fn">copyAsync</span>({
+      from: tempUri,
+      to: permanentUri,
+    });
+    <span class="code-kw">return</span> permanentUri; <span class="code-comm">// file:///.../files/recibos/recibo_123.jpg</span>
+  }
+}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="icon">📁</span> Por que usar Sistema de Arquivos + URI no SQLite?</div>
+          <div class="bullet-notes">
+            <div class="note-item">
+              <strong>1. Sai do Cache Volátil para o Disco Permanente:</strong> Quando a câmera tira uma foto, o sistema operacional a coloca num cache temporário que pode ser apagado. O <code>LocalReceiptStorage</code> copia o arquivo para <code>documentDirectory/recibos/</code>, onde nunca é apagado.
+            </div>
+            <div class="note-item">
+              <strong>2. Banco SQLite Leve e Rápido:</strong> Em vez de travar o SQLite salvando megabytes de binários (BLOB), gravamos na coluna <code>foto_uri</code> apenas o caminho local (ex: <code>file:///data/user/0/.../recibos/recibo_123.jpg</code>).
+            </div>
+            <div class="note-item">
+              <strong>3. Exibição Instantânea 100% Offline:</strong> A tela lê a <code>foto_uri</code> do SQLite e renderiza o arquivo direto do disco do celular, sem gastar internet.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: 7. SALVANDO OS DADOS NO CELULAR (PARTE B: TABELAS SQLITE E RECONSTRUÇÃO) -->
+    <section class="slide" data-topic="7. Salvando no Banco de Dados Local (SQLite)">
+      <div class="slide-tag">7. Salvando os Dados no Celular — Parte B: Persistência SQLite Relacional</div>
+      <h2 class="slide-title">Gravando Coordenadas GPS e Endereço da Foto no SQLite</h2>
+      <p class="slide-subtitle">Como o <code>SqliteDespesaRepository</code> e o <code>SqliteApontamentoRepository</code> persistem e reconstroem os objetos de domínio.</p>
+
+      <div class="grid-2">
+        <div class="code-window">
+          <div class="code-window-header">
+            <div class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+            <span class="window-filename">src/infra/sqlite/DatabaseClient.ts &amp; SqliteDespesaRepository.ts</span>
+          </div>
+          <div class="code-container">
+<span class="code-comm">-- Tabela local no celular (safracafe.db)</span>
+<span class="code-kw">CREATE TABLE IF NOT EXISTS</span> despesas (
+  id <span class="code-type">TEXT PRIMARY KEY</span>,
+  descricao <span class="code-type">TEXT NOT NULL</span>,
+  valor <span class="code-type">REAL NOT NULL</span>,
+  categoria <span class="code-type">TEXT</span>,
+  latitude <span class="code-type">REAL NOT NULL</span>,   <span class="code-comm">-- Coordenada GPS</span>
+  longitude <span class="code-type">REAL NOT NULL</span>,  <span class="code-comm">-- Coordenada GPS</span>
+  foto_uri <span class="code-type">TEXT</span>,             <span class="code-comm">-- file:///.../recibos/recibo.jpg</span>
+  sync_status <span class="code-type">TEXT NOT NULL</span>
+);
+
+<span class="code-comm">// Reconstruindo o Domínio ao ler do SQLite (mapRow)</span>
+<span class="code-kw">new</span> <span class="code-type">Despesa</span>(
+  row.id, row.descricao,
+  <span class="code-kw">new</span> <span class="code-type">ValorMonetario</span>(row.valor),
+  <span class="code-kw">new</span> <span class="code-type">Coordinates</span>(row.latitude, row.longitude),
+  <span class="code-kw">new</span> <span class="code-type">Date</span>(row.data), row.foto_uri
+);
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="icon">💾</span> Ciclo Completo no Banco Local</div>
+          <div class="bullet-notes">
+            <div class="note-item">
+              <strong>Desmontagem no <code>save()</code>:</strong> O repositório extrai <code>despesa.coordenadas.latitude</code>, <code>despesa.coordenadas.longitude</code> e <code>despesa.fotoUri</code> e executa o <code>INSERT OR REPLACE</code> no arquivo <code>safracafe.db</code>.
+            </div>
+            <div class="note-item">
+              <strong>Remontagem no <code>mapRow()</code>:</strong> Na leitura (<code>SELECT * FROM despesas</code>), as colunas numéricas voltam a ser instâncias de <code>new Coordinates(lat, lng)</code> e <code>new ValorMonetario(valor)</code>.
+            </div>
+            <div class="note-item">
+              <strong>Persistência Definitiva no Aparelho:</strong> Mesmo que o celular seja desligado ou o app fechado, ao abrir novamente todos os balaios, fotos e coordenadas são carregados do SQLite local.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: 🔴 DEMONSTRAÇÃO PRÁTICA 3: CONSULTA LOCAL E PERSISTÊNCIA OFFLINE -->
+    <section class="slide" data-topic="🔴 Demonstração 3: Dados Persistidos no SQLite">
+      <div class="live-demo-banner">
+        <div class="live-demo-left">
+          <div class="live-dot"></div>
+          <div>
+            <div class="live-text-title">DEMONSTRAÇÃO PRÁTICA 3: Conferência dos Dados Salvos no Celular</div>
+            <div class="live-text-desc">Comprovação de que fotos, coordenadas GPS e colheitas estão gravados localmente no aparelho</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="live-steps">
+        <div class="live-step-item">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <strong>Visualizar a Lista de Despesas e Miniaturas:</strong>
+            <p>Na aba <strong>Despesas</strong>, veja o card recém-criado exibindo a miniatura da foto carregada direto do caminho <code>file://</code> local e as coordenadas GPS capturadas.</p>
+          </div>
+        </div>
+
+        <div class="live-step-item">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <strong>Conferir Histórico de Colheita por Trabalhador:</strong>
+            <p>Na aba <strong>Colhedores</strong>, toque em Cleiton ou Ana para ver os balaios registrados com horário, litragem e localização geográfica.</p>
+          </div>
+        </div>
+
+        <div class="live-step-item">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <strong>Operação 100% Independente de Rede:</strong>
+            <p>Todo o fluxo de câmera, geolocalização e banco de dados funciona integralmente no dispositivo móvel sem depender de servidor externo.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-item" style="border-left-color: var(--primary); margin-top: 10px;">
+        <strong>E como esses dados locais chegarão ao escritório da fazenda?</strong> No próximo slide apresentamos a <strong>Próxima Etapa do Projeto</strong>: a sincronização com a nuvem!
+      </div>
+    </section>
+
+    <!-- SLIDE 13: PRÓXIMA ETAPA DO PROJETO (ROADMAP): SUPABASE & BUCKET S3 -->
+    <section class="slide" data-topic="Próxima Etapa: Sincronização em Nuvem (Supabase)">
+      <div class="slide-tag" style="color: var(--accent-blue);">🚀 Próxima Etapa do Projeto (Evolução Planejada)</div>
+      <h2 class="slide-title">Próximo Marco: Sincronização em Nuvem com Supabase & Bucket S3</h2>
+      <p class="slide-subtitle">Como nossa arquitetura atual já deixa o terreno 100% preparado para enviar dados e fotos locais para a nuvem na próxima entrega.</p>
+
+      <div class="grid-2">
+        <div class="card" style="border-left: 4px solid var(--accent-blue);">
+          <div class="card-title" style="color: #7dd3fc;"><span class="icon">🧱</span> O Que Já Deixamos Preparado Hoje</div>
+          <ul>
+            <li><strong>Coluna <code>sync_status</code> no SQLite:</strong> Todos os registros salvos hoje no celular já nascem marcados como <code>pending</code> (pendentes de envio).</li>
+            <li><strong>Tabela <code>sync_queue</code> (Padrão Outbox):</strong> Cada gravação local já registra o evento em uma fila local, guardando a ordem exata das operações feitas offline.</li>
+            <li><strong>Contratos Prontos no Domínio:</strong> Graças à Clean Architecture, o domínio não sofrerá nenhuma alteração quando conectarmos a nuvem.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--accent-purple);">
+          <div class="card-title" style="color: #d8b4fe;"><span class="icon">☁️</span> Como Funcionará na Próxima Etapa</div>
+          <ul>
+            <li><strong>1. Upload das Fotos para Bucket S3 (Supabase Storage):</strong> O app lerá o arquivo local (<code>file:///.../recibos/foto.jpg</code>) e subirá para um Bucket S3 na nuvem, recebendo uma URL pública HTTPS.</li>
+            <li><strong>2. Sincronização Relacional (PostgreSQL):</strong> Os trabalhadores, apontamentos (com latitude/longitude) e despesas serão enviados via <code>upsert</code> para o banco remoto do Supabase.</li>
+            <li><strong>3. Atualização Automática:</strong> Após o envio, o status local no SQLite mudará de <code>pending</code> para <code>synced</code>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="note-item" style="border-left-color: var(--accent-blue); margin-top: 10px;">
+        <strong>Vantagem Arquitetural:</strong> Como usamos Injeção de Dependência e Interfaces, conectar o Supabase na próxima etapa exige apenas adicionar os Gateways de nuvem na camada <code>infra/</code>, mantendo 100% do funcionamento offline atual.
+      </div>
+    </section>
+
+    <!-- SLIDE 14: CONCLUSÃO E FECHAMENTO DOS 7 PONTOS -->
+    <section class="slide" data-topic="Conclusão & Síntese do Roteiro">
+      <div class="slide-tag">Fechamento da Apresentação</div>
+      <h2 class="slide-title">Síntese Técnica: Todos os Requisitos Cumpridos</h2>
+      <p class="slide-subtitle">Resumo dos 7 pilares apresentados demonstrando maturidade arquitetural, testes automatizados e persistência local.</p>
+
+      <div class="grid-3" style="margin-bottom: 12px; flex: 0 0 auto;">
+        <div class="card" style="text-align: center; border-color: rgba(16, 185, 129, 0.4); padding: 12px 14px;">
+          <div style="font-size: 30px; font-weight: 800; color: var(--primary-light);">Clean + DDD</div>
+          <div style="font-size: 13px; font-weight: 700; color: #ffffff; margin-top: 2px;">Domínio 100% Isolado</div>
+          <p style="font-size: 11.5px; margin-top: 2px;">Câmera e GPS restritos à Infra</p>
+        </div>
+
+        <div class="card" style="text-align: center; border-color: rgba(16, 185, 129, 0.4); padding: 12px 14px;">
+          <div style="font-size: 30px; font-weight: 800; color: var(--primary-light);">134 / 134</div>
+          <div style="font-size: 13px; font-weight: 700; color: #ffffff; margin-top: 2px;">Testes Aprovados (TDD)</div>
+          <p style="font-size: 11.5px; margin-top: 2px;">Validação com Fakes em memória</p>
+        </div>
+
+        <div class="card" style="text-align: center; border-color: rgba(56, 189, 248, 0.4); padding: 12px 14px;">
+          <div style="font-size: 30px; font-weight: 800; color: #38bdf8;">SQLite + URI</div>
+          <div style="font-size: 13px; font-weight: 700; color: #ffffff; margin-top: 2px;">Persistência Local</div>
+          <p style="font-size: 11.5px; margin-top: 2px;">Fotos na Sandbox + GPS no Banco</p>
+        </div>
+      </div>
+
+      <div class="card" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); padding: 14px 18px;">
+        <div class="card-title" style="color: var(--primary-light); font-size: 15px; margin-bottom: 6px;"><span class="icon">🏆</span> Checklist do Roteiro de 10 Minutos</div>
+        <p style="font-size: 12.8px; color: #e2e8f0; line-height: 1.65;">
+          ✅ <strong>1 e 2. Contexto, Clean Architecture e DDD:</strong> Domínio puro com Value Object <code>Coordinates</code>; hardware isolado nos adaptadores.<br>
+          ✅ <strong>3, 4 e 5. TDD, Contratos e Testes na Prática:</strong> Repositórios Fake em memória e asserções Jest barrando coordenadas ou URIs inválidas.<br>
+          ✅ <strong>6. Adaptadores Expo Modernos:</strong> <code>expo-camera</code>, <code>expo-image-picker</code> e <code>expo-location</code> adequando-se ao domínio.<br>
+          ✅ <strong>7. Persistência Local + Próxima Etapa:</strong> Fotos salvas em <code>documentDirectory/recibos/</code> + endereço e GPS gravados no SQLite, prontos para a futura etapa de sincronização com Supabase!
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM FOOTER -->
+  <footer>
+    <div class="shortcut-hint">
+      <span>Navegação:</span>
+      <span class="key">←</span>
+      <span class="key">→</span>
+      <span>ou</span>
+      <span class="key">Espaço</span>
+      <span>|</span>
+      <span class="key">I</span> Índice do Roteiro
+      <span>|</span>
+      <span class="key">F</span> Tela Cheia
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-nav secondary" id="btnPrev">Anterior</button>
+      <button class="btn-nav" id="btnNext">Próximo</button>
+    </div>
+  </footer>
+
+  <script>
+    const slidesData = [
+      { id: 1, tag: "Capa", title: "SafraCafé: Câmera e Geolocalização no Celular" },
+      { id: 2, tag: "1. Abertura", title: "O Problema no Campo e A Solução com Câmera e GPS" },
+      { id: 3, tag: "2. Arquitetura", title: "Clean Architecture & DDD: Onde aparecem Câmera e GPS?" },
+      { id: 4, tag: "3. Estratégia TDD", title: "Como Testamos Câmera e Geolocalização?" },
+      { id: 5, tag: "4. Domínio", title: "O Domínio e as Interfaces (Coordinates & Despesa)" },
+      { id: 6, tag: "5. O Teste", title: "TDD na Prática: Asserções no Jest" },
+      { id: 7, tag: "🔴 Demo 1", title: "Câmera Lendo Crachá QR Code (TRAB-01 e TRAB-2)" },
+      { id: 8, tag: "6. Infraestrutura", title: "Os Adaptadores Expo Adequando-se ao Domínio" },
+      { id: 9, tag: "🔴 Demo 2", title: "Foto de Comprovante & Captura de GPS" },
+      { id: 10, tag: "7. Banco Local (A)", title: "Como as Fotos São Salvas no Celular Sem Nuvem" },
+      { id: 11, tag: "7. Banco Local (B)", title: "Gravando Coordenadas e Endereço da Foto no SQLite" },
+      { id: 12, tag: "🔴 Demo 3", title: "Conferência dos Dados Persistidos Localmente" },
+      { id: 13, tag: "🚀 Próxima Etapa", title: "Roadmap: Sincronização Futura com Supabase & S3" },
+      { id: 14, tag: "Conclusão", title: "Síntese Técnica dos 7 Pontos do Roteiro" }
+    ];
+
+    function openIndex() {
+      const modal = document.getElementById('indexModal');
+      const list = document.getElementById('indexGridList');
+      list.innerHTML = '';
+      slidesData.forEach((s, idx) => {
+        const item = document.createElement('div');
+        item.className = 'index-item';
+        item.innerHTML = `
+          <span class="index-num">${String(s.id).padStart(2, '0')}</span>
+          <div class="index-text">
+            <strong>${s.title}</strong>
+            <span>${s.tag}</span>
+          </div>
+        `;
+        item.onclick = () => {
+          window.goToSlide(idx);
+          closeIndex();
+        };
+        list.appendChild(item);
+      });
+      modal.classList.add('open');
+    }
+
+    function closeIndex() {
+      document.getElementById('indexModal').classList.remove('open');
+    }
+
+    (function () {
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      let current = 0;
+
+      const counterEl = document.getElementById('slideCounter');
+      const topicEl = document.getElementById('topicPill');
+      const progressEl = document.getElementById('progress-bar');
+      const btnPrev = document.getElementById('btnPrev');
+      const btnNext = document.getElementById('btnNext');
+      const btnFullscreen = document.getElementById('btnFullscreen');
+      const btnOpenIndex = document.getElementById('btnOpenIndex');
+
+      // Timer
+      let seconds = 0;
+      let timerRunning = true;
+      const timerDisplay = document.getElementById('timerDisplay');
+      const timerBtn = document.getElementById('presentationTimer');
+
+      setInterval(() => {
+        if (!timerRunning) return;
+        seconds++;
+        const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+        const s = String(seconds % 60).padStart(2, '0');
+        timerDisplay.textContent = `${m}:${s}`;
+      }, 1000);
+
+      timerBtn.addEventListener('click', () => {
+        timerRunning = !timerRunning;
+        timerDisplay.style.color = timerRunning ? '#cbd5e1' : '#f59e0b';
+      });
+
+      timerBtn.addEventListener('dblclick', () => {
+        seconds = 0;
+        timerRunning = true;
+        timerDisplay.textContent = '00:00';
+        timerDisplay.style.color = '#cbd5e1';
+      });
+
+      function updateView() {
+        slides.forEach((slide, index) => {
+          if (index === current) {
+            slide.classList.add('active');
+          } else {
+            slide.classList.remove('active');
+          }
+        });
+
+        const formattedCurrent = String(current + 1).padStart(2, '0');
+        const formattedTotal = String(total).padStart(2, '0');
+        counterEl.textContent = `${formattedCurrent} / ${formattedTotal}`;
+
+        const topic = slides[current].getAttribute('data-topic') || '';
+        topicEl.textContent = topic;
+
+        const pct = ((current + 1) / total) * 100;
+        progressEl.style.width = `${pct}%`;
+
+        btnPrev.disabled = current === 0;
+        btnNext.disabled = current === total - 1;
+      }
+
+      window.goToSlide = function(idx) {
+        if (idx >= 0 && idx < total) {
+          current = idx;
+          updateView();
+        }
+      };
+
+      function nextSlide() {
+        if (current < total - 1) {
+          current++;
+          updateView();
+        }
+      }
+
+      function prevSlide() {
+        if (current > 0) {
+          current--;
+          updateView();
+        }
+      }
+
+      btnNext.addEventListener('click', nextSlide);
+      btnPrev.addEventListener('click', prevSlide);
+      btnOpenIndex.addEventListener('click', openIndex);
+      counterEl.addEventListener('click', openIndex);
+
+      btnFullscreen.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeIndex();
+          return;
+        }
+        if (e.key === 'i' || e.key === 'I') {
+          const modal = document.getElementById('indexModal');
+          if (modal.classList.contains('open')) closeIndex();
+          else openIndex();
+          return;
+        }
+        if (document.getElementById('indexModal').classList.contains('open')) return;
+
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+          e.preventDefault();
+          nextSlide();
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          prevSlide();
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          current = 0;
+          updateView();
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          current = total - 1;
+          updateView();
+        } else if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault();
+          btnFullscreen.click();
+        }
+      });
+
+      updateView();
+    })();
+  </script>
+</body>
+</html>
+

@@ -27,11 +27,6 @@ export default function LoginScreen() {
     }
   }, [status]);
 
-  const preencherDemo = () => {
-    setEmail('pesquisador@ecofield.app');
-    setPassword('123456');
-  };
-
   const handleLogin = async () => {
     const emailLimpo = email.trim().toLowerCase();
     const senhaLimpa = password.trim();
@@ -47,9 +42,7 @@ export default function LoginScreen() {
     } catch (error) {
       Alert.alert(
         'Falha no login',
-        error instanceof Error
-          ? error.message
-          : 'Credenciais inválidas. Tente o login demo: pesquisador@ecofield.app / 123456',
+        error instanceof Error ? error.message : 'E-mail ou senha incorretos.',
       );
     } finally {
       setLoading(false);
@@ -109,18 +102,6 @@ export default function LoginScreen() {
             >
               <Text style={styles.buttonText}>{loading ? 'Entrando...' : 'Entrar'}</Text>
             </TouchableOpacity>
-
-            {/* Acesso Rápido com Conta Demo */}
-            <TouchableOpacity onPress={preencherDemo} style={styles.demoButton}>
-              <Ionicons name="flash-outline" size={18} color="#2d6a4f" style={{ marginRight: 6 }} />
-              <Text style={styles.demoButtonText}>Preencher conta demo</Text>
-            </TouchableOpacity>
-
-            <View style={styles.credentialsHint}>
-              <Text style={styles.credentialsHintText}>
-                Credenciais demo: pesquisador@ecofield.app | 123456
-              </Text>
-            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -226,34 +207,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  demoButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#2d6a4f',
-    borderRadius: 12,
-    height: 46,
-    marginTop: 14,
-    backgroundColor: '#f0fdf4',
-  },
-  demoButtonText: {
-    color: '#2d6a4f',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  credentialsHint: {
-    marginTop: 14,
-    padding: 10,
-    backgroundColor: '#f9fafb',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  credentialsHintText: {
-    fontSize: 11,
-    color: '#666',
-    textAlign: 'center',
   },
 });

@@ -12,6 +12,7 @@ import { InMemoryNetworkGateway } from '../../src/infra/inMemoryNetworkGateway';
 import { InMemorySyncGateway } from '../../src/infra/inMemorySyncGateway';
 import { InMemorySyncQueueRepository } from '../../src/infra/inMemorySyncQueueRepository';
 import { InMemoryTrabalhadorRepository } from '../../src/infra/inMemoryTrabalhadorRepository';
+import { InMemoryAuthGateway } from '../../src/infra/inMemoryAuthGateway';
 
 const AGORA = Date.now();
 
@@ -167,6 +168,30 @@ describe('Fakes In-Memory (infra) — repositórios e gateways', () => {
       net.setConnected(false);
       expect(await net.isConnected()).toBe(false);
       net.setConnected(true);
+    });
+  });
+
+  describe('InMemoryAuthGateway (Singleton)', () => {
+    it('deve autenticar a conta oficial joao@safracafe.com com sucesso', async () => {
+      const auth = InMemoryAuthGateway.getInstance();
+      const session = await auth.signIn({
+        email: 'joao@safracafe.com',
+        password: '123456',
+      });
+      expect(session).toBeDefined();
+      expect(session.user.email).toBe('joao@safracafe.com');
+      expect(session.user.name).toBe('João');
+      expect(session.token).toBeDefined();
+    });
+
+    it('deve rejeitar senha incorreta para a conta oficial', async () => {
+      const auth = InMemoryAuthGateway.getInstance();
+      await expect(
+        auth.signIn({
+          email: 'joao@safracafe.com',
+          password: 'senha-errada',
+        }),
+      ).rejects.toThrow('Credenciais inválidas');
     });
   });
 });

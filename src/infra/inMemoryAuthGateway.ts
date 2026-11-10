@@ -29,18 +29,28 @@ export class InMemoryAuthGateway implements AuthGateway {
     private semearContaDemo(): void {
         const contasIniciais = [
             {
-                nome: "Pesquisador CEFET",
-                email: "pesquisador@ecofield.app",
+                nome: "João",
+                email: "joao@safracafe.com",
                 senha: "123456",
             },
             {
-                nome: "Administrador Safra",
+                nome: "Administrador SafraCafé",
                 email: "admin@safracafe.com",
+                senha: "123456",
+            },
+            {
+                nome: "Pesquisador SafraCafé",
+                email: "pesquisador@safracafe.app",
                 senha: "123456",
             },
             {
                 nome: "Produtor Rural",
                 email: "admin@safra.com",
+                senha: "123456",
+            },
+            {
+                nome: "Pesquisador CEFET",
+                email: "pesquisador@ecofield.app",
                 senha: "123456",
             },
         ];

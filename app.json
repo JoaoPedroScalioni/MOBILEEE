@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Apptest",
-    "slug": "Apptest",
+    "name": "SafraCafé",
+    "slug": "safracafe",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "apptest",
+    "scheme": "safracafe",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true

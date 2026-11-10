@@ -217,15 +217,22 @@ export function MapaLavoura() {
         </View>
       )}
 
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text style={styles.sectionTitle}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+        <Text style={[styles.sectionTitle, { flex: 1 }]} numberOfLines={1}>
           {mostrarTodosTrechos
             ? `Todos os Pontos (${historicoTrechos.length} • ${distanciaTotalMetros}m)`
             : `Pontos de Hoje (${trechosHoje.length} • ${apontamentos.length} balaios)`}
         </Text>
         {historicoTrechos.length > 0 && (
           <TouchableOpacity
-            style={[styles.chip, mostrarTodosTrechos && styles.chipActive]}
+            style={[styles.chip, { flexShrink: 0 }, mostrarTodosTrechos && styles.chipActive]}
             onPress={() => setMostrarTodosTrechos((prev) => !prev)}
           >
             <Text style={[styles.chipText, mostrarTodosTrechos && styles.chipTextActive]}>

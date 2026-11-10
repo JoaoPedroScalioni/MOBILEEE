@@ -216,13 +216,13 @@ export default function Despesas() {
 
             {/* Cabeçalho da Lista (Hoje vs. Arquivadas) */}
             <View style={styles.sectionHeader}>
-              <View>
-                <Text style={styles.sectionTitle}>
-                  {mostrarTodasDespesas ? 'Todas as Despesas Registradas' : 'Despesas de Hoje'}
+              <View style={styles.sectionHeaderLeft}>
+                <Text style={styles.sectionTitle} numberOfLines={1}>
+                  {mostrarTodasDespesas ? 'Todas as Despesas' : 'Despesas de Hoje'}
                 </Text>
-                <Text style={styles.sectionSubtitle}>
+                <Text style={styles.sectionSubtitle} numberOfLines={1}>
                   {mostrarTodasDespesas
-                    ? `${list.length} no total (${despesasArquivadas.length} arquivada(s))`
+                    ? `${list.length} no total (${despesasArquivadas.length} arq.)`
                     : `${despesasHoje.length} registrada(s) hoje`}
                 </Text>
               </View>
@@ -558,6 +558,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 4,
+    gap: 10,
+  },
+  sectionHeaderLeft: {
+    flex: 1,
+    flexShrink: 1,
   },
   sectionTitle: {
     fontSize: 17,
@@ -572,6 +577,7 @@ const styles = StyleSheet.create({
   archiveToggleBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 0,
     gap: 5,
     backgroundColor: '#e7f3ee',
     borderWidth: 1,
@@ -638,6 +644,7 @@ const styles = StyleSheet.create({
     fontSize: 15.5,
     fontWeight: '700',
     color: '#1a1a1a',
+    flexShrink: 1,
   },
   statusTag: {
     paddingHorizontal: 8,
@@ -726,13 +733,15 @@ const styles = StyleSheet.create({
     borderColor: '#b7dfce',
     borderRadius: 12,
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     marginTop: 4,
   },
   bottomArchiveButtonText: {
     fontSize: 13,
     fontWeight: '700',
     color: '#2d6a4f',
+    flexShrink: 1,
+    textAlign: 'center',
   },
   modalBackdrop: {
     flex: 1,

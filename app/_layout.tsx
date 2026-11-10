@@ -13,10 +13,6 @@ LogBox.ignoreLogs([
   'REASharedTransitionBoundaryView',
 ]);
 
-export const unstable_settings = {
-  anchor: '(drawer)',
-};
-
 export default function RootLayout() {
   return (
     <AuthProvider>

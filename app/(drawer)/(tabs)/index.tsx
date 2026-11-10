@@ -312,13 +312,13 @@ export default function Apontamento() {
       {/* Seção de Histórico de Balaios (Hoje vs. Arquivados) */}
       <View style={styles.historySection}>
         <View style={styles.historyHeader}>
-          <View>
-            <Text style={styles.historyTitle}>
-              {mostrarTodosBalaios ? 'Todos os Balaios Registrados' : 'Balaios de Hoje'}
+          <View style={styles.historyHeaderLeft}>
+            <Text style={styles.historyTitle} numberOfLines={1}>
+              {mostrarTodosBalaios ? 'Todos os Balaios' : 'Balaios de Hoje'}
             </Text>
-            <Text style={styles.historyCount}>
+            <Text style={styles.historyCount} numberOfLines={1}>
               {mostrarTodosBalaios
-                ? `${apontamentos.length} no total (${apontamentosArquivados.length} arquivado(s))`
+                ? `${apontamentos.length} no total (${apontamentosArquivados.length} arq.)`
                 : `${apontamentosHoje.length} registrado(s) hoje`}
             </Text>
           </View>
@@ -632,9 +632,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 10,
+  },
+  historyHeaderLeft: {
+    flex: 1,
+    flexShrink: 1,
   },
   historyTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
     color: '#1a1a1a',
   },
@@ -647,6 +652,7 @@ const styles = StyleSheet.create({
   archiveToggleBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 0,
     gap: 5,
     backgroundColor: '#e7f3ee',
     borderWidth: 1,
@@ -745,6 +751,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     color: '#1a1a1a',
+    flexShrink: 1,
   },
   statusTag: {
     paddingHorizontal: 8,
@@ -788,6 +795,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
+    flexShrink: 0,
   },
   historyLitrosText: {
     color: '#fff',
@@ -804,13 +812,15 @@ const styles = StyleSheet.create({
     borderColor: '#b7dfce',
     borderRadius: 12,
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     marginTop: 4,
   },
   bottomArchiveButtonText: {
     fontSize: 13,
     fontWeight: '700',
     color: '#2d6a4f',
+    flexShrink: 1,
+    textAlign: 'center',
   },
   camera: {
     flex: 1,

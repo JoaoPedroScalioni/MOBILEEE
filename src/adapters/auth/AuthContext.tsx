@@ -79,9 +79,12 @@ export function AuthProvider({
     );
 
     const logout = useCallback(async () => {
-        await clear.execute();
-        setSession(null);
-        setStatus("unauthenticated");
+        try {
+            await clear.execute();
+        } finally {
+            setSession(null);
+            setStatus("unauthenticated");
+        }
     }, [clear]);
 
     const value = useMemo<AuthContextValue>(

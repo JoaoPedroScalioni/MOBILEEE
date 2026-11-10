@@ -380,7 +380,9 @@ export function MapaLavoura() {
             onPress={() => setMapaAberto(false)}
           >
             <Ionicons name="arrow-back" size={20} color="#fff" />
-            <Text style={styles.closeMapBtnText}>Fechar Mapa (Modo Econômico)</Text>
+            <Text style={styles.closeMapBtnText} numberOfLines={1}>
+              Voltar ao Painel (Eco)
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.layerBadgeBtn} onPress={alternarCamadaMapa}>
@@ -787,13 +789,13 @@ export function MapaLavoura() {
 
       {/* Histórico de Trechos Registrados (Hoje vs. Arquivados) */}
       <View style={styles.historyHeader}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.sectionTitle}>
-            {mostrarTodosTrechos ? 'Todos os Pontos (Histórico)' : 'Pontos de Hoje (Início → Fim)'}
+        <View style={{ flex: 1, flexShrink: 1 }}>
+          <Text style={styles.sectionTitle} numberOfLines={1}>
+            {mostrarTodosTrechos ? 'Todos os Pontos' : 'Pontos de Hoje'}
           </Text>
-          <Text style={styles.sectionSubTitle}>
+          <Text style={styles.sectionSubTitle} numberOfLines={1}>
             {mostrarTodosTrechos
-              ? `${historicoTrechos.length} trecho(s) no total`
+              ? `${historicoTrechos.length} no total (${trechosArquivados.length} arq.)`
               : `${trechosHoje.length} finalizado(s) hoje`}
           </Text>
         </View>
@@ -1321,6 +1323,7 @@ const styles = StyleSheet.create({
   archiveToggleBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 0,
     gap: 5,
     backgroundColor: '#e7f3ee',
     borderWidth: 1,
@@ -1398,6 +1401,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 8,
+    gap: 8,
   },
   talhaoRow: {
     flexDirection: 'row',
@@ -1409,6 +1413,7 @@ const styles = StyleSheet.create({
     fontSize: 15.5,
     fontWeight: 'bold',
     color: '#111827',
+    flexShrink: 1,
   },
   statusTag: {
     paddingHorizontal: 8,
@@ -1445,6 +1450,7 @@ const styles = StyleSheet.create({
   distanceBadge: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 0,
     backgroundColor: '#d1fae5',
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -1476,6 +1482,7 @@ const styles = StyleSheet.create({
   timelineLabel: {
     fontSize: 12,
     color: '#374151',
+    flex: 1,
   },
   historyFooter: {
     flexDirection: 'row',
@@ -1484,15 +1491,18 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#f3f4f6',
     paddingTop: 8,
+    gap: 8,
   },
   durationText: {
     fontSize: 12,
     color: '#6b7280',
     fontWeight: '600',
+    flex: 1,
   },
   historyActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 0,
     gap: 8,
   },
   mapItemBtn: {
@@ -1522,7 +1532,7 @@ const styles = StyleSheet.create({
     borderColor: '#b7dfce',
     borderRadius: 12,
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     marginTop: 4,
     marginBottom: 10,
   },
@@ -1530,6 +1540,8 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     color: '#2d6a4f',
+    flexShrink: 1,
+    textAlign: 'center',
   },
   // ESTILOS DO MODO MAPA SOB DEMANDA
   mapContainer: {
@@ -1554,6 +1566,7 @@ const styles = StyleSheet.create({
   closeMapBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 1,
     backgroundColor: '#2d6a4f',
     paddingVertical: 10,
     paddingHorizontal: 14,
@@ -1569,6 +1582,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: 'bold',
     fontSize: 13,
+    flexShrink: 1,
   },
   layerBadgeBtn: {
     flexDirection: 'row',

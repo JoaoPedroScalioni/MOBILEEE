@@ -137,8 +137,8 @@ export class DatabaseClient implements IDatabaseClient {
          VALUES (?, ?, ?, ?, ?, ?, NULL, 'synced'),
                 (?, ?, ?, ?, ?, ?, NULL, 'synced')`,
         [
-          'trab-001', 'José da Silva', '52998224725', 'TRAB-001', 60.0, agora,
-          'trab-002', 'Maria de Souza', '11144477735', 'TRAB-002', 60.0, agora,
+          '3c00a58e-29a9-4832-89be-7f06bef09351', 'Cleiton', '64638659195', 'TRAB-01', 100.0, agora,
+          '7d8ca412-cc0e-4e9d-8fba-dda3cfaaf650', 'Ana', '64646562929', 'TRAB-2', 120.0, agora,
         ]
       );
     }

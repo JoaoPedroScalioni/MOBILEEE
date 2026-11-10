@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import MapView, { Callout, Marker, Polyline, UrlTile } from 'react-native-maps';
 import {
   ActivityIndicator,
   Alert,
-  FlatList,
   Keyboard,
   ScrollView,
   StyleSheet,
@@ -17,6 +16,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { container } from '@/src/factory/container';
 import { Apontamento } from '@/src/domain/entities/Apontamento';
 import { Trabalhador } from '@/src/domain/entities/Trabalhador';
+import {
+  formatarDataCurta,
+  formatarDataHora,
+  formatarHora,
+  isHoje,
+} from '@/src/shared/utils/dateHelper';
 import {
   obterLocalizacaoSegura,
   COORDENADAS_PADRAO_FAZENDA,
@@ -75,6 +80,7 @@ export function MapaLavoura() {
   // Estado dos Pontos / Trechos de Colheita (Início e Fim)
   const [trechoAtivo, setTrechoAtivo] = useState<TrechoColheita | null>(null);
   const [historicoTrechos, setHistoricoTrechos] = useState<TrechoColheita[]>([]);
+  const [mostrarTodosTrechos, setMostrarTodosTrechos] = useState(false);
   const [talhaoInput, setTalhaoInput] = useState('Talhão 01');
   const [trabalhadorSelecionado, setTrabalhadorSelecionado] = useState('Toda a Equipe');
 
@@ -114,6 +120,7 @@ export function MapaLavoura() {
 
   // 1. MARCAR PONTO INICIAL DA COLHEITA
   const iniciarPontoColheita = async () => {
+    if (capturandoGps) return;
     Keyboard.dismiss();
     const nomeTalhao = talhaoInput.trim() || 'Talhão Principal';
 
@@ -142,7 +149,7 @@ export function MapaLavoura() {
 
   // 2. MARCAR PONTO FINAL DA COLHEITA
   const finalizarPontoColheita = async () => {
-    if (!trechoAtivo) return;
+    if (!trechoAtivo || capturandoGps) return;
 
     const coord = await capturarCoordenadaUnica();
     const fimTimestamp = Date.now();
@@ -318,12 +325,32 @@ export function MapaLavoura() {
       coords.push({ latitude: locationResult.latitude, longitude: locationResult.longitude });
     }
 
+    if (coords.length === 1) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: coords[0].latitude,
+          longitude: coords[0].longitude,
+          latitudeDelta: 0.006,
+          longitudeDelta: 0.006,
+        },
+        700,
+      );
+      return;
+    }
+
     mapRef.current.fitToCoordinates(coords, {
       edgePadding: { top: 110, right: 60, bottom: 130, left: 60 },
       animated: true,
     });
   };
 
+  // Separação entre trechos concluídos hoje e arquivados
+  const trechosOrdenados = [...historicoTrechos].sort((a, b) => b.inicioData - a.inicioData);
+  const trechosHoje = trechosOrdenados.filter((t) => isHoje(t.inicioData));
+  const trechosArquivados = trechosOrdenados.filter((t) => !isHoje(t.inicioData));
+  const trechosExibidos = mostrarTodosTrechos ? trechosOrdenados : trechosHoje;
+
+  const distanciaHojeMetros = trechosHoje.reduce((acc, t) => acc + (t.distanciaMetros || 0), 0);
   const distanciaTotalMetros = historicoTrechos.reduce(
     (acc, t) => acc + (t.distanciaMetros || 0),
     0,
@@ -453,12 +480,7 @@ export function MapaLavoura() {
                 <View style={styles.calloutContainer}>
                   <Text style={styles.calloutTitle}>Balaio #{index + 1}</Text>
                   <Text style={styles.calloutSub}>{a.quantidade.litros} Litros colhidos</Text>
-                  <Text style={styles.calloutCoords}>
-                    {new Date(a.data).toLocaleTimeString('pt-BR', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </Text>
+                  <Text style={styles.calloutCoords}>📅 {formatarDataHora(a.data)}</Text>
                 </View>
               </Callout>
             </Marker>
@@ -744,12 +766,18 @@ export function MapaLavoura() {
       {/* Métricas Rápidas dos Pontos */}
       <View style={styles.metricsRow}>
         <View style={styles.metricBox}>
-          <Text style={styles.metricValue}>{historicoTrechos.length}</Text>
-          <Text style={styles.metricLabel}>Trechos Concluídos</Text>
+          <Text style={styles.metricValue}>{trechosHoje.length}</Text>
+          <Text style={styles.metricLabel}>Trechos Hoje</Text>
+          {trechosArquivados.length > 0 && (
+            <Text style={styles.metricSubLabel}>+{trechosArquivados.length} arq.</Text>
+          )}
         </View>
         <View style={styles.metricBox}>
-          <Text style={styles.metricValue}>{distanciaTotalMetros} m</Text>
-          <Text style={styles.metricLabel}>Extensão Colhida</Text>
+          <Text style={styles.metricValue}>{distanciaHojeMetros} m</Text>
+          <Text style={styles.metricLabel}>Extensão Hoje</Text>
+          {trechosArquivados.length > 0 && (
+            <Text style={styles.metricSubLabel}>Total: {distanciaTotalMetros}m</Text>
+          )}
         </View>
         <View style={styles.metricBox}>
           <Text style={styles.metricValue}>{apontamentos.length}</Text>
@@ -757,94 +785,177 @@ export function MapaLavoura() {
         </View>
       </View>
 
-      {/* Histórico de Trechos Registrados (Início e Fim) */}
+      {/* Histórico de Trechos Registrados (Hoje vs. Arquivados) */}
       <View style={styles.historyHeader}>
-        <Text style={styles.sectionTitle}>Histórico de Pontos (Início → Fim)</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.sectionTitle}>
+            {mostrarTodosTrechos ? 'Todos os Pontos (Histórico)' : 'Pontos de Hoje (Início → Fim)'}
+          </Text>
+          <Text style={styles.sectionSubTitle}>
+            {mostrarTodosTrechos
+              ? `${historicoTrechos.length} trecho(s) no total`
+              : `${trechosHoje.length} finalizado(s) hoje`}
+          </Text>
+        </View>
+
         {historicoTrechos.length > 0 && (
-          <TouchableOpacity onPress={abrirMapaGeral}>
-            <Text style={styles.viewAllMapLink}>Ver todos no mapa</Text>
+          <TouchableOpacity
+            style={[
+              styles.archiveToggleBtn,
+              mostrarTodosTrechos && styles.archiveToggleBtnActive,
+            ]}
+            onPress={() => setMostrarTodosTrechos((prev) => !prev)}
+          >
+            <Ionicons
+              name={mostrarTodosTrechos ? 'today-outline' : 'archive-outline'}
+              size={14}
+              color={mostrarTodosTrechos ? '#fff' : '#2d6a4f'}
+            />
+            <Text
+              style={[
+                styles.archiveToggleText,
+                mostrarTodosTrechos && styles.archiveToggleTextActive,
+              ]}
+            >
+              {mostrarTodosTrechos ? 'Apenas Hoje' : `Ver todos (${historicoTrechos.length})`}
+            </Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {historicoTrechos.length === 0 ? (
+      {trechosExibidos.length === 0 ? (
         <View style={styles.emptyBox}>
           <Ionicons name="compass-outline" size={38} color="#9ca3af" />
-          <Text style={styles.emptyTitle}>Nenhum trecho finalizado ainda</Text>
-          <Text style={styles.emptySub}>
-            Marque o ponto inicial ao começar uma rua de café e o ponto final ao terminar para
-            registrar o avanço da colheita.
+          <Text style={styles.emptyTitle}>
+            {mostrarTodosTrechos
+              ? 'Nenhum trecho finalizado ainda'
+              : 'Nenhum trecho finalizado hoje'}
           </Text>
+          <Text style={styles.emptySub}>
+            {trechosArquivados.length > 0 && !mostrarTodosTrechos
+              ? `Você possui ${trechosArquivados.length} trecho(s) arquivado(s) de dias anteriores.`
+              : 'Marque o ponto inicial ao começar uma rua de café e o ponto final ao terminar para registrar o avanço da colheita.'}
+          </Text>
+          {!mostrarTodosTrechos && trechosArquivados.length > 0 && (
+            <TouchableOpacity
+              style={styles.viewArchivedInlineBtn}
+              onPress={() => setMostrarTodosTrechos(true)}
+            >
+              <Ionicons name="folder-open-outline" size={16} color="#2d6a4f" />
+              <Text style={styles.viewArchivedInlineText}>
+                Ver {trechosArquivados.length} ponto(s) arquivado(s)
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       ) : (
-        historicoTrechos.map((item) => {
-          const horaInicio = new Date(item.inicioData).toLocaleTimeString('pt-BR', {
-            hour: '2-digit',
-            minute: '2-digit',
-          });
-          const horaFim = item.fimData
-            ? new Date(item.fimData).toLocaleTimeString('pt-BR', {
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-            : '--:--';
-          const duracao = item.fimData ? formatarDuracao(item.inicioData, item.fimData) : '-';
+        <>
+          {trechosExibidos.map((item) => {
+            const dataCurta = formatarDataCurta(item.inicioData);
+            const horaInicio = formatarHora(item.inicioData);
+            const horaFim = item.fimData ? formatarHora(item.fimData) : '--:--';
+            const duracao = item.fimData ? formatarDuracao(item.inicioData, item.fimData) : '-';
+            const registroDeHoje = isHoje(item.inicioData);
 
-          return (
-            <View key={item.id} style={styles.historyCard}>
-              <View style={styles.historyTopRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.historyTalhao}>{item.talhao}</Text>
-                  <Text style={styles.historyWorker}>👷 {item.trabalhadorNome}</Text>
+            return (
+              <View
+                key={item.id}
+                style={[styles.historyCard, !registroDeHoje && styles.historyCardArchived]}
+              >
+                <View style={styles.historyTopRow}>
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.talhaoRow}>
+                      <Text style={styles.historyTalhao}>{item.talhao}</Text>
+                      <View
+                        style={[
+                          styles.statusTag,
+                          registroDeHoje ? styles.statusTagToday : styles.statusTagArchived,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.statusTagText,
+                            registroDeHoje
+                              ? styles.statusTagTextToday
+                              : styles.statusTagTextArchived,
+                          ]}
+                        >
+                          {registroDeHoje ? 'Hoje' : 'Arquivado'}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text style={styles.historyWorker}>👷 {item.trabalhadorNome}</Text>
+                    <Text style={styles.historyDateText}>
+                      📅 Data: {dataCurta} ({horaInicio} às {horaFim})
+                    </Text>
+                  </View>
+
+                  <View style={styles.distanceBadge}>
+                    <Ionicons name="resize-outline" size={14} color="#065f46" />
+                    <Text style={styles.distanceBadgeText}>{item.distanciaMetros || 0} m</Text>
+                  </View>
                 </View>
 
-                <View style={styles.distanceBadge}>
-                  <Ionicons name="resize-outline" size={14} color="#065f46" />
-                  <Text style={styles.distanceBadgeText}>{item.distanciaMetros || 0} m</Text>
+                <View style={styles.timelineBox}>
+                  <View style={styles.timelinePoint}>
+                    <View style={[styles.timelineDot, { backgroundColor: '#16a34a' }]} />
+                    <Text style={styles.timelineLabel}>
+                      <Text style={{ fontWeight: '700' }}>Início ({horaInicio}): </Text>
+                      {item.inicioLat.toFixed(4)}, {item.inicioLng.toFixed(4)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.timelinePoint}>
+                    <View style={[styles.timelineDot, { backgroundColor: '#dc2626' }]} />
+                    <Text style={styles.timelineLabel}>
+                      <Text style={{ fontWeight: '700' }}>Final ({horaFim}): </Text>
+                      {item.fimLat?.toFixed(4)}, {item.fimLng?.toFixed(4)}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.historyFooter}>
+                  <Text style={styles.durationText}>⏱️ Duração: {duracao}</Text>
+
+                  <View style={styles.historyActions}>
+                    <TouchableOpacity
+                      style={styles.mapItemBtn}
+                      onPress={() => abrirMapaFocadoNoTrecho(item)}
+                    >
+                      <Ionicons name="map-outline" size={15} color="#2d6a4f" />
+                      <Text style={styles.mapItemBtnText}>Ver no Mapa</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.deleteItemBtn}
+                      onPress={() => excluirTrechoHistorico(item)}
+                    >
+                      <Ionicons name="trash-outline" size={17} color="#dc2626" />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
+            );
+          })}
 
-              <View style={styles.timelineBox}>
-                <View style={styles.timelinePoint}>
-                  <View style={[styles.timelineDot, { backgroundColor: '#16a34a' }]} />
-                  <Text style={styles.timelineLabel}>
-                    <Text style={{ fontWeight: '700' }}>Início ({horaInicio}): </Text>
-                    {item.inicioLat.toFixed(4)}, {item.inicioLng.toFixed(4)}
-                  </Text>
-                </View>
-
-                <View style={styles.timelinePoint}>
-                  <View style={[styles.timelineDot, { backgroundColor: '#dc2626' }]} />
-                  <Text style={styles.timelineLabel}>
-                    <Text style={{ fontWeight: '700' }}>Final ({horaFim}): </Text>
-                    {item.fimLat?.toFixed(4)}, {item.fimLng?.toFixed(4)}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.historyFooter}>
-                <Text style={styles.durationText}>⏱️ Duração: {duracao}</Text>
-
-                <View style={styles.historyActions}>
-                  <TouchableOpacity
-                    style={styles.mapItemBtn}
-                    onPress={() => abrirMapaFocadoNoTrecho(item)}
-                  >
-                    <Ionicons name="map-outline" size={15} color="#2d6a4f" />
-                    <Text style={styles.mapItemBtnText}>Ver no Mapa</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.deleteItemBtn}
-                    onPress={() => excluirTrechoHistorico(item)}
-                  >
-                    <Ionicons name="trash-outline" size={17} color="#dc2626" />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          );
-        })
+          {trechosArquivados.length > 0 && (
+            <TouchableOpacity
+              style={styles.bottomArchiveButton}
+              onPress={() => setMostrarTodosTrechos((prev) => !prev)}
+            >
+              <Ionicons
+                name={mostrarTodosTrechos ? 'chevron-up-outline' : 'archive-outline'}
+                size={18}
+                color="#2d6a4f"
+              />
+              <Text style={styles.bottomArchiveButtonText}>
+                {mostrarTodosTrechos
+                  ? 'Ocultar arquivados (mostrar apenas pontos de hoje)'
+                  : `Ver todos os pontos (${trechosArquivados.length} arquivado(s) anteriores)`}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </>
       )}
     </ScrollView>
   );
@@ -1184,16 +1295,50 @@ const styles = StyleSheet.create({
     marginTop: 2,
     textAlign: 'center',
   },
+  metricSubLabel: {
+    fontSize: 10,
+    color: '#2d6a4f',
+    fontWeight: '700',
+    marginTop: 2,
+  },
   historyHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
+    gap: 8,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#1b4332',
+  },
+  sectionSubTitle: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  archiveToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#e7f3ee',
+    borderWidth: 1,
+    borderColor: '#2d6a4f',
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  archiveToggleBtnActive: {
+    backgroundColor: '#2d6a4f',
+  },
+  archiveToggleText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#2d6a4f',
+  },
+  archiveToggleTextActive: {
+    color: '#ffffff',
   },
   viewAllMapLink: {
     fontSize: 13,
@@ -1221,6 +1366,21 @@ const styles = StyleSheet.create({
     marginTop: 4,
     lineHeight: 18,
   },
+  viewArchivedInlineBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 10,
+    backgroundColor: '#e7f3ee',
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 10,
+  },
+  viewArchivedInlineText: {
+    color: '#2d6a4f',
+    fontWeight: '700',
+    fontSize: 13,
+  },
   historyCard: {
     backgroundColor: '#ffffff',
     borderRadius: 14,
@@ -1229,21 +1389,58 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e5e7eb',
   },
+  historyCardArchived: {
+    backgroundColor: '#f8fafc',
+    borderColor: '#cbd5e1',
+  },
   historyTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 8,
   },
+  talhaoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
   historyTalhao: {
     fontSize: 15.5,
     fontWeight: 'bold',
     color: '#111827',
   },
+  statusTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  statusTagToday: {
+    backgroundColor: '#dcfce7',
+  },
+  statusTagArchived: {
+    backgroundColor: '#e2e8f0',
+  },
+  statusTagText: {
+    fontSize: 10.5,
+    fontWeight: '700',
+  },
+  statusTagTextToday: {
+    color: '#15803d',
+  },
+  statusTagTextArchived: {
+    color: '#475569',
+  },
   historyWorker: {
     fontSize: 12.5,
     color: '#4b5563',
     marginTop: 2,
+  },
+  historyDateText: {
+    fontSize: 12,
+    color: '#1b4332',
+    fontWeight: '600',
+    marginTop: 3,
   },
   distanceBadge: {
     flexDirection: 'row',
@@ -1314,6 +1511,25 @@ const styles = StyleSheet.create({
   },
   deleteItemBtn: {
     padding: 6,
+  },
+  bottomArchiveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#e7f3ee',
+    borderWidth: 1,
+    borderColor: '#b7dfce',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginTop: 4,
+    marginBottom: 10,
+  },
+  bottomArchiveButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#2d6a4f',
   },
   // ESTILOS DO MODO MAPA SOB DEMANDA
   mapContainer: {

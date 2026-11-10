@@ -15,6 +15,7 @@ import { Trabalhador } from '@/src/domain/entities/Trabalhador';
 import { Apontamento as ApontamentoEntity } from '@/src/domain/entities/Apontamento';
 import { container } from '@/src/factory/container';
 import { triggerAutoSync } from '@/src/shared/utils/autoSync';
+import { formatarDataHora, isHoje } from '@/src/shared/utils/dateHelper';
 import {
   obterLocalizacaoSegura,
   COORDENADAS_PADRAO_FAZENDA,
@@ -28,6 +29,7 @@ export default function Apontamento() {
   const [apontamentos, setApontamentos] = useState<ApontamentoEntity[]>([]);
   const [selecionado, setSelecionado] = useState<Trabalhador | null>(null);
   const [litros, setLitros] = useState('');
+  const [mostrarTodosBalaios, setMostrarTodosBalaios] = useState(false);
   const [locationResult, setLocationResult] = useState<LocationResult>({
     ...COORDENADAS_PADRAO_FAZENDA,
     isFallback: true,
@@ -131,9 +133,19 @@ export default function Apontamento() {
     }
   }
 
-  // Cálculos do resumo do dia
-  const totalBalaios = apontamentos.length;
-  const totalLitros = apontamentos.reduce((acc, item) => acc + item.quantidade.litros, 0);
+  // Separação entre balaios de hoje e balaios arquivados (dias anteriores), ordenados do mais recente ao mais antigo
+  const apontamentosOrdenados = [...apontamentos].sort(
+    (a, b) => new Date(b.data).getTime() - new Date(a.data).getTime(),
+  );
+  const apontamentosHoje = apontamentosOrdenados.filter((item) => isHoje(item.data));
+  const apontamentosArquivados = apontamentosOrdenados.filter((item) => !isHoje(item.data));
+
+  const listaExibida = mostrarTodosBalaios ? apontamentosOrdenados : apontamentosHoje;
+
+  // Cálculos do resumo do dia e acumulado
+  const totalBalaiosHoje = apontamentosHoje.length;
+  const totalLitrosHoje = apontamentosHoje.reduce((acc, item) => acc + item.quantidade.litros, 0);
+  const totalLitrosGeral = apontamentos.reduce((acc, item) => acc + item.quantidade.litros, 0);
 
   if (mode === 'scan') {
     if (!permission) {
@@ -183,14 +195,22 @@ export default function Apontamento() {
       <View style={styles.summaryRow}>
         <View style={styles.summaryCard}>
           <Ionicons name="basket-outline" size={22} color="#2d6a4f" />
-          <Text style={styles.summaryValue}>{totalBalaios}</Text>
+          <Text style={styles.summaryValue}>{totalBalaiosHoje}</Text>
           <Text style={styles.summaryLabel}>Balaios Hoje</Text>
+          {apontamentosArquivados.length > 0 && (
+            <Text style={styles.summarySubLabel}>
+              +{apontamentosArquivados.length} arquivado(s)
+            </Text>
+          )}
         </View>
 
         <View style={styles.summaryCard}>
           <Ionicons name="water-outline" size={22} color="#2d6a4f" />
-          <Text style={styles.summaryValue}>{totalLitros} L</Text>
-          <Text style={styles.summaryLabel}>Total Colhido</Text>
+          <Text style={styles.summaryValue}>{totalLitrosHoje} L</Text>
+          <Text style={styles.summaryLabel}>Colhido Hoje</Text>
+          {apontamentosArquivados.length > 0 && (
+            <Text style={styles.summarySubLabel}>Total geral: {totalLitrosGeral} L</Text>
+          )}
         </View>
       </View>
 
@@ -289,51 +309,159 @@ export default function Apontamento() {
         <Text style={styles.saveButtonText}>{salvando ? 'Salvando...' : 'Registrar balaio'}</Text>
       </TouchableOpacity>
 
-      {/* Seção de Histórico de Balaios do Dia */}
+      {/* Seção de Histórico de Balaios (Hoje vs. Arquivados) */}
       <View style={styles.historySection}>
         <View style={styles.historyHeader}>
-          <Text style={styles.historyTitle}>Últimos Balaios Registrados</Text>
-          <Text style={styles.historyCount}>{apontamentos.length} registros</Text>
-        </View>
-
-        {apontamentos.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Ionicons name="cafe-outline" size={36} color="#bbb" />
-            <Text style={styles.emptyTitle}>Nenhum balaio registrado ainda hoje</Text>
-            <Text style={styles.emptySubtitle}>
-              Assim que você registrar o primeiro balaio, ele aparecerá aqui com os detalhes.
+          <View>
+            <Text style={styles.historyTitle}>
+              {mostrarTodosBalaios ? 'Todos os Balaios Registrados' : 'Balaios de Hoje'}
+            </Text>
+            <Text style={styles.historyCount}>
+              {mostrarTodosBalaios
+                ? `${apontamentos.length} no total (${apontamentosArquivados.length} arquivado(s))`
+                : `${apontamentosHoje.length} registrado(s) hoje`}
             </Text>
           </View>
-        ) : (
-          [...apontamentos].reverse().map((item, index) => {
-            const trabalhador = trabalhadores.find((t) => t.id === item.trabalhadorId);
-            const nomeExibicao = trabalhador ? trabalhador.nome : 'Trabalhador ID: ' + item.trabalhadorId.slice(0, 8);
-            const crachaExibicao = trabalhador ? `Crachá ${trabalhador.cracha}` : '';
-            const horaFormatada = new Date(item.data).toLocaleTimeString('pt-BR', {
-              hour: '2-digit',
-              minute: '2-digit',
-            });
 
-            return (
-              <View key={item.id || index} style={styles.historyCard}>
-                <View style={styles.historyIconBox}>
-                  <Ionicons name="cafe" size={22} color="#2d6a4f" />
+          {apontamentos.length > 0 && (
+            <TouchableOpacity
+              style={[
+                styles.archiveToggleBtn,
+                mostrarTodosBalaios && styles.archiveToggleBtnActive,
+              ]}
+              onPress={() => setMostrarTodosBalaios((prev) => !prev)}
+            >
+              <Ionicons
+                name={mostrarTodosBalaios ? 'today-outline' : 'archive-outline'}
+                size={15}
+                color={mostrarTodosBalaios ? '#fff' : '#2d6a4f'}
+              />
+              <Text
+                style={[
+                  styles.archiveToggleText,
+                  mostrarTodosBalaios && styles.archiveToggleTextActive,
+                ]}
+              >
+                {mostrarTodosBalaios
+                  ? 'Apenas Hoje'
+                  : `Ver todos (${apontamentos.length})`}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {listaExibida.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Ionicons name="cafe-outline" size={36} color="#bbb" />
+            <Text style={styles.emptyTitle}>
+              {mostrarTodosBalaios
+                ? 'Nenhum balaio registrado no sistema'
+                : 'Nenhum balaio registrado hoje'}
+            </Text>
+            <Text style={styles.emptySubtitle}>
+              {apontamentosArquivados.length > 0 && !mostrarTodosBalaios
+                ? `Você possui ${apontamentosArquivados.length} balaio(s) arquivado(s) de dias anteriores.`
+                : 'Assim que você registrar o primeiro balaio do dia, ele aparecerá aqui.'}
+            </Text>
+            {!mostrarTodosBalaios && apontamentosArquivados.length > 0 && (
+              <TouchableOpacity
+                style={styles.viewArchivedInlineBtn}
+                onPress={() => setMostrarTodosBalaios(true)}
+              >
+                <Ionicons name="folder-open-outline" size={16} color="#2d6a4f" />
+                <Text style={styles.viewArchivedInlineText}>
+                  Ver {apontamentosArquivados.length} balaio(s) arquivado(s)
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ) : (
+          <>
+            {listaExibida.map((item, index) => {
+              const trabalhador = trabalhadores.find((t) => t.id === item.trabalhadorId);
+              const nomeExibicao = trabalhador
+                ? trabalhador.nome
+                : 'Trabalhador ID: ' + item.trabalhadorId.slice(0, 8);
+              const crachaExibicao = trabalhador ? `Crachá ${trabalhador.cracha}` : '';
+              const dataHoraSalva = formatarDataHora(item.data);
+              const registroDeHoje = isHoje(item.data);
+
+              return (
+                <View
+                  key={item.id || index}
+                  style={[
+                    styles.historyCard,
+                    !registroDeHoje && styles.historyCardArchived,
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.historyIconBox,
+                      !registroDeHoje && styles.historyIconBoxArchived,
+                    ]}
+                  >
+                    <Ionicons
+                      name={registroDeHoje ? 'cafe' : 'archive-outline'}
+                      size={22}
+                      color={registroDeHoje ? '#2d6a4f' : '#64748b'}
+                    />
+                  </View>
+                  <View style={styles.historyInfo}>
+                    <View style={styles.historyTitleRow}>
+                      <Text style={styles.historyWorkerName}>{nomeExibicao}</Text>
+                      <View
+                        style={[
+                          styles.statusTag,
+                          registroDeHoje ? styles.statusTagToday : styles.statusTagArchived,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.statusTagText,
+                            registroDeHoje
+                              ? styles.statusTagTextToday
+                              : styles.statusTagTextArchived,
+                          ]}
+                        >
+                          {registroDeHoje ? 'Hoje' : 'Arquivado'}
+                        </Text>
+                      </View>
+                    </View>
+                    {crachaExibicao ? (
+                      <Text style={styles.historyMeta}>{crachaExibicao}</Text>
+                    ) : null}
+                    <Text style={styles.historyDateTime}>📅 Salvo em {dataHoraSalva}</Text>
+                    <Text style={styles.historyCoords}>
+                      📍 {item.coordenadas.latitude.toFixed(4)},{' '}
+                      {item.coordenadas.longitude.toFixed(4)}
+                    </Text>
+                  </View>
+                  <View style={styles.historyBadge}>
+                    <Text style={styles.historyLitrosText}>{item.quantidade.litros} L</Text>
+                  </View>
                 </View>
-                <View style={styles.historyInfo}>
-                  <Text style={styles.historyWorkerName}>{nomeExibicao}</Text>
-                  <Text style={styles.historyMeta}>
-                    {horaFormatada} {crachaExibicao ? `· ${crachaExibicao}` : ''}
-                  </Text>
-                  <Text style={styles.historyCoords}>
-                    📍 {item.coordenadas.latitude.toFixed(4)}, {item.coordenadas.longitude.toFixed(4)}
-                  </Text>
-                </View>
-                <View style={styles.historyBadge}>
-                  <Text style={styles.historyLitrosText}>{item.quantidade.litros} L</Text>
-                </View>
-              </View>
-            );
-          })
+              );
+            })}
+
+            {/* Botão inferior para expandir ou recolher balaios arquivados */}
+            {apontamentosArquivados.length > 0 && (
+              <TouchableOpacity
+                style={styles.bottomArchiveButton}
+                onPress={() => setMostrarTodosBalaios((prev) => !prev)}
+              >
+                <Ionicons
+                  name={mostrarTodosBalaios ? 'chevron-up-outline' : 'archive-outline'}
+                  size={18}
+                  color="#2d6a4f"
+                />
+                <Text style={styles.bottomArchiveButtonText}>
+                  {mostrarTodosBalaios
+                    ? 'Ocultar arquivados (mostrar apenas os de hoje)'
+                    : `Ver todos os balaios (${apontamentosArquivados.length} arquivado(s) anteriores)`}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </View>
     </ScrollView>
@@ -388,6 +516,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     fontWeight: '500',
+  },
+  summarySubLabel: {
+    fontSize: 11,
+    color: '#2d6a4f',
+    fontWeight: '600',
+    marginTop: 2,
   },
   label: {
     fontSize: 13,
@@ -505,9 +639,32 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
   },
   historyCount: {
-    fontSize: 13,
+    fontSize: 12.5,
     color: '#666',
     fontWeight: '500',
+    marginTop: 2,
+  },
+  archiveToggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#e7f3ee',
+    borderWidth: 1,
+    borderColor: '#2d6a4f',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+  },
+  archiveToggleBtnActive: {
+    backgroundColor: '#2d6a4f',
+  },
+  archiveToggleText: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#2d6a4f',
+  },
+  archiveToggleTextActive: {
+    color: '#fff',
   },
   emptyCard: {
     backgroundColor: '#fff',
@@ -529,6 +686,21 @@ const styles = StyleSheet.create({
     color: '#888',
     textAlign: 'center',
   },
+  viewArchivedInlineBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+    backgroundColor: '#e7f3ee',
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 10,
+  },
+  viewArchivedInlineText: {
+    color: '#2d6a4f',
+    fontWeight: '700',
+    fontSize: 13,
+  },
   historyCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -543,6 +715,10 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 1,
   },
+  historyCardArchived: {
+    backgroundColor: '#f8fafc',
+    borderColor: '#cbd5e1',
+  },
   historyIconBox: {
     width: 42,
     height: 42,
@@ -552,18 +728,55 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
+  historyIconBoxArchived: {
+    backgroundColor: '#f1f5f9',
+  },
   historyInfo: {
     flex: 1,
+    paddingRight: 8,
+  },
+  historyTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
   },
   historyWorkerName: {
     fontSize: 15,
     fontWeight: '700',
     color: '#1a1a1a',
   },
+  statusTag: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  statusTagToday: {
+    backgroundColor: '#dcfce7',
+  },
+  statusTagArchived: {
+    backgroundColor: '#e2e8f0',
+  },
+  statusTagText: {
+    fontSize: 10.5,
+    fontWeight: '700',
+  },
+  statusTagTextToday: {
+    color: '#15803d',
+  },
+  statusTagTextArchived: {
+    color: '#475569',
+  },
   historyMeta: {
     fontSize: 12,
     color: '#666',
     marginTop: 2,
+  },
+  historyDateTime: {
+    fontSize: 12,
+    color: '#1b4332',
+    fontWeight: '600',
+    marginTop: 3,
   },
   historyCoords: {
     fontSize: 11,
@@ -580,6 +793,24 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '700',
     fontSize: 14,
+  },
+  bottomArchiveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#e7f3ee',
+    borderWidth: 1,
+    borderColor: '#b7dfce',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginTop: 4,
+  },
+  bottomArchiveButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#2d6a4f',
   },
   camera: {
     flex: 1,

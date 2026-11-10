@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { container } from '@/src/factory/container';
 import { Apontamento } from '@/src/domain/entities/Apontamento';
 import { Trabalhador } from '@/src/domain/entities/Trabalhador';
+import { formatarDataCurta, formatarHora, isHoje } from '@/src/shared/utils/dateHelper';
 import {
   obterLocalizacaoSegura,
   COORDENADAS_PADRAO_FAZENDA,
@@ -35,6 +35,7 @@ export function MapaLavoura() {
   const [trabalhadores, setTrabalhadores] = useState<Trabalhador[]>([]);
   const [trechoAtivo, setTrechoAtivo] = useState<TrechoColheita | null>(null);
   const [historicoTrechos, setHistoricoTrechos] = useState<TrechoColheita[]>([]);
+  const [mostrarTodosTrechos, setMostrarTodosTrechos] = useState(false);
   const [talhaoInput, setTalhaoInput] = useState('Talhão 01');
   const [trabalhadorSelecionado, setTrabalhadorSelecionado] = useState('Toda a Equipe');
 
@@ -117,6 +118,11 @@ export function MapaLavoura() {
     'Toda a Equipe',
     ...trabalhadores.map((t) => `${t.nome} (${t.cracha})`),
   ];
+
+  const trechosOrdenados = [...historicoTrechos].sort((a, b) => b.inicioData - a.inicioData);
+  const trechosHoje = trechosOrdenados.filter((t) => isHoje(t.inicioData));
+  const trechosArquivados = trechosOrdenados.filter((t) => !isHoje(t.inicioData));
+  const trechosExibidos = mostrarTodosTrechos ? trechosOrdenados : trechosHoje;
 
   const distanciaTotalMetros = historicoTrechos.reduce(
     (acc, t) => acc + (t.distanciaMetros || 0),
@@ -211,18 +217,37 @@ export function MapaLavoura() {
         </View>
       )}
 
-      <Text style={styles.sectionTitle}>
-        Histórico ({historicoTrechos.length} trechos • {distanciaTotalMetros}m •{' '}
-        {apontamentos.length} balaios)
-      </Text>
-      {historicoTrechos.map((item) => (
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Text style={styles.sectionTitle}>
+          {mostrarTodosTrechos
+            ? `Todos os Pontos (${historicoTrechos.length} • ${distanciaTotalMetros}m)`
+            : `Pontos de Hoje (${trechosHoje.length} • ${apontamentos.length} balaios)`}
+        </Text>
+        {historicoTrechos.length > 0 && (
+          <TouchableOpacity
+            style={[styles.chip, mostrarTodosTrechos && styles.chipActive]}
+            onPress={() => setMostrarTodosTrechos((prev) => !prev)}
+          >
+            <Text style={[styles.chipText, mostrarTodosTrechos && styles.chipTextActive]}>
+              {mostrarTodosTrechos ? 'Apenas Hoje' : `Ver todos (${historicoTrechos.length})`}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {trechosExibidos.map((item) => (
         <View key={item.id} style={styles.card}>
           <Text style={styles.cardTitle}>
-            {item.talhao} ({item.distanciaMetros || 0} m)
+            {item.talhao} ({item.distanciaMetros || 0} m) —{' '}
+            {isHoje(item.inicioData) ? 'Hoje' : 'Arquivado'}
           </Text>
           <Text style={styles.helper}>
             👷 {item.trabalhadorNome} • Duração:{' '}
             {item.fimData ? formatarDuracao(item.inicioData, item.fimData) : '-'}
+          </Text>
+          <Text style={styles.helper}>
+            📅 Data: {formatarDataCurta(item.inicioData)} ({formatarHora(item.inicioData)} às{' '}
+            {item.fimData ? formatarHora(item.fimData) : '--:--'})
           </Text>
           <Text style={styles.helper}>
             Início: {item.inicioLat.toFixed(4)}, {item.inicioLng.toFixed(4)} → Fim:{' '}

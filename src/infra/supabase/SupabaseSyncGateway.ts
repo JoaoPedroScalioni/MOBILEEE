@@ -46,7 +46,14 @@ export class SupabaseSyncGateway implements SyncGateway {
     if (lower === 'trabalhador' || lower === 'trabalhadores') return 'trabalhadores';
     if (lower === 'apontamento' || lower === 'apontamentos') return 'apontamentos';
     if (lower === 'despesa' || lower === 'despesas') return 'despesas';
+    if (lower === 'trecho_colheita' || lower === 'trechos_colheita') return 'trechos_colheita';
     return lower;
+  }
+
+  private sanitizeUuidOrNull(value: any): string | null {
+    if (!value || typeof value !== 'string') return null;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(value.trim()) ? value.trim() : null;
   }
 
   async push(item: SyncQueueItem): Promise<SyncResultadoGateway> {
@@ -100,6 +107,29 @@ export class SupabaseSyncGateway implements SyncGateway {
     }
 
     // 5. Upsert dos dados tabulares no PostgreSQL
+    if ('apontador_id' in record) {
+      record.apontador_id = this.sanitizeUuidOrNull(record.apontador_id);
+    }
+
+    // Garante que o trabalhador referenciado exista no Supabase antes de sincronizar o apontamento
+    if (tabela === 'apontamentos' && record.trabalhador_id) {
+      try {
+        const trabLocal = await this.db.getFirst(
+          'SELECT * FROM trabalhadores WHERE id = ?',
+          [record.trabalhador_id]
+        );
+        if (trabLocal) {
+          if ('apontador_id' in trabLocal) {
+            trabLocal.apontador_id = this.sanitizeUuidOrNull(trabLocal.apontador_id);
+          }
+          trabLocal.sync_status = 'synced';
+          await client.from('trabalhadores').upsert(trabLocal, { onConflict: 'id' });
+        }
+      } catch {
+        // Continua normalmente caso a verificação preventiva falhe
+      }
+    }
+
     record.sync_status = 'synced';
     const { error: upsertError } = await client
       .from(tabela)

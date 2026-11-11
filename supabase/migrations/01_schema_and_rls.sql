@@ -57,6 +57,22 @@ CREATE TABLE IF NOT EXISTS public.despesas (
   sync_status TEXT NOT NULL DEFAULT 'synced'
 );
 
+-- 6. Tabela de Pontos / Trechos de Colheita (Mapa GPS)
+CREATE TABLE IF NOT EXISTS public.trechos_colheita (
+  id TEXT PRIMARY KEY,
+  talhao TEXT NOT NULL,
+  trabalhador_nome TEXT NOT NULL,
+  inicio_lat DOUBLE PRECISION NOT NULL,
+  inicio_lng DOUBLE PRECISION NOT NULL,
+  inicio_data BIGINT NOT NULL,
+  fim_lat DOUBLE PRECISION,
+  fim_lng DOUBLE PRECISION,
+  fim_data BIGINT,
+  distancia_metros INTEGER,
+  status TEXT NOT NULL DEFAULT 'em_andamento',
+  updated_at BIGINT NOT NULL
+);
+
 -- ==============================================================================
 -- FERRAMENTAS DE SEGURANÇA: ROW LEVEL SECURITY (RLS) - Marco de 03/nov
 -- ==============================================================================

@@ -40,7 +40,31 @@ CREATE POLICY "Permitir sincronizacao despesas"
   USING (true)
   WITH CHECK (true);
 
--- 5. Políticas de Upload e Acesso para o Bucket S3 'recibos'
+-- 5. Tabela e Políticas para Pontos / Trechos de Colheita (Mapa GPS)
+CREATE TABLE IF NOT EXISTS public.trechos_colheita (
+  id TEXT PRIMARY KEY,
+  talhao TEXT NOT NULL,
+  trabalhador_nome TEXT NOT NULL,
+  inicio_lat DOUBLE PRECISION NOT NULL,
+  inicio_lng DOUBLE PRECISION NOT NULL,
+  inicio_data BIGINT NOT NULL,
+  fim_lat DOUBLE PRECISION,
+  fim_lng DOUBLE PRECISION,
+  fim_data BIGINT,
+  distancia_metros INTEGER,
+  status TEXT NOT NULL DEFAULT 'em_andamento',
+  updated_at BIGINT NOT NULL
+);
+
+ALTER TABLE public.trechos_colheita ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Permitir sincronizacao trechos_colheita" ON public.trechos_colheita;
+CREATE POLICY "Permitir sincronizacao trechos_colheita"
+  ON public.trechos_colheita FOR ALL
+  TO anon, authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- 6. Políticas de Upload e Acesso para o Bucket S3 'recibos'
 DROP POLICY IF EXISTS "Upload autenticado no bucket recibos" ON storage.objects;
 DROP POLICY IF EXISTS "Visualização pública de comprovantes de recibo" ON storage.objects;
 DROP POLICY IF EXISTS "Remoção de recibo pelo proprietário" ON storage.objects;
@@ -53,31 +77,13 @@ CREATE POLICY "Permitir upload e visualizacao recibos"
   WITH CHECK (bucket_id = 'recibos');
 
 -- ==============================================================================
--- 6. Carga de Dados Iniciais para Comprovação e Prints na Apresentação
+-- 7. Carga de Dados Oficiais (Alinhada aos Crachás QR Code do SafraCafé)
 -- ==============================================================================
 
--- Inserir Trabalhadores Oficiais
+-- Inserir Trabalhadores Oficiais (Cleiton e Ana)
 INSERT INTO public.trabalhadores (id, nome, cpf, cracha, diaria, updated_at, deleted_at, sync_status)
 VALUES 
-  ('trab-001', 'José da Silva', '52998224725', 'TRAB-001', 65.00, (extract(epoch from now()) * 1000)::BIGINT, NULL, 'synced'),
-  ('trab-002', 'Maria Oliveira', '12345678909', 'TRAB-002', 70.00, (extract(epoch from now()) * 1000)::BIGINT, NULL, 'synced'),
-  ('trab-003', 'Sebastião Santos', '98765432100', 'TRAB-003', 60.00, (extract(epoch from now()) * 1000)::BIGINT, NULL, 'synced')
+  ('3c00a58e-29a9-4832-89be-7f06bef09351', 'Cleiton', '64638659195', 'TRAB-01', 100.00, (extract(epoch from now()) * 1000)::BIGINT, NULL, 'synced'),
+  ('7d8ca412-cc0e-4e9d-8fba-dda3cfaaf650', 'Ana', '64646562929', 'TRAB-2', 120.00, (extract(epoch from now()) * 1000)::BIGINT, NULL, 'synced')
 ON CONFLICT (id) DO UPDATE 
-  SET nome = EXCLUDED.nome, diaria = EXCLUDED.diaria, sync_status = 'synced';
-
--- Inserir Apontamentos de Colheita com Coordenadas GPS da Fazenda
-INSERT INTO public.apontamentos (id, trabalhador_id, litros, latitude, longitude, data, updated_at, deleted_at, sync_status)
-VALUES 
-  ('apt-001', 'trab-001', 12.5, -21.2488, -44.9982, (extract(epoch from now()) * 1000)::BIGINT, (extract(epoch from now()) * 1000)::BIGINT, NULL, 'synced'),
-  ('apt-002', 'trab-002', 18.0, -21.2501, -44.9975, (extract(epoch from now()) * 1000)::BIGINT, (extract(epoch from now()) * 1000)::BIGINT, NULL, 'synced'),
-  ('apt-003', 'trab-001', 15.0, -21.2495, -44.9968, (extract(epoch from now()) * 1000)::BIGINT, (extract(epoch from now()) * 1000)::BIGINT, NULL, 'synced')
-ON CONFLICT (id) DO UPDATE 
-  SET litros = EXCLUDED.litros, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude, sync_status = 'synced';
-
--- Inserir Despesas com Coordenadas GPS e Referência de Foto de Recibo
-INSERT INTO public.despesas (id, descricao, valor, categoria, latitude, longitude, data, foto_uri, updated_at, deleted_at, sync_status)
-VALUES 
-  ('desp-001', 'Combustível Óleo 2T Motosserra', 140.00, 'Combustível', -21.2488, -44.9982, (extract(epoch from now()) * 1000)::BIGINT, 'https://ruujrkumwobhuzmwsqrp.supabase.co/storage/v1/object/public/recibos/comprovantes/recibo_combustivel.jpg', (extract(epoch from now()) * 1000)::BIGINT, NULL, 'synced'),
-  ('desp-002', 'Limas para Afiação de Ferramentas', 65.00, 'Manutenção', -21.2505, -44.9960, (extract(epoch from now()) * 1000)::BIGINT, 'https://ruujrkumwobhuzmwsqrp.supabase.co/storage/v1/object/public/recibos/comprovantes/recibo_ferramentas.jpg', (extract(epoch from now()) * 1000)::BIGINT, NULL, 'synced')
-ON CONFLICT (id) DO UPDATE 
-  SET valor = EXCLUDED.valor, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude, sync_status = 'synced';
+  SET nome = EXCLUDED.nome, cracha = EXCLUDED.cracha, diaria = EXCLUDED.diaria, sync_status = 'synced';

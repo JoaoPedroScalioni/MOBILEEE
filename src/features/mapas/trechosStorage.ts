@@ -103,14 +103,49 @@ export async function carregarTrechosColheita(): Promise<TrechosState> {
 export async function salvarTrechosColheita(state: TrechosState): Promise<void> {
   memoryCache = state;
   const fsInfo = await getFileSystem();
-  if (!fsInfo || typeof fsInfo.fs.writeAsStringAsync !== 'function') {
-    return;
+  if (fsInfo && typeof fsInfo.fs.writeAsStringAsync === 'function') {
+    try {
+      await fsInfo.fs.writeAsStringAsync(fsInfo.fileUri, JSON.stringify(state));
+    } catch {
+      // Fallback silencioso em memória
+    }
   }
 
+  // Sincronização em segundo plano com o Supabase (caso online e tabela trechos_colheita disponível)
+  sincronizarTrechosComSupabase(state).catch(() => {});
+}
+
+async function sincronizarTrechosComSupabase(state: TrechosState): Promise<void> {
   try {
-    await fsInfo.fs.writeAsStringAsync(fsInfo.fileUri, JSON.stringify(state));
+    const { SupabaseClientManager } = await import('@/src/infra/supabase/SupabaseClient');
+    const client = SupabaseClientManager.getInstance().getClient();
+    const registros: TrechoColheita[] = [];
+    if (state.trechoAtivo) {
+      registros.push(state.trechoAtivo);
+    }
+    if (state.historico.length > 0) {
+      registros.push(state.historico[0]);
+    }
+    if (registros.length === 0) return;
+
+    const payload = registros.map((t) => ({
+      id: t.id,
+      talhao: t.talhao,
+      trabalhador_nome: t.trabalhadorNome,
+      inicio_lat: t.inicioLat,
+      inicio_lng: t.inicioLng,
+      inicio_data: t.inicioData,
+      fim_lat: t.fimLat ?? null,
+      fim_lng: t.fimLng ?? null,
+      fim_data: t.fimData ?? null,
+      distancia_metros: t.distanciaMetros ?? null,
+      status: t.status,
+      updated_at: Date.now(),
+    }));
+
+    await client.from('trechos_colheita').upsert(payload, { onConflict: 'id' });
   } catch {
-    // Fallback silencioso em memória
+    // Ignora silenciosamente se offline ou se a tabela opcional ainda não foi criada
   }
 }
 

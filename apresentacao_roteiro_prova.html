@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafraCafé — Apresentação Técnica Oficial (Roteiro de Prova)</title>
+  <style>
+    :root {
+      --bg-dark: #0a0f16;
+      --bg-slide: #0f172a;
+      --bg-card: rgba(15, 23, 42, 0.75);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --border-glow: rgba(16, 185, 129, 0.4);
+      --primary: #10b981;
+      --primary-light: #34d399;
+      --primary-dark: #065f46;
+      --accent-gold: #f59e0b;
+      --accent-blue: #38bdf8;
+      --accent-purple: #a855f7;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --code-bg: #030712;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-dark);
+      background-image: 
+        radial-gradient(ellipse at 15% 15%, rgba(16, 185, 129, 0.1), transparent 60%),
+        radial-gradient(ellipse at 85% 85%, rgba(56, 189, 248, 0.08), transparent 60%);
+      color: var(--text-main);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP BAR & PROGRESS */
+    #progress-container {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+
+    #progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--accent-blue));
+      transition: width 0.3s ease;
+    }
+
+    header {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 24px;
+      background: rgba(10, 15, 22, 0.95);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 50;
+      height: 54px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: -0.4px;
+    }
+
+    .brand-badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--primary-light);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .timer-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--accent-gold);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-header {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-header:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--primary-light);
+    }
+
+    /* SLIDE STAGE */
+    #slide-stage {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .slide {
+      position: absolute;
+      width: calc(100% - 40px);
+      max-width: 1280px;
+      height: calc(100% - 40px);
+      background: var(--bg-slide);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      padding: 40px 48px;
+      display: none;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(16px) scale(0.99);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* TYPOGRAPHY */
+    .slide-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary-light);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slide-title {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      margin-bottom: 20px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 14px;
+    }
+
+    .slide-title span.number {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #fff;
+      font-size: 15px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-weight: 800;
+    }
+
+    /* GRID & CARDS */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      flex: 1;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      flex: 1;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .card-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .card-icon.blue {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+    }
+
+    .card-icon.gold {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-gold);
+    }
+
+    .card-icon.purple {
+      background: rgba(168, 85, 247, 0.15);
+      color: var(--accent-purple);
+    }
+
+    .card-body {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      flex: 1;
+    }
+
+    .card-body ul {
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .highlight-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--primary-light);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    /* CODE BOXES */
+    .code-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12.5px;
+      color: #e2e8f0;
+      line-height: 1.5;
+      overflow-x: auto;
+    }
+
+    .code-keyword { color: #f472b6; }
+    .code-func { color: #60a5fa; }
+    .code-string { color: #34d399; }
+    .code-comment { color: #64748b; font-style: italic; }
+
+    /* FOOTER CONTROLS */
+    footer {
+      flex-shrink: 0;
+      height: 60px;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 15, 22, 0.95);
+      border-top: 1px solid var(--border-color);
+      z-index: 50;
+    }
+
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-nav {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-nav:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .btn-nav:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .counter-badge {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .counter-badge:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    /* MODAL DE ÍNDICE */
+    #indexModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 200;
+      padding: 40px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #indexModal.open {
+      display: flex;
+    }
+
+    .index-content {
+      background: var(--bg-slide);
+      border: 1px solid var(--border-glow);
+      border-radius: 16px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 32px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.8);
+    }
+
+    .index-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    .index-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .index-item {
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #cbd5e1;
+      transition: all 0.2s;
+    }
+
+    .index-item:hover {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--primary);
+      color: #fff;
+      transform: translateX(4px);
+    }
+
+    .index-item .num {
+      background: var(--primary-dark);
+      color: #fff;
+      font-size: 12px;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PROGRESS BAR -->
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <span>☕ SafraCafé Mobile</span>
+      <span class="brand-badge">Defesa Técnica Oficial</span>
+    </div>
+    <div class="header-center">
+      <span id="currentTopic">Roteiro de Avaliação</span>
+      <div class="timer-badge" id="presentationTimer" title="Clique para pausar/retomar">
+        ⏱️ <span id="timerDisplay">00:00</span>
+      </div>
+    </div>
+    <div class="header-controls">
+      <button class="btn-header" id="btnOpenIndex" title="Abrir Índice de Slides (Atalho: I)">📑 Tópicos</button>
+      <button class="btn-header" id="btnFullscreen" title="Tela Cheia (Atalho: F)">⛶ Tela Cheia</button>
+    </div>
+  </header>
+
+  <!-- STAGE COM OS SLIDES DO ROTEIRO -->
+  <main id="slide-stage">
+
+    <!-- SLIDE 0: CAPA OFICIAL -->
+    <section class="slide active">
+      <div class="slide-tag">Defesa de Projeto de Software Mobile</div>
+      <h1 class="slide-title" style="font-size: 34px; margin-bottom: 12px;">
+        ☕ SafraCafé: Gestão de Colheita, Câmera, GPS, SQLite & Supabase
+      </h1>
+      <p style="font-size: 15px; color: var(--text-muted); margin-bottom: 24px;">
+        Arquitetura Clean + DDD, Offline-First, Sincronização em Nuvem (PostgreSQL / AWS S3) e Ferramentas de Segurança.
+      </p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">📱</div>
+            <span>Stack de Alta Performance</span>
+          </div>
+          <div class="card-body">
+            <ul>
+              <li><strong>React Native</strong> + <strong>Expo SDK 58</strong></li>
+              <li>Expo Router v58 (File-based Navigation)</li>
+              <li>TypeScript Estrito (Strict Mode)</li>
+              <li>141 Testes Automatizados no Jest</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">⚡</div>
+            <span>Resiliência Operacional</span>
+          </div>
+          <div class="card-body">
+            <ul>
+              <li><strong>100% Offline-First</strong> na Lavoura</li>
+              <li>Banco local <strong>SQLite Relacional</strong></li>
+              <li>Padrão Transacional <strong>Outbox Pattern</strong></li>
+              <li>Câmera QR Code + GPS Pontual Eco</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon gold">☁️</div>
+            <span>Infraestrutura Online</span>
+          </div>
+          <div class="card-body">
+            <ul>
+              <li><strong>Supabase BaaS</strong> (PostgreSQL + Auth)</li>
+              <li><strong>Bucket S3</strong> para Comprovantes</li>
+              <li>Row Level Security (RLS) Mandatório</li>
+              <li>Google Maps Cartography Overlay</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 1: O QUE É O APLICATIVO -->
+    <section class="slide">
+      <div class="slide-tag">Tópico 1 de 12 • Apresentação do Produto</div>
+      <h2 class="slide-title">
+        <span class="number">01</span> O que é o Aplicativo SafraCafé?
+      </h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">☕</div>
+            <span>Definição e Propósito</span>
+          </div>
+          <div class="card-body">
+            <p>O <strong>SafraCafé</strong> é um aplicativo mobile profissional projetado para a gestão operacional e financeira do trabalho rural na cafeicultura diretamente no eito da lavoura.</p>
+            <br>
+            <p>Ele substitui o controle arcaico de papel por um fluxo digital instantâneo:</p>
+            <ul>
+              <li><strong>Apontamento Digital de Balaios:</strong> Leitura em fração de segundo do QR Code do crachá do apanhador.</li>
+              <li><strong>Controle de Gastos da Roça:</strong> Registro georreferenciado com captura fotográfica de notas fiscais de peças e combustíveis.</li>
+              <li><strong>Mapeamento de Eitos:</strong> Marcação do Ponto Inicial e Final do trecho colhido com cálculo de metragem via GPS.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">🏛️</div>
+            <span>Pilares de Engenharia de Software</span>
+          </div>
+          <div class="card-body">
+            <ul>
+              <li><span class="highlight-badge">Clean Architecture</span> Domínio desacoplado de frameworks e bibliotecas visuais.</li>
+              <li><span class="highlight-badge">DDD (Domain-Driven Design)</span> Entidades ricas com auto-validação (`Trabalhador`, `Apontamento`, `Despesa`).</li>
+              <li><span class="highlight-badge">Value Objects Imutáveis</span> `ValorMonetario`, `QuantidadeBalaio`, `Coordinates`.</li>
+              <li><span class="highlight-badge">Test-Driven Development (TDD)</span> 37 suítes com 141 testes unitários e de integração aprovados.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: CLIENTE PRINCIPAL -->
+    <section class="slide">
+      <div class="slide-tag">Tópico 2 de 12 • Negócio e Mercado</div>
+      <h2 class="slide-title">
+        <span class="number">02</span> Quem é o Cliente Principal?
+      </h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon gold">👨‍🌾</div>
+            <span>O Produtor Rural e Cafeicultor</span>
+          </div>
+          <div class="card-body">
+            <p>O cliente principal é o <strong>Cafeicultor (Pequeno, Médio ou Grande Produtor)</strong> e as Cooperativas/Administradoras de Fazendas Cafeeiras.</p>
+            <br>
+            <ul>
+              <li><strong>Dores Críticas do Cliente:</strong> Pagamentos incorretos de diárias e litros, perda de receitas por falta de comprovação de despesas e desconfiança na relação com os apanhadores.</li>
+              <li><strong>Retorno Sobre o Investimento (ROI):</strong> Eliminação de retrabalho na digitação de planilhas à noite e fechamento de folha de pagamento em minutos com base em dados auditáveis.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🚜</div>
+            <span>Cenário Agro no Brasil</span>
+          </div>
+          <div class="card-body">
+            <ul>
+              <li>Foco em pólos cafeeiros de destaque nacional (como o <strong>Sul de Minas Gerais</strong> e <strong>Cerrado Mineiro</strong>).</li>
+              <li>Ambientes remotos com conectividade intermitente ou nula durante 90% do expediente de colheita.</li>
+              <li>Necessidade de um produto simples, intuitivo com botões grandes e legíveis para operação sob sol forte.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: PROBLEMA QUE RESOLVE -->
+    <section class="slide">
+      <div class="slide-tag">Tópico 3 de 12 • Análise de Problemas</div>
+      <h2 class="slide-title">
+        <span class="number">03</span> Qual é o Problema que Ele Resolve?
+      </h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">❌</div>
+            <span>O Papel Molhado e Rasgado</span>
+          </div>
+          <div class="card-body">
+            <p>Cadernos de campo molham com orvalho ou chuva, sofrem rasuras e extravios, gerando contestações judiciais e brigas no pagamento semanal dos colhedores.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">📶</div>
+            <span>O Blecaute de Internet Rural</span>
+          </div>
+          <div class="card-body">
+            <p>A maioria das soluções em nuvem exige sinal 4G contínuo. No campo, o operador ficava travado sem conseguir salvar dados. O SafraCafé opera 100% desconectado.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">🗺️</div>
+            <span>A Falta de Rastreabilidade</span>
+          </div>
+          <div class="card-body">
+            <p>Despesas com óleo e limas eram lançadas sem recibo fotográfico, e balaios eram anotados sem saber em qual talhão ou coordenada da fazenda o café foi retirado.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: PÚBLICO-ALVO -->
+    <section class="slide">
+      <div class="slide-tag">Tópico 4 de 12 • Usuários e Beneficiários</div>
+      <h2 class="slide-title">
+        <span class="number">04</span> Quem é o Público-Alvo?
+      </h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">📋</div>
+            <span>Apontadores e Fiscais</span>
+          </div>
+          <div class="card-body">
+            <p>Responsáveis diretos pela pesagem e contagem dos balaios na lavoura. Precisam de agilidade extrema: 1 bip no crachá QR Code e o registro está consolidado.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🧺</div>
+            <span>Apanhadores de Café</span>
+          </div>
+          <div class="card-body">
+            <p>Trabalhadores rurais contratados para a safra. Carregam seu crachá com QR Code pessoal e contam com transparência absoluta em seus balaios colhidos.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon gold">🏢</div>
+            <span>Gestores e Escritório</span>
+          </div>
+          <div class="card-body">
+            <p>Administradores da fazenda que recebem as despesas com comprovantes e totais de balaios consolidados na nuvem para apuração contábil e pagamento.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: PERFIS DE USUÁRIO -->
+    <section class="slide">
+      <div class="slide-tag">Tópico 5 de 12 • Papéis no Sistema</div>
+      <h2 class="slide-title">
+        <span class="number">05</span> Quais são os Perfis de Usuário?
+      </h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🔐</div>
+            <span>1. Operador / Apontador Autenticado</span>
+          </div>
+          <div class="card-body">
+            <ul>
+              <li>Possui conta com e-mail e senha (ex.: <code>joao@safracafe.com</code>).</li>
+              <li>Acessa o app, autentica-se com segurança e opera o leitor de QR Code, lançamento de custos e mapa.</li>
+              <li>Tem sua sessão armazenada com criptografia nativa no dispositivo.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">🪪</div>
+            <span>2. Trabalhador Rural (Entidade de Produção)</span>
+          </div>
+          <div class="card-body">
+            <ul>
+              <li>Cadastrado pelo apontador com Nome, CPF mascarado, Código de Crachá (`TRAB-01`, `TRAB-2`) e Diária acordada.</li>
+              <li>Recebe crachá impresso com QR Code para leitura rápida e conferência de produção.</li>
+              <li>Vinculado às medições de balaios e totais de litros colhidos.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: PRINCIPAIS RECURSOS -->
+    <section class="slide">
+      <div class="slide-tag">Tópico 6 de 12 • Funcionalidades Centrais</div>
+      <h2 class="slide-title">
+        <span class="number">06</span> Quais são os Principais Recursos?
+      </h2>
+      <div class="grid-4">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">⚡</div>
+            <span>Apontamento Rápido</span>
+          </div>
+          <div class="card-body">
+            Leitura de crachá QR Code via câmera nativa, seleção rápida por chips e registro imediato de volume (litros).
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon gold">📁</div>
+            <span>Hoje vs. Arquivados</span>
+          </div>
+          <div class="card-body">
+            Separação clara entre a colheita do dia atual e balaios arquivados com data e hora exatas (`Salvo em DD/MM às HH:MM`).
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon purple">📷</div>
+            <span>Despesas com Recibo</span>
+          </div>
+          <div class="card-body">
+            Controle financeiro com foto de recibo, categoria, geolocalização e envio automático ao bucket S3.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">🗺️</div>
+            <span>Pontos de Colheita</span>
+          </div>
+          <div class="card-body">
+            Marcação de Início e Fim do eito com cálculo de metros percorridos (Haversine) em modo Eco de economia de bateria.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: CÂMERA E GEOLOCALIZAÇÃO -->
+    <section class="slide">
+      <div class="slide-tag">Tópico 7 de 12 • Hardware & Recursos Nativos</div>
+      <h2 class="slide-title">
+        <span class="number">07</span> Como Foram Utilizadas a Câmera e a Geolocalização?
+      </h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon purple">📷</div>
+            <span>Uso da Câmera (2 Casos de Uso Distintos)</span>
+          </div>
+          <div class="card-body">
+            <ul>
+              <li><strong>Leitor QR Code de Crachá (`expo-camera`):</strong> Abre a câmera traseira com `barcodeScannerSettings={{ barcodeTypes: ['qr'] }}`. Decodifica o crachá em milissegundos e vincula o apanhador sem digitação.</li>
+              <li><strong>Foto de Comprovante (`expo-image-picker`):</strong> Permite fotografar notas fiscais na hora do gasto. A imagem é persistida localmente e enviada ao S3 na sincronização.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">📍</div>
+            <span>Geolocalização Inteligente (`expo-location`)</span>
+          </div>
+          <div class="card-body">
+            <ul>
+              <li><strong>Modo Sob Demanda (Eco Battery):</strong> Em vez de GPS ligado contínuo aquecendo o celular no eito, o app ativa o sensor sob demanda (`getCurrentPositionAsync` com timeout de 4s).</li>
+              <li><strong>Carimbo Geográfico:</strong> Balaios e despesas gravam latitude/longitude exatas.</li>
+              <li><strong>Fórmula de Haversine:</strong> Calcula a distância exata em metros percorrida pelo colhedor entre o ponto inicial e o ponto final do eito de café.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: ONLINE VS OFFLINE -->
+    <section class="slide">
+      <div class="slide-tag">Tópico 8 de 12 • Arquitetura de Dados</div>
+      <h2 class="slide-title">
+        <span class="number">08</span> O que é Offline e o que é Online?
+      </h2>
+      <div class="grid-2">
+        <div class="card" style="border-color: rgba(16, 185, 129, 0.4);">
+          <div class="card-header">
+            <div class="card-icon">📶</div>
+            <span>100% Offline (Na Roça / No Campo)</span>
+          </div>
+          <div class="card-body">
+            <p><strong>Toda a operação do dia a dia funciona sem qualquer conexão:</strong></p>
+            <br>
+            <ul>
+              <li>Leitura de QR Code e identificação de colhedores.</li>
+              <li>Registro de balaios e cálculo acumulado do dia.</li>
+              <li>Lançamento de despesas e captura de fotos na memória local.</li>
+              <li>Gravação e finalização de trechos do mapa GPS.</li>
+              <li>Persistência no SQLite (`safracafe.db`) e enfileiramento na `sync_queue`.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card" style="border-color: rgba(56, 189, 248, 0.4);">
+          <div class="card-header">
+            <div class="card-icon blue">☁️</div>
+            <span>Online (Ao Retornar à Sede / Conexão)</span>
+          </div>
+          <div class="card-body">
+            <p><strong>Ao detectar sinal de Wi-Fi ou rede móvel:</strong></p>
+            <br>
+            <ul>
+              <li>Autenticação no <strong>Supabase Auth</strong> com renovação de token JWT.</li>
+              <li>Consumo automático da fila `sync_queue` enviando registros via PostgreSQL Upsert.</li>
+              <li>Upload das fotos de comprovantes locais para o <strong>Bucket S3 do Supabase</strong>.</li>
+              <li>Carregamento das imagens de satélite do Google Maps.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: METODOLOGIA DE SINCRONIZAÇÃO -->
+    <section class="slide">
+      <div class="slide-tag">Tópico 9 de 12 • Sync Engine</div>
+      <h2 class="slide-title">
+        <span class="number">09</span> Qual é a Metodologia de Sincronização?
+      </h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">📬</div>
+            <span>Outbox Pattern</span>
+          </div>
+          <div class="card-body">
+            Cada operação local (`INSERT`, `UPDATE`, `DELETE`) gera uma entrada na tabela SQLite `sync_queue` com carimbo de tempo, garantindo que nenhum dado seja esquecido.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon gold">⚖️</div>
+            <span>Last-Write-Wins (LWW)</span>
+          </div>
+          <div class="card-body">
+            Resolução determinística de conflitos baseada em timestamps (`updated_at`). Caso haja versão mais recente no servidor, a mais recente prevalece sem corromper a base.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">🔄</div>
+            <span>AutoSync em Background</span>
+          </div>
+          <div class="card-body">
+            O `triggerAutoSync` monitora a conectividade via `NetworkGateway`. Ao detectar internet, sincroniza silenciosamente em background sem travar a interface do operador.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: SUPABASE NO APLICATIVO -->
+    <section class="slide">
+      <div class="slide-tag">Tópico 10 de 12 • Backend-as-a-Service</div>
+      <h2 class="slide-title">
+        <span class="number">10</span> Como o Supabase é Utilizado no Aplicativo?
+      </h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🔑</div>
+            <span>Supabase Auth</span>
+          </div>
+          <div class="card-body">
+            Gerenciamento de identidades e emissão de tokens JWT para autenticação do apontador, integrado à camada de segurança do app.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">🗄️</div>
+            <span>PostgreSQL Relacional</span>
+          </div>
+          <div class="card-body">
+            Tabelas remotas correspondentes ao modelo do SQLite: <code>trabalhadores</code>, <code>apontamentos</code>, <code>despesas</code> e <code>trechos_colheita</code> com suporte a Upsert (`onConflict: 'id'`).
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon purple">🪣</div>
+            <span>Storage S3 (Bucket Recibos)</span>
+          </div>
+          <div class="card-body">
+            Armazenamento permanente das fotos de notas e recibos em <code>comprovantes/<id>.jpg</code>, com geração de URLs públicas de auditoria.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: OUTROS SERVIÇOS NA NUVEM -->
+    <section class="slide">
+      <div class="slide-tag">Tópico 11 de 12 • Serviços Cloud Complementares</div>
+      <h2 class="slide-title">
+        <span class="number">11</span> Quais Outros Serviços na Nuvem são Utilizados?
+      </h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon gold">🗺️</div>
+            <span>Google Maps Cartography</span>
+          </div>
+          <div class="card-body">
+            <p>Servidores de tiles de alta resolução da Google integrados via <code>react-native-maps</code>.</p>
+            <br>
+            <p>Permite visualização em 3 camadas: Satélite (visão aérea do talhão), Padrão e Terreno topográfico.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">🏗️</div>
+            <span>EAS Build Cloud (Expo)</span>
+          </div>
+          <div class="card-body">
+            <p>Serviço de compilação em nuvem para geração automática do arquivo binário instalador <strong>APK Android</strong> (configurado em <code>eas.json</code>).</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🐙</div>
+            <span>GitHub Cloud Repository</span>
+          </div>
+          <div class="card-body">
+            <p>Controle de versão descentralizado e esteira de código com branch <code>main</code> 100% atualizada e rastreável.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: MEDIDAS DE SEGURANÇA -->
+    <section class="slide">
+      <div class="slide-tag">Tópico 12 de 12 • Segurança & RLS</div>
+      <h2 class="slide-title">
+        <span class="number">12</span> Quais Medidas de Segurança Foram Tomadas?
+      </h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🛡️</div>
+            <span>Hardware-Backed Keystore</span>
+          </div>
+          <div class="card-body">
+            <p>Tokens JWT são gravados no chip criptográfico do aparelho via <strong>Expo SecureStore</strong> (Android Keystore e iOS Keychain), impedindo extração de senhas em caso de roubo do aparelho.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">🔒</div>
+            <span>Row Level Security (RLS)</span>
+          </div>
+          <div class="card-body">
+            <p>Ativação compulsória de <strong>RLS</strong> no PostgreSQL do Supabase em todas as tabelas (<code>trabalhadores</code>, <code>apontamentos</code>, <code>despesas</code>, <code>trechos_colheita</code>) e políticas de acesso restritas no bucket S3.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon gold">🧼</div>
+            <span>Sanitização & Princípio do Privilégio</span>
+          </div>
+          <div class="card-body">
+            <p>Validação de UUIDs no gateway antes do envio ao Postgres, exclusão de arquivos <code>.env</code> do versionamento público e uso de chave <code>anon</code> pública sem permissões destrutivas de banco.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: CONCLUSÃO TÉCNICA E TESTES -->
+    <section class="slide">
+      <div class="slide-tag">Encerramento da Apresentação</div>
+      <h2 class="slide-title">
+        <span class="number">✓</span> Conclusão Técnica: Sistema Aprovado e Pronto
+      </h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🧪</div>
+            <span>Garantia de Qualidade (Jest Test Runner)</span>
+          </div>
+          <div class="card-body">
+            <div class="code-box">
+<span class="code-keyword">PASS</span> tests/screens/TrabalhadorDetalhesScreen.test.tsx
+<span class="code-keyword">PASS</span> tests/screens/LoginScreen.test.tsx
+<span class="code-keyword">PASS</span> tests/screens/CentralSincronizacaoModal.test.tsx
+<span class="code-keyword">PASS</span> tests/adapters/AuthContext.test.tsx
+<span class="code-keyword">PASS</span> tests/infra/SqliteRepositories.test.ts
+<span class="code-keyword">PASS</span> tests/infra/SupabaseSyncGateway.test.ts
+<span class="code-keyword">PASS</span> tests/infra/SupabaseStorageGateway.test.ts
+<span class="code-comment">... 37 test suites passed</span>
+
+<span class="code-string">Test Suites: 37 passed, 37 total</span>
+<span class="code-string">Tests:       141 passed, 141 total</span>
+<span class="code-func">Snapshots:   0 total | Time: 22.703 s</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon gold">🚀</div>
+            <span>Pronto para Distribuição e Demonstração</span>
+          </div>
+          <div class="card-body">
+            <ul>
+              <li><strong>Conta Oficial Pronta:</strong> <code>joao@safracafe.com</code></li>
+              <li><strong>Trabalhadores e Crachás:</strong> Cleiton (`TRAB-01`) e Ana (`TRAB-2`) alinhados no SQLite e Supabase.</li>
+              <li><strong>Configuração de APK:</strong> <code>package: com.safracafe.app</code> e <code>eas.json</code> configurados.</li>
+              <li><strong>Git Atualizado:</strong> Repositório sincronizado em <code>main</code> com 0 pendências.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER NAVIGATION -->
+  <footer>
+    <div class="nav-buttons">
+      <button class="btn-nav" id="btnPrev">← Anterior</button>
+      <button class="btn-nav" id="btnNext">Próximo →</button>
+    </div>
+
+    <div class="counter-badge" id="slideCounter" title="Clique para ver todos os slides">
+      Slide 1 de 14
+    </div>
+
+    <div style="font-size: 12px; color: var(--text-muted);">
+      Atalhos: <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">Espaço</kbd> ou <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">Setas</kbd> • <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">I</kbd> Índice • <kbd style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">F</kbd> Tela Cheia
+    </div>
+  </footer>
+
+  <!-- MODAL DE ÍNDICE DE TÓPICOS -->
+  <div id="indexModal">
+    <div class="index-content">
+      <div class="index-title">
+        <span>📑 Índice Geral da Apresentação</span>
+        <button id="btnCloseIndex" style="background:none; border:none; color:#fff; font-size:20px; cursor:pointer;">✕</button>
+      </div>
+      <div class="index-list" id="indexList">
+        <!-- Gerado via JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT DE CONTROLE INTERATIVO -->
+  <script>
+    (function() {
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const progressBar = document.getElementById('progress-bar');
+      const slideCounter = document.getElementById('slideCounter');
+      const currentTopic = document.getElementById('currentTopic');
+      const btnPrev = document.getElementById('btnPrev');
+      const btnNext = document.getElementById('btnNext');
+      const btnFullscreen = document.getElementById('btnFullscreen');
+      const btnOpenIndex = document.getElementById('btnOpenIndex');
+      const btnCloseIndex = document.getElementById('btnCloseIndex');
+      const indexModal = document.getElementById('indexModal');
+      const indexList = document.getElementById('indexList');
+
+      let currentSlide = 0;
+      const totalSlides = slides.length;
+
+      // Monta a lista de tópicos no modal de índice
+      slides.forEach((slide, idx) => {
+        const titleEl = slide.querySelector('.slide-title');
+        let text = titleEl ? titleEl.textContent.trim().replace(/\s+/g, ' ') : `Slide ${idx + 1}`;
+        if (idx === 0) text = "☕ Apresentação Oficial (Capa)";
+
+        const item = document.createElement('div');
+        item.className = 'index-item';
+        item.innerHTML = `<span class="num">${idx + 1}</span><span>${text}</span>`;
+        item.addEventListener('click', () => {
+          goToSlide(idx);
+          closeIndex();
+        });
+        indexList.appendChild(item);
+      });
+
+      function updateSlide(newIdx) {
+        if (newIdx < 0 || newIdx >= totalSlides) return;
+
+        slides[currentSlide].classList.remove('active');
+        currentSlide = newIdx;
+        slides[currentSlide].classList.add('active');
+
+        // Atualiza progresso e contador
+        const pct = ((currentSlide + 1) / totalSlides) * 100;
+        progressBar.style.width = `${pct}%`;
+        slideCounter.textContent = `Slide ${currentSlide + 1} de ${totalSlides}`;
+
+        // Atualiza título do tópico no cabeçalho
+        const tagEl = slides[currentSlide].querySelector('.slide-tag');
+        currentTopic.textContent = tagEl ? tagEl.textContent : 'SafraCafé Mobile';
+
+        btnPrev.disabled = currentSlide === 0;
+        btnNext.disabled = currentSlide === totalSlides - 1;
+      }
+
+      function nextSlide() {
+        if (currentSlide < totalSlides - 1) updateSlide(currentSlide + 1);
+      }
+
+      function prevSlide() {
+        if (currentSlide > 0) updateSlide(currentSlide - 1);
+      }
+
+      function goToSlide(idx) {
+        updateSlide(idx);
+      }
+
+      function openIndex() {
+        indexModal.classList.add('open');
+      }
+
+      function closeIndex() {
+        indexModal.classList.remove('open');
+      }
+
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => console.log(err));
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(err => console.log(err));
+          }
+        }
+      }
+
+      // Eventos de clique
+      btnNext.addEventListener('click', nextSlide);
+      btnPrev.addEventListener('click', prevSlide);
+      slideCounter.addEventListener('click', openIndex);
+      btnOpenIndex.addEventListener('click', openIndex);
+      btnCloseIndex.addEventListener('click', closeIndex);
+      btnFullscreen.addEventListener('click', toggleFullscreen);
+
+      indexModal.addEventListener('click', (e) => {
+        if (e.target === indexModal) closeIndex();
+      });
+
+      // Atalhos de teclado
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeIndex();
+          return;
+        }
+
+        if (indexModal.classList.contains('open')) return;
+
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+          e.preventDefault();
+          nextSlide();
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          prevSlide();
+        } else if (e.key.toLowerCase() === 'f') {
+          e.preventDefault();
+          toggleFullscreen();
+        } else if (e.key.toLowerCase() === 'i' || e.key.toLowerCase() === 'm') {
+          e.preventDefault();
+          openIndex();
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          updateSlide(0);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          updateSlide(totalSlides - 1);
+        }
+      });
+
+      // Cronômetro da apresentação
+      let seconds = 0;
+      let timerRunning = true;
+      const timerDisplay = document.getElementById('timerDisplay');
+      const timerBtn = document.getElementById('presentationTimer');
+
+      setInterval(() => {
+        if (timerRunning) {
+          seconds++;
+          const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+          const secs = String(seconds % 60).padStart(2, '0');
+          timerDisplay.textContent = `${mins}:${secs}`;
+        }
+      }, 1000);
+
+      timerBtn.addEventListener('click', () => {
+        timerRunning = !timerRunning;
+        timerBtn.style.opacity = timerRunning ? '1' : '0.5';
+      });
+
+      // Inicializa
+      updateSlide(0);
+    })();
+  </script>
+</body>
+</html>

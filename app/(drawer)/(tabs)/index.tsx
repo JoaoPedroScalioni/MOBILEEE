@@ -58,6 +58,10 @@ export default function Apontamento() {
     }, [carregarDados]),
   );
 
+  useEffect(() => {
+    carregarDados();
+  }, [carregarDados]);
+
   const [atualizandoGps, setAtualizandoGps] = useState(false);
 
   const carregarLocalizacao = useCallback(async () => {

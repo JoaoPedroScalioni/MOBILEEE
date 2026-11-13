@@ -106,6 +106,10 @@ export function MapaLavoura() {
     }, [carregarDados]),
   );
 
+  React.useEffect(() => {
+    carregarDados();
+  }, [carregarDados]);
+
   // Captura única de GPS sob demanda (liga, lê a coordenada e libera o sensor)
   const capturarCoordenadaUnica = useCallback(async (): Promise<LocationResult> => {
     setCapturandoGps(true);

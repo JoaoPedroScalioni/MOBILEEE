@@ -54,6 +54,16 @@ export default function Despesas() {
   );
 
   useEffect(() => {
+    let active = true;
+    container.listarDespesas.execute().then((res) => {
+      if (active) setList(res);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     async function carregarLocalizacao() {
       const loc = await obterLocalizacaoSegura(4000);
       setLocationResult(loc);

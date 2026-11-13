@@ -1,5 +1,5 @@
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -46,6 +46,10 @@ export default function Trabalhadores() {
       carregarTrabalhadores();
     }, [carregarTrabalhadores]),
   );
+
+  useEffect(() => {
+    carregarTrabalhadores();
+  }, [carregarTrabalhadores]);
 
   function abrirDetalhes(item: Trabalhador) {
     router.push({

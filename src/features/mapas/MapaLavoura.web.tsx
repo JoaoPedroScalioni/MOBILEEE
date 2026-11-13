@@ -61,6 +61,10 @@ export function MapaLavoura() {
     }, [carregarDados]),
   );
 
+  React.useEffect(() => {
+    carregarDados();
+  }, [carregarDados]);
+
   const capturarCoordenadaUnica = useCallback(async (): Promise<LocationResult> => {
     setCapturandoGps(true);
     try {

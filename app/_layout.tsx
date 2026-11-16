@@ -8,6 +8,7 @@ import { LogBox, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/src/adapters/auth/AuthContext';
+import { DatabaseClient } from '@/src/infra/sqlite/DatabaseClient';
 
 LogBox.ignoreLogs([
   'google places autocomplete',
@@ -58,6 +59,7 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryS
 export default function RootLayout() {
   useEffect(() => {
     SplashScreen.hideAsync().catch(() => {});
+    DatabaseClient.getInstance().init().catch(() => {});
   }, []);
 
   return (

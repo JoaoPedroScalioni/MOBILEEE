@@ -182,9 +182,11 @@ export default function Despesas() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Despesas da Lavoura</Text>
-          <Text style={styles.subtitle}>Controle de gastos com foto do comprovante e GPS</Text>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.title} numberOfLines={1}>Despesas da Lavoura</Text>
+          <Text style={styles.subtitle} numberOfLines={2}>
+            Controle de gastos com foto do comprovante e GPS
+          </Text>
         </View>
         <TouchableOpacity style={styles.addButton} onPress={() => setModalVisivel(true)}>
           <Ionicons name="add" size={24} color="#fff" />
@@ -505,6 +507,10 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 8,
   },
+  headerTitleContainer: {
+    flex: 1,
+    marginRight: 12,
+  },
   title: {
     fontSize: 24,
     fontWeight: '700',
@@ -522,6 +528,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
+    flexShrink: 0,
   },
   headerContent: {
     gap: 16,

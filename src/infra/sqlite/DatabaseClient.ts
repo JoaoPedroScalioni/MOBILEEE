@@ -12,7 +12,7 @@ export class DatabaseClient implements IDatabaseClient {
   private isMemoryFallback = false;
   private memoryTables: Map<string, any[]> = new Map();
   private initialized = false;
-  private initializing = false;
+  private initPromise: Promise<void> | null = null;
 
   private constructor() {}
 
@@ -24,36 +24,40 @@ export class DatabaseClient implements IDatabaseClient {
   }
 
   public async init(): Promise<void> {
-    if (this.initialized || this.initializing) return;
-    this.initializing = true;
+    if (this.initialized) return;
+    if (this.initPromise) return this.initPromise;
 
-    try {
-      let database: any = null;
+    this.initPromise = (async () => {
       try {
-        const SQLite = await import('expo-sqlite');
-        if (SQLite && typeof SQLite.openDatabaseAsync === 'function') {
-          database = await SQLite.openDatabaseAsync('safracafe.db');
-        } else if (SQLite && typeof SQLite.openDatabaseSync === 'function') {
-          database = SQLite.openDatabaseSync('safracafe.db');
+        let database: any = null;
+        try {
+          const SQLite = await import('expo-sqlite');
+          if (SQLite && typeof SQLite.openDatabaseAsync === 'function') {
+            database = await SQLite.openDatabaseAsync('safracafe.db');
+          } else if (SQLite && typeof SQLite.openDatabaseSync === 'function') {
+            database = SQLite.openDatabaseSync('safracafe.db');
+          }
+        } catch {
+          database = null;
         }
-      } catch {
-        database = null;
-      }
 
-      if (database) {
-        this.db = database;
-        this.isMemoryFallback = false;
-      } else {
-        this.activateFallback();
-      }
+        if (database) {
+          this.db = database;
+          this.isMemoryFallback = false;
+        } else {
+          this.activateFallback();
+        }
 
-      await this.exec('PRAGMA foreign_keys = ON;');
-      await this.createTables();
-      await this.seedTrabalhadoresSeNecessario();
-    } finally {
-      this.initialized = true;
-      this.initializing = false;
-    }
+        await this.exec('PRAGMA foreign_keys = ON;');
+        await this.createTables();
+        await this.seedTrabalhadoresSeNecessario();
+        this.initialized = true;
+      } finally {
+        this.initPromise = null;
+      }
+    })();
+
+    return this.initPromise;
   }
 
   private activateFallback(): void {
@@ -129,10 +133,10 @@ export class DatabaseClient implements IDatabaseClient {
   }
 
   private async seedTrabalhadoresSeNecessario(): Promise<void> {
-    const existentes = await this.getAll('SELECT id FROM trabalhadores LIMIT 1');
+    const existentes = await this.getAllInternal('SELECT id FROM trabalhadores LIMIT 1');
     if (existentes.length === 0) {
       const agora = Date.now();
-      await this.run(
+      await this.runInternal(
         `INSERT INTO trabalhadores (id, nome, cpf, cracha, diaria, updated_at, deleted_at, sync_status)
          VALUES (?, ?, ?, ?, ?, ?, NULL, 'synced'),
                 (?, ?, ?, ?, ?, ?, NULL, 'synced')`,
@@ -158,10 +162,13 @@ export class DatabaseClient implements IDatabaseClient {
   }
 
   public async run(sql: string, params: any[] = []): Promise<{ changes: number; lastInsertRowId: number }> {
-    if (!this.initialized && !this.initializing) {
+    if (!this.initialized) {
       await this.init();
     }
+    return this.runInternal(sql, params);
+  }
 
+  private async runInternal(sql: string, params: any[] = []): Promise<{ changes: number; lastInsertRowId: number }> {
     if (this.isMemoryFallback) {
       return this.handleMemoryRun(sql, params);
     }
@@ -179,10 +186,13 @@ export class DatabaseClient implements IDatabaseClient {
   }
 
   public async getAll<T = any>(sql: string, params: any[] = []): Promise<T[]> {
-    if (!this.initialized && !this.initializing) {
+    if (!this.initialized) {
       await this.init();
     }
+    return this.getAllInternal<T>(sql, params);
+  }
 
+  private async getAllInternal<T = any>(sql: string, params: any[] = []): Promise<T[]> {
     if (this.isMemoryFallback) {
       return this.handleMemoryGetAll<T>(sql, params);
     }
@@ -207,7 +217,7 @@ export class DatabaseClient implements IDatabaseClient {
       await this.db.closeAsync();
     }
     this.initialized = false;
-    this.initializing = false;
+    this.initPromise = null;
   }
 
   public async clearAll(): Promise<void> {

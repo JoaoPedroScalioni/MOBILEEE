@@ -184,11 +184,11 @@ export default function Trabalhadores() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Trabalhadores</Text>
-          <Text style={styles.subtitle}>{list.length} cadastrados</Text>
+        <View style={{ flex: 1, marginRight: 12 }}>
+          <Text style={styles.title} numberOfLines={1}>Trabalhadores</Text>
+          <Text style={styles.subtitle} numberOfLines={1}>{list.length} cadastrados</Text>
         </View>
-        <TouchableOpacity style={styles.addButton} onPress={abrirModalCadastro}>
+        <TouchableOpacity style={[styles.addButton, { flexShrink: 0 }]} onPress={abrirModalCadastro}>
           <Ionicons name="add" size={24} color="#fff" />
         </TouchableOpacity>
       </View>

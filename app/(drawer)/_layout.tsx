@@ -2,7 +2,7 @@ import { Drawer } from 'expo-router/drawer';
 import { useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, LogBox, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useAuth } from '@/src/adapters/auth/AuthContext';
 import { triggerAutoSync } from '@/src/shared/utils/autoSync';
 
@@ -42,14 +42,18 @@ export default function DrawerLayout() {
   const executarLogout = async () => {
     if (saindo) return;
     setSaindo(true);
+    setModalSairVisivel(false);
     try {
       await logout();
     } finally {
-      setModalSairVisivel(false);
       setSaindo(false);
       router.replace('/');
     }
   };
+
+  if (status === 'unauthenticated') {
+    return <Redirect href="/" />;
+  }
 
   return (
     <>

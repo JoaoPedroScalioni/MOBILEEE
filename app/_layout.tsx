@@ -1,13 +1,13 @@
 import 'react-native-gesture-handler';
 import React, { Component, ErrorInfo, ReactNode, useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { router, Stack, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
 import { LogBox, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { AuthProvider } from '@/src/adapters/auth/AuthContext';
+import { AuthProvider, useAuth } from '@/src/adapters/auth/AuthContext';
 import { DatabaseClient } from '@/src/infra/sqlite/DatabaseClient';
 
 LogBox.ignoreLogs([
@@ -56,6 +56,34 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryS
   }
 }
 
+function RootNavigator() {
+  const { status } = useAuth();
+  const segments = useSegments();
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    const firstSegment = segments[0];
+    const inProtectedArea =
+      firstSegment === '(drawer)' || firstSegment === 'trabalhador' || firstSegment === 'modal';
+
+    if (status === 'unauthenticated' && inProtectedArea) {
+      router.replace('/');
+    }
+  }, [status, segments]);
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(drawer)" />
+      <Stack.Screen name="trabalhador/[id]" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="modal"
+        options={{ presentation: 'modal', title: 'Central de Sincronização' }}
+      />
+    </Stack>
+  );
+}
+
 export default function RootLayout() {
   useEffect(() => {
     SplashScreen.hideAsync().catch(() => {});
@@ -67,15 +95,7 @@ export default function RootLayout() {
       <AppErrorBoundary>
         <AuthProvider>
           <SafeAreaProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="index" />
-              <Stack.Screen name="(drawer)" />
-              <Stack.Screen name="trabalhador/[id]" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="modal"
-                options={{ presentation: 'modal', title: 'Central de Sincronização' }}
-              />
-            </Stack>
+            <RootNavigator />
             <StatusBar style="auto" />
           </SafeAreaProvider>
         </AuthProvider>

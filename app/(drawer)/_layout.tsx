@@ -17,15 +17,20 @@ export default function DrawerLayout() {
   const [saindo, setSaindo] = useState(false);
 
   useEffect(() => {
-    // Sincronização automática na inicialização
-    triggerAutoSync();
+    // Aguarda a renderização inicial das listas locais antes de iniciar a sincronização em segundo plano
+    const initialSyncTimer = setTimeout(() => {
+      triggerAutoSync();
+    }, 1500);
 
     // Verificação periódica a cada 15 segundos (envio automático assim que houver internet)
     const timer = setInterval(() => {
       triggerAutoSync();
     }, 15000);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearTimeout(initialSyncTimer);
+      clearInterval(timer);
+    };
   }, []);
 
   useEffect(() => {

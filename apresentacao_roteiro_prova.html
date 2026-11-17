@@ -978,10 +978,12 @@
         <div class="card">
           <div class="card-header">
             <div class="card-icon blue">🏗️</div>
-            <span>EAS Build Cloud (Expo)</span>
+            <span>EAS Build &amp; EAS Update (OTA)</span>
           </div>
           <div class="card-body">
-            <p>Serviço de compilação em nuvem para geração automática do arquivo binário instalador <strong>APK Android</strong> (configurado em <code>eas.json</code>).</p>
+            <p><strong>EAS Build Cloud:</strong> Compilação na nuvem do instalador <strong>APK Android</strong> (<code>com.safracafe.app</code>, perfil <code>preview</code> em <code>eas.json</code>).</p>
+            <br>
+            <p><strong>EAS Update (Over-the-Air):</strong> Publicação de atualizações via <code>expo-updates</code> diretamente no canal <code>preview</code> sem precisar gerar ou reinstalar o APK.</p>
           </div>
         </div>
 
@@ -1061,22 +1063,23 @@
 
 <span class="code-string">Test Suites: 37 passed, 37 total</span>
 <span class="code-string">Tests:       141 passed, 141 total</span>
-<span class="code-func">Snapshots:   0 total | Time: 22.703 s</span>
+<span class="code-func">expo-doctor: 20/20 checks passed</span>
+<span class="code-func">TypeScript:  0 errors | Time: 5.004 s</span>
             </div>
           </div>
         </div>
 
         <div class="card">
           <div class="card-header">
-            <div class="card-icon gold">🚀</div>
-            <span>Pronto para Distribuição e Demonstração</span>
+            <div class="card-icon gold">📦</div>
+            <span>APK Pronto, OTA Ativo &amp; Demonstração</span>
           </div>
           <div class="card-body">
             <ul>
-              <li><strong>Conta Oficial Pronta:</strong> <code>joao@safracafe.com</code></li>
-              <li><strong>Trabalhadores e Crachás:</strong> Cleiton (`TRAB-01`) e Ana (`TRAB-2`) alinhados no SQLite e Supabase.</li>
-              <li><strong>Configuração de APK:</strong> <code>package: com.safracafe.app</code> e <code>eas.json</code> configurados.</li>
-              <li><strong>Git Atualizado:</strong> Repositório sincronizado em <code>main</code> com 0 pendências.</li>
+              <li><strong>APK Android Pronto (<code>com.safracafe.app</code>):</strong> Build <code>7f31a68a</code> compilada e assinada no EAS (<a href="https://expo.dev/artifacts/eas/6vsALYK2yvm0znR4cGuCjCSrBrEjqQuG4fmvecE76po.apk" target="_blank" style="color: #34d399; text-decoration: underline;">Download direto .apk</a>).</li>
+              <li><strong>Over-the-Air (<code>expo-updates</code>):</strong> Canal <code>preview</code> ativo com atualização publicada (<code>2052fce4</code>) sem reinstalar o APK.</li>
+              <li><strong>Conta Oficial &amp; Crachás:</strong> <code>joao@safracafe.com</code> · Cleiton (<code>TRAB-01</code>) e Ana (<code>TRAB-2</code>) no SQLite e Supabase.</li>
+              <li><strong>Offline-First &amp; Logout:</strong> Carregamento instantâneo local, fila Outbox e saída segura para o login.</li>
             </ul>
           </div>
         </div>

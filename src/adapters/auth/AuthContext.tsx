@@ -81,6 +81,8 @@ export function AuthProvider({
     const logout = useCallback(async () => {
         try {
             await clear.execute();
+        } catch {
+            // Garante que o logout local sempre conclua mesmo se o gateway lançar erro
         } finally {
             setSession(null);
             setStatus("unauthenticated");

@@ -2,7 +2,8 @@ import { Drawer } from 'expo-router/drawer';
 import { useEffect, useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, LogBox, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Redirect, router } from 'expo-router';
+import { router } from 'expo-router';
+import LoginScreen from '../index';
 import { useAuth } from '@/src/adapters/auth/AuthContext';
 import { triggerAutoSync } from '@/src/shared/utils/autoSync';
 
@@ -47,12 +48,16 @@ export default function DrawerLayout() {
       await logout();
     } finally {
       setSaindo(false);
-      router.replace('/');
+      try {
+        router.replace('/');
+      } catch {
+        // LoginScreen já é exibida diretamente quando status === 'unauthenticated'
+      }
     }
   };
 
   if (status === 'unauthenticated') {
-    return <Redirect href="/" />;
+    return <LoginScreen />;
   }
 
   return (

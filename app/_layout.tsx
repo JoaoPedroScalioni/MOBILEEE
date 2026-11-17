@@ -88,6 +88,23 @@ export default function RootLayout() {
   useEffect(() => {
     SplashScreen.hideAsync().catch(() => {});
     DatabaseClient.getInstance().init().catch(() => {});
+
+    async function aplicarAtualizacaoOTASeDisponivel() {
+      if (__DEV__) return;
+      try {
+        const Updates = await import('expo-updates');
+        if (!Updates.isEnabled) return;
+        const update = await Updates.checkForUpdateAsync();
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync();
+        }
+      } catch {
+        // Continua normalmente quando offline
+      }
+    }
+
+    aplicarAtualizacaoOTASeDisponivel();
   }, []);
 
   return (

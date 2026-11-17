@@ -75,5 +75,17 @@
     "ts-jest": "^29.2.0",
     "typescript": "~6.0.0"
   },
+  "expo": {
+    "install": {
+      "exclude": [
+        "expo",
+        "expo-file-system",
+        "expo-router",
+        "expo-sqlite",
+        "expo-web-browser",
+        "jest-expo"
+      ]
+    }
+  },
   "private": true
 }

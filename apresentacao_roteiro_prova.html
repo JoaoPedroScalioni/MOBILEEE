@@ -319,6 +319,41 @@
       border: 1px solid rgba(16, 185, 129, 0.3);
     }
 
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .pill-green {
+      background: rgba(16, 185, 129, 0.14);
+      color: var(--primary-light);
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+
+    .pill-amber {
+      background: rgba(245, 158, 11, 0.14);
+      color: var(--accent-gold);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .pill-blue {
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent-blue);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    .pill-purple {
+      background: rgba(168, 85, 247, 0.14);
+      color: var(--accent-purple);
+      border-color: rgba(168, 85, 247, 0.35);
+    }
+
     /* CODE BOXES */
     .code-box {
       background: var(--code-bg);
@@ -577,20 +612,48 @@
       </div>
     </div>
     <div class="header-controls">
-      <button class="btn-header" id="btnOpenIndex" title="Abrir Índice de Slides (Atalho: I)">📑 Todos os 15 Slides</button>
+      <button class="btn-header" id="btnOpenIndex" title="Abrir Índice de Slides (Atalho: I)">📑 Todos os 16 Slides</button>
       <button class="btn-header" id="btnFullscreen" title="Tela Cheia (Atalho: F)">⛶ Tela Cheia</button>
     </div>
   </header>
 
   <main id="slide-stage">
 
-    <!-- SLIDE 0: CAPA OFICIAL -->
+    <!-- SLIDE 1: PÁGINA DE INTRODUÇÃO / CAPA -->
     <section class="slide active">
-      <div class="slide-header">
-        <div class="slide-tag">Defesa Técnica de Projeto Mobile • Todos os 12 Tópicos do Roteiro + APK &amp; OTA</div>
-        <h1 class="slide-title" style="font-size: 30px;">
-          ☕ SafraCafé: Gestão de Colheita Cafeeira Offline-First &amp; Cloud BaaS
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px 0;">
+        <div class="slide-tag" style="font-size: 13px; margin-bottom: 12px; justify-content: center;">
+          Engenharia de Software Mobile • Apresentação Oficial de Prova
+        </div>
+        <h1 class="slide-title" style="font-size: 42px; margin-bottom: 14px; max-width: 960px; letter-spacing: -0.8px; justify-content: center; text-align: center;">
+          ☕ SafraCafé: Gestão de Colheita, Câmera, GPS, SQLite &amp; Nuvem
         </h1>
+        <p style="font-size: 17px; max-width: 820px; margin-bottom: 28px; color: #cbd5e1; line-height: 1.6;">
+          Aplicativo mobile offline-first desenvolvido em React Native + Expo SDK 58 sob Clean Architecture e DDD, com sincronização automática no Supabase (PostgreSQL + Bucket S3), APK Android nativo e atualizações Over-the-Air (OTA).
+        </p>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 28px; flex-wrap: wrap; justify-content: center; max-width: 920px;">
+          <div class="pill pill-green">📸 Câmera Nativa (QR Code + Recibos)</div>
+          <div class="pill pill-amber">🛰️ GPS Modo Eco-Bateria + Haversine</div>
+          <div class="pill pill-blue">💾 SQLite Offline-First + Fila Outbox</div>
+          <div class="pill pill-purple">☁️ Supabase Auth, PostgreSQL &amp; S3</div>
+          <div class="pill pill-amber">📦 APK Android + Over-the-Air (OTA)</div>
+          <div class="pill pill-green">✅ 141 / 141 Testes Aprovados (Jest)</div>
+        </div>
+
+        <div style="font-size: 13px; color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 8px 18px; border-radius: 999px; border: 1px solid var(--border-color);">
+          Pressione <kbd style="background: rgba(255,255,255,0.12); padding: 2px 7px; border-radius: 4px; color: #fff;">→</kbd> ou <kbd style="background: rgba(255,255,255,0.12); padding: 2px 7px; border-radius: 4px; color: #fff;">Espaço</kbd> para iniciar a apresentação • Pressione <kbd style="background: rgba(255,255,255,0.12); padding: 2px 7px; border-radius: 4px; color: #fff;">I</kbd> para abrir o índice completo
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: VISÃO GERAL EXECUTIVA -->
+    <section class="slide">
+      <div class="slide-header">
+        <div class="slide-tag">Visão Geral Técnica • Arquitetura, Hardware, Nuvem &amp; Distribuição</div>
+        <h2 class="slide-title" style="font-size: 28px;">
+          ☕ Visão Geral da Arquitetura do SafraCafé
+        </h2>
       </div>
 
       <div class="grid-3">
@@ -1425,7 +1488,7 @@ Running 20 checks on your project...
   <div id="indexModal">
     <div class="index-content">
       <div class="index-title">
-        <span>📑 Índice Completo da Apresentação (15 Slides)</span>
+        <span>📑 Índice Completo da Apresentação (16 Slides)</span>
         <button id="btnCloseIndex" style="background:none; border:none; color:#fff; font-size:20px; cursor:pointer;">✕</button>
       </div>
       <div class="index-list" id="indexList"></div>
@@ -1467,7 +1530,7 @@ Running 20 checks on your project...
       slides.forEach((slide, idx) => {
         const titleEl = slide.querySelector('.slide-title');
         let text = titleEl ? titleEl.textContent.trim().replace(/\s+/g, ' ') : `Slide ${idx + 1}`;
-        if (idx === 0) text = "☕ Capa Oficial — Visão Geral do SafraCafé";
+        if (idx === 0) text = "☕ Introdução / Capa Oficial — SafraCafé";
 
         const item = document.createElement('div');
         item.className = 'index-item';

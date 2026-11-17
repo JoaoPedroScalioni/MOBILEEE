@@ -1,8 +1,7 @@
 import { Drawer } from 'expo-router/drawer';
 import { useEffect, useState } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, LogBox, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, LogBox, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
 import LoginScreen from '../index';
 import { useAuth } from '@/src/adapters/auth/AuthContext';
 import { triggerAutoSync } from '@/src/shared/utils/autoSync';
@@ -34,12 +33,6 @@ export default function DrawerLayout() {
     };
   }, []);
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/');
-    }
-  }, [status]);
-
   const executarLogout = async () => {
     if (saindo) return;
     setSaindo(true);
@@ -48,20 +41,19 @@ export default function DrawerLayout() {
       await logout();
     } finally {
       setSaindo(false);
-      try {
-        router.replace('/');
-      } catch {
-        // LoginScreen já é exibida diretamente quando status === 'unauthenticated'
-      }
     }
   };
 
   if (status === 'unauthenticated') {
-    return <LoginScreen />;
+    return (
+      <View style={styles.loginFallbackContainer}>
+        <LoginScreen />
+      </View>
+    );
   }
 
   return (
-    <>
+    <View style={styles.rootContainer}>
       <Drawer
         screenOptions={{
           headerTintColor: '#1a1a1a',
@@ -101,13 +93,8 @@ export default function DrawerLayout() {
         />
       </Drawer>
 
-      {/* Modal de Confirmação de Saída (100% compatível com Android, iOS e Web) */}
-      <Modal
-        visible={modalSairVisivel}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setModalSairVisivel(false)}
-      >
+      {/* Overlay de Confirmação de Saída sem Modal nativo (evita tela cinza presa no Android) */}
+      {modalSairVisivel && (
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <View style={styles.modalIconBox}>
@@ -139,12 +126,20 @@ export default function DrawerLayout() {
             </View>
           </View>
         </View>
-      </Modal>
-    </>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  rootContainer: {
+    flex: 1,
+    backgroundColor: '#f8f9ff',
+  },
+  loginFallbackContainer: {
+    flex: 1,
+    backgroundColor: '#f8f9ff',
+  },
   logoutHeaderBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -162,11 +157,17 @@ const styles = StyleSheet.create({
     color: '#dc2626',
   },
   modalBackdrop: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
     backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
+    zIndex: 9999,
+    elevation: 9999,
   },
   modalCard: {
     width: '100%',
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 10,
-    elevation: 6,
+    elevation: 10,
   },
   modalIconBox: {
     width: 56,

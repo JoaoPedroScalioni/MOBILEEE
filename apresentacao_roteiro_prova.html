@@ -1282,11 +1282,11 @@ record.sync_status = <span class="code-string">'synced'</span>;
         <div class="card">
           <div class="card-header">
             <div class="card-icon gold">🛰️</div>
-            <span>2. Cartografia Híbrida (Google Tiles + Leaflet / DomWebView)</span>
+            <span>2. Cartografia Web/Satélite (Google Maps Tiles / DomWebView)</span>
           </div>
           <div class="card-body">
             <ul>
-              <li>Renderizado via componente nativo <code>@expo/dom-webview</code> com motor <strong>LeafletJS</strong> (<code>MapaLavoura.native.tsx</code> + <code>mapHtmlBuilder.ts</code>), eliminando bloqueios de chave SDK no Android e ativando grade SVG offline automática se não houver sinal.</li>
+              <li>Renderizado via componente nativo <code>@expo/dom-webview</code> com motor cartográfico <strong>Web Mercator autônomo em HTML5</strong> (<code>MapaLavoura.native.tsx</code> + <code>mapHtmlBuilder.ts</code>), carregando instantaneamente sem depender de SDK pago nem CDN externo (com backup Esri/OpenStreetMap e grade offline integrada).</li>
               <li>Fornece 3 camadas de tiles na nuvem (<code>mt1.google.com</code>) alternáveis em tempo real + atalho para rota no app Google Maps (<code>Linking</code>):
                 <ul>
                   <li><strong>Satélite Híbrido (<code>lyrs=y</code>):</strong> Visão aérea real das ruas de café;</li>

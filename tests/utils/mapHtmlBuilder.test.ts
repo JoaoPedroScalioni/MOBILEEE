@@ -1,7 +1,7 @@
 import { gerarHtmlMapaLavoura, MAP_TILE_SERVERS } from '../../src/features/mapas/mapHtmlBuilder';
 
 describe('mapHtmlBuilder', () => {
-  it('deve gerar HTML interativo com Leaflet, servidores de tiles e modo offline embutido', () => {
+  it('deve gerar mapa estilo Google Maps autônomo sem depender de CDN externo', () => {
     const html = gerarHtmlMapaLavoura({
       layer: 'satellite',
       userLat: -21.2488,
@@ -42,13 +42,18 @@ describe('mapHtmlBuilder', () => {
       ],
     });
 
-    expect(html).toContain('unpkg.com/leaflet@1.9.4/dist/leaflet.js');
-    expect(html).toContain('renderOfflineSvg');
+    expect(html).not.toContain('unpkg.com/leaflet');
+    expect(html).toContain('mt1.google.com/vt/lyrs=y');
+    expect(html).toContain('latLngToWorld');
+    expect(html).toContain('worldToLatLng');
+    expect(html).toContain('pin-wrap');
     expect(html).toContain('Talhão 01');
     expect(html).toContain('Talhão 02');
     expect(html).toContain('"trechoFocadoId":"t-1"');
     expect(html).toContain('window.setLayer');
     expect(html).toContain('window.fitAll');
+    expect(html).toContain('btn-zoom-in');
     expect(MAP_TILE_SERVERS.satellite.url).toContain('lyrs=y');
+    expect(MAP_TILE_SERVERS.satellite.fallbackUrl).toContain('arcgisonline.com');
   });
 });

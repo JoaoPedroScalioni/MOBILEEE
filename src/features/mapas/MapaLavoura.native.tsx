@@ -261,6 +261,8 @@ export function MapaLavoura() {
     [apontamentos, historicoTrechos, locationResult.latitude, locationResult.longitude, trechoAtivo, trechoFocado],
   );
 
+  const mapFileToggleRef = useRef(0);
+
   const gravarEExibirMapa = useCallback(
     async (focado?: TrechoColheita | null) => {
       const html = construirHtmlAtual(focado);
@@ -268,9 +270,11 @@ export function MapaLavoura() {
         const fsLegacy: any = await import('expo-file-system/legacy');
         const dir = fsLegacy?.cacheDirectory || fsLegacy?.documentDirectory;
         if (dir && typeof fsLegacy.writeAsStringAsync === 'function') {
-          const targetUri = `${dir}safracafe_mapa.html`;
+          mapFileToggleRef.current = (mapFileToggleRef.current + 1) % 2;
+          const suffix = mapFileToggleRef.current === 0 ? 'a' : 'b';
+          const targetUri = `${dir}safracafe_mapa_${suffix}.html`;
           await fsLegacy.writeAsStringAsync(targetUri, html);
-          setMapUri(`${targetUri}?v=${Date.now()}`);
+          setMapUri(targetUri);
           return;
         }
       } catch {
@@ -384,6 +388,7 @@ export function MapaLavoura() {
             originWhitelist={['*']}
             allowFileAccess
             allowFileAccessFromFileURLs
+            nestedScrollEnabled
           />
         ) : (
           <View style={[styles.map, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#132a1e' }]}>

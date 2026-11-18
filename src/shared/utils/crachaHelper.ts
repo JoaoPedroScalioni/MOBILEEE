@@ -1,5 +1,6 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import QRCode from 'qrcode';
 
 export interface DadosCracha {
   nome: string;
@@ -8,8 +9,48 @@ export interface DadosCracha {
   diariaFormatada?: string;
 }
 
+/**
+ * Gera a matriz booleana (true = módulo escuro) do QR Code 100% offline no dispositivo.
+ */
+export function gerarMatrizQrCode(conteudo: string): boolean[][] {
+  const texto = (conteudo || 'SAFRACAFE').trim() || 'SAFRACAFE';
+  const qr = QRCode.create(texto, { errorCorrectionLevel: 'M' });
+  const size = qr.modules.size;
+  const matriz: boolean[][] = [];
+
+  for (let row = 0; row < size; row++) {
+    const linha: boolean[] = [];
+    for (let col = 0; col < size; col++) {
+      linha.push(Boolean(qr.modules.get(row, col)));
+    }
+    matriz.push(linha);
+  }
+  return matriz;
+}
+
+/**
+ * Gera o SVG completo do QR Code 100% offline para exibição e impressão em PDF.
+ */
+export function gerarSvgQrCode(conteudo: string, tamanhoPx: number = 180): string {
+  const matriz = gerarMatrizQrCode(conteudo);
+  const count = matriz.length;
+  const margin = 2;
+  const viewBoxSize = count + margin * 2;
+  const paths: string[] = [];
+
+  for (let r = 0; r < count; r++) {
+    for (let c = 0; c < count; c++) {
+      if (matriz[r][c]) {
+        paths.push(`M${c + margin},${r + margin}h1v1h-1z`);
+      }
+    }
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanhoPx}" height="${tamanhoPx}" viewBox="0 0 ${viewBoxSize} ${viewBoxSize}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#ffffff"/><path d="${paths.join('')}" fill="#0f172a"/></svg>`;
+}
+
 export function gerarHtmlCracha(dados: DadosCracha): string {
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(dados.cracha)}`;
+  const qrSvg = gerarSvgQrCode(dados.cracha, 180);
   const cpfFormatado = dados.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 
   return `
@@ -64,14 +105,14 @@ export function gerarHtmlCracha(dados: DadosCracha): string {
         margin: 4px 0 16px 0;
       }
       .qr-box {
-        background: #f8fafc;
+        background: #ffffff;
         border: 2px dashed #94a3b8;
         border-radius: 12px;
         padding: 10px;
         display: inline-block;
         margin-bottom: 14px;
       }
-      .qr-img {
+      .qr-box svg {
         width: 180px;
         height: 180px;
         display: block;
@@ -112,7 +153,7 @@ export function gerarHtmlCracha(dados: DadosCracha): string {
       <div class="farm">Fazenda SafraCafé</div>
       <div class="title">CRACHÁ DE IDENTIFICAÇÃO</div>
       <div class="qr-box">
-        <img class="qr-img" src="${qrUrl}" alt="QR Code ${dados.cracha}" />
+        ${qrSvg}
       </div>
       <div>
         <div class="code">${dados.cracha}</div>
@@ -142,4 +183,3 @@ export async function compartilharCrachaPDF(dados: DadosCracha): Promise<void> {
     });
   }
 }
-

@@ -61,11 +61,15 @@ export class SupabaseSyncGateway implements SyncGateway {
     const tabela = this.normalizeTableName(item.entity);
 
     // 1. Resolução de Conflitos: Last-Write-Wins (LWW)
-    const { data: existing } = await client
+    const { data: existing, error: selectError } = await client
       .from(tabela)
       .select('updated_at')
       .eq('id', item.entityId)
       .maybeSingle();
+
+    if (selectError) {
+      throw new Error(`Falha de conexão ao consultar Supabase (${tabela}): ${selectError.message}`);
+    }
 
     if (existing && existing.updated_at && existing.updated_at > item.updatedAt) {
       // Conflito LWW: Servidor possui dados mais recentes que a fila local

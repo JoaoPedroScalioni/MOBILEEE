@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Image,
   Modal,
   StyleSheet,
   Text,
@@ -13,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import {
   compartilharCrachaPDF,
   DadosCracha,
+  gerarMatrizQrCode,
   imprimirCracha,
 } from '../utils/crachaHelper';
 
@@ -25,10 +25,16 @@ interface CrachaModalProps {
 export function CrachaModal({ visible, onClose, trabalhador }: CrachaModalProps) {
   const [processando, setProcessando] = useState(false);
 
+  const matrizQr = useMemo(
+    () => (trabalhador ? gerarMatrizQrCode(trabalhador.cracha) : []),
+    [trabalhador?.cracha],
+  );
+
   if (!trabalhador) return null;
 
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(trabalhador.cracha)}`;
   const cpfFormatado = trabalhador.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  const qrSizePx = 168;
+  const moduleSize = matrizQr.length > 0 ? Math.floor(qrSizePx / matrizQr.length) : 6;
 
   async function handleImprimir() {
     if (!trabalhador) return;
@@ -75,13 +81,30 @@ export function CrachaModal({ visible, onClose, trabalhador }: CrachaModalProps)
             <Text style={styles.badgeFarm}>FAZENDA SAFRACAFÉ</Text>
             <Text style={styles.badgeSub}>CRACHÁ DE IDENTIFICAÇÃO</Text>
 
-            {/* QR Code */}
+            {/* QR Code gerado 100% offline no dispositivo */}
             <View style={styles.qrContainer}>
-              <Image
-                source={{ uri: qrUrl }}
-                style={styles.qrImage}
-                resizeMode="contain"
-              />
+              <View
+                style={{
+                  width: moduleSize * matrizQr.length,
+                  height: moduleSize * matrizQr.length,
+                  backgroundColor: '#ffffff',
+                }}
+              >
+                {matrizQr.map((linha, rowIdx) => (
+                  <View key={rowIdx} style={{ flexDirection: 'row' }}>
+                    {linha.map((escuro, colIdx) => (
+                      <View
+                        key={colIdx}
+                        style={{
+                          width: moduleSize,
+                          height: moduleSize,
+                          backgroundColor: escuro ? '#0f172a' : '#ffffff',
+                        }}
+                      />
+                    ))}
+                  </View>
+                ))}
+              </View>
             </View>
 
             <View style={styles.codePill}>

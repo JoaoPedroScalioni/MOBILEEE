@@ -4,6 +4,8 @@ import {
   compartilharCrachaPDF,
   DadosCracha,
   gerarHtmlCracha,
+  gerarMatrizQrCode,
+  gerarSvgQrCode,
   imprimirCracha,
 } from '../../src/shared/utils/crachaHelper';
 
@@ -30,15 +32,26 @@ describe('crachaHelper', () => {
   });
 
   describe('gerarHtmlCracha', () => {
-    it('deve gerar o template HTML com os dados do colhedor e o QR Code correspondente', () => {
+    it('deve gerar o template HTML com os dados do colhedor e o QR Code SVG offline', () => {
       const html = gerarHtmlCracha(dadosMock);
 
       expect(html).toContain('José da Silva');
       expect(html).toContain('TRAB-001');
       expect(html).toContain('529.982.247-25');
       expect(html).toContain('R$ 60,00');
-      expect(html).toContain('data=TRAB-001');
+      expect(html).toContain('<svg');
+      expect(html).not.toContain('api.qrserver.com');
       expect(html).toContain('Fazenda SafraCafé');
+    });
+
+    it('deve gerar matriz e SVG de QR Code localmente sem conexão de internet', () => {
+      const matriz = gerarMatrizQrCode('TRAB-01');
+      const svg = gerarSvgQrCode('TRAB-01', 180);
+
+      expect(matriz.length).toBeGreaterThanOrEqual(21);
+      expect(matriz[0].length).toBe(matriz.length);
+      expect(svg).toContain('<svg');
+      expect(svg).toContain('shape-rendering="crispEdges"');
     });
 
     it('deve gerar o template HTML corretamente mesmo sem diariaFormatada', () => {

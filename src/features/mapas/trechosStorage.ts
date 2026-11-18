@@ -115,7 +115,15 @@ export async function salvarTrechosColheita(state: TrechosState): Promise<void> 
   sincronizarTrechosComSupabase(state).catch(() => {});
 }
 
-async function sincronizarTrechosComSupabase(state: TrechosState): Promise<void> {
+export async function sincronizarTodosTrechosPendentes(): Promise<void> {
+  const state = await carregarTrechosColheita();
+  await sincronizarTrechosComSupabase(state, true);
+}
+
+async function sincronizarTrechosComSupabase(
+  state: TrechosState,
+  sincronizarTodos: boolean = false,
+): Promise<void> {
   try {
     const { SupabaseClientManager } = await import('@/src/infra/supabase/SupabaseClient');
     const client = SupabaseClientManager.getInstance().getClient();
@@ -124,7 +132,11 @@ async function sincronizarTrechosComSupabase(state: TrechosState): Promise<void>
       registros.push(state.trechoAtivo);
     }
     if (state.historico.length > 0) {
-      registros.push(state.historico[0]);
+      if (sincronizarTodos) {
+        registros.push(...state.historico);
+      } else {
+        registros.push(state.historico[0]);
+      }
     }
     if (registros.length === 0) return;
 
@@ -140,7 +152,7 @@ async function sincronizarTrechosComSupabase(state: TrechosState): Promise<void>
       fim_data: t.fimData ?? null,
       distancia_metros: t.distanciaMetros ?? null,
       status: t.status,
-      updated_at: Date.now(),
+      updated_at: t.fimData || t.inicioData || Date.now(),
     }));
 
     await client.from('trechos_colheita').upsert(payload, { onConflict: 'id' });

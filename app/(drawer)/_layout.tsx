@@ -1,6 +1,6 @@
 import { Drawer } from 'expo-router/drawer';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, LogBox, View } from 'react-native';
+import { AppState, StyleSheet, Text, TouchableOpacity, LogBox, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import LoginScreen from '../index';
 import { useAuth } from '@/src/adapters/auth/AuthContext';
@@ -27,9 +27,17 @@ export default function DrawerLayout() {
       triggerAutoSync();
     }, 15000);
 
+    // Dispara sincronização imediata quando o usuário retorna ao app (ex.: após ligar Wi-Fi/4G)
+    const appStateSub = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        triggerAutoSync();
+      }
+    });
+
     return () => {
       clearTimeout(initialSyncTimer);
       clearInterval(timer);
+      appStateSub.remove();
     };
   }, []);
 

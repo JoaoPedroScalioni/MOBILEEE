@@ -1025,10 +1025,10 @@
         <div class="card">
           <div class="card-header">
             <div class="card-icon">🪪</div>
-            <span>5. Crachás QR Code e Impressão</span>
+            <span>5. Crachás QR Code 100% Offline</span>
           </div>
           <div class="card-body">
-            Geração imediata do crachá funcional com QR Code no cadastro do trabalhador e exportação/impressão nativa via <code>expo-print</code>.
+            Geração local imediata da matriz QR Code via biblioteca <code>qrcode</code> (sem precisar de internet) e exportação/impressão nativa em PDF via <code>expo-print</code> e <code>expo-sharing</code>.
           </div>
         </div>
 
@@ -1119,6 +1119,7 @@
                 </ul>
               </li>
               <li><strong>Sistema de Arquivos Local (<code>expo-file-system</code>):</strong> Fotos dos recibos salvas em <code>LocalReceiptStorage</code> e trechos de colheita em <code>safracafe_trechos_colheita.json</code>.</li>
+              <li><strong>Crachás QR Code &amp; Grade GPS Offline:</strong> Matriz QR Code gerada localmente via pacote <code>qrcode</code> (visualização no app e SVG em PDF via <code>expo-print</code>) e grade SVG proporcional de coordenadas quando o mapa abre sem internet.</li>
               <li><strong>Sessão Local:</strong> Restaurada offline via <code>expo-secure-store</code>.</li>
             </ul>
           </div>
@@ -1159,7 +1160,7 @@
           <div class="card-body">
             <ul>
               <li><strong>1. Enfileiramento Transacional (Outbox Pattern):</strong> Todo caso de uso de escrita cria um <code>SyncQueueItem</code> na tabela <code>sync_queue</code> com <code>status = 'pending'</code>, operação (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>) e timestamp <code>updated_at</code>.</li>
-              <li><strong>2. Disparo Automático (<code>triggerAutoSync</code>):</strong> Acionado imediatamente após cada cadastro/exclusão e periodicamente a cada <strong>15 segundos</strong> em background.</li>
+              <li><strong>2. Disparo Automático Resiliente (<code>triggerAutoSync</code>):</strong> Acionado imediatamente após cada cadastro/exclusão, ao retornar o app ao primeiro plano (<code>AppState</code>) quando a internet volta, e a cada <strong>15 segundos</strong> (com timeout de rede de 10s para evitar travamentos).</li>
               <li><strong>3. Resolução de Conflitos Last-Write-Wins (LWW):</strong> Antes do <code>upsert</code>, consulta o <code>updated_at</code> no Supabase; prevalece sempre o registro mais recente (<code>SincronizacaoService</code>).</li>
               <li><strong>4. Soft Delete (Exclusão Lógica) &amp; Retry:</strong> Exclusões propagam <code>deleted_at</code> sem quebrar histórico; falhas de rede incrementam <code>tentativas</code> e marcam <code>status = 'error'</code> para reenvio automático.</li>
             </ul>
@@ -1281,12 +1282,12 @@ record.sync_status = <span class="code-string">'synced'</span>;
         <div class="card">
           <div class="card-header">
             <div class="card-icon gold">🛰️</div>
-            <span>2. Google Maps Tile Servers</span>
+            <span>2. Cartografia Híbrida (Google Tiles + Leaflet / DomWebView)</span>
           </div>
           <div class="card-body">
             <ul>
-              <li>Integrado ao componente nativo <code>react-native-maps</code> (via <code>UrlTile</code> em <code>MapaLavoura.native.tsx</code>).</li>
-              <li>Fornece 3 camadas cartográficas na nuvem alternáveis em tempo real:
+              <li>Renderizado via componente nativo <code>@expo/dom-webview</code> com motor <strong>LeafletJS</strong> (<code>MapaLavoura.native.tsx</code> + <code>mapHtmlBuilder.ts</code>), eliminando bloqueios de chave SDK no Android e ativando grade SVG offline automática se não houver sinal.</li>
+              <li>Fornece 3 camadas de tiles na nuvem (<code>mt1.google.com</code>) alternáveis em tempo real + atalho para rota no app Google Maps (<code>Linking</code>):
                 <ul>
                   <li><strong>Satélite Híbrido (<code>lyrs=y</code>):</strong> Visão aérea real das ruas de café;</li>
                   <li><strong>Mapa Padrão (<code>lyrs=m</code>):</strong> Estradas e acessos;</li>
@@ -1299,13 +1300,13 @@ record.sync_status = <span class="code-string">'synced'</span>;
 
         <div class="card">
           <div class="card-header">
-            <div class="card-icon purple">🔗</div>
-            <span>3. QR Code Cloud API &amp; GitHub</span>
+            <div class="card-icon purple">📦</div>
+            <span>3. Biblioteca Offline <code>qrcode</code>, Native Stacks &amp; GitHub</span>
           </div>
           <div class="card-body">
             <ul>
-              <li><strong>API QR Server (<code>api.qrserver.com</code>):</strong> Renderização em nuvem da matriz QR Code de alta nitidez nos crachás impressos via HTML/PDF (<code>crachaHelper.ts</code>).</li>
-              <li><strong>GitHub Cloud Repository:</strong> Versionamento contínuo na branch <code>main</code> com histórico rastreável de commits, migrações SQL e suíte de testes.</li>
+              <li><strong>QR Code 100% Local (<code>qrcode</code> em <code>crachaHelper.ts</code> e <code>CrachaModal.tsx</code>):</strong> A matriz QR e o código vetorial <code>&lt;svg&gt;</code> são gerados no próprio dispositivo, sem API externa, permitindo exibir e imprimir crachás em PDF (<code>expo-print</code>) mesmo no meio da lavoura sem sinal.</li>
+              <li><strong>GitHub Cloud Repository:</strong> Versionamento contínuo na branch <code>main</code> com histórico rastreável de commits, migrações SQL e suíte de testes automatizados.</li>
             </ul>
           </div>
         </div>
@@ -1412,7 +1413,7 @@ record.sync_status = <span class="code-string">'synced'</span>;
       <div class="slide-header">
         <div class="slide-tag">Encerramento • Validação de Qualidade, Testes Automatizados e Diagnóstico</div>
         <h2 class="slide-title">
-          <span class="number">✓</span> Conclusão Técnica: 141 Testes Aprovados &amp; 20/20 Expo Doctor
+          <span class="number">✓</span> Conclusão Técnica: 143 Testes Aprovados &amp; 20/20 Expo Doctor
         </h2>
       </div>
 
@@ -1435,10 +1436,12 @@ Running 20 checks on your project...
 <span class="code-keyword">PASS</span> tests/infra/SqliteOrm.test.ts
 <span class="code-keyword">PASS</span> tests/infra/SupabaseSyncGateway.test.ts
 <span class="code-keyword">PASS</span> tests/infra/SupabaseStorageGateway.test.ts
+<span class="code-keyword">PASS</span> tests/utils/crachaHelper.test.ts
+<span class="code-keyword">PASS</span> tests/utils/mapHtmlBuilder.test.ts
 <span class="code-keyword">PASS</span> tests/utils/dateAndTrechosHelper.test.ts
 
-<span class="code-string">Test Suites: 37 passed, 37 total</span>
-<span class="code-string">Tests:       141 passed, 141 total</span>
+<span class="code-string">Test Suites: 38 passed, 38 total</span>
+<span class="code-string">Tests:       143 passed, 143 total</span>
 <span class="code-func">TypeScript:  0 errors (npx tsc --noEmit)</span></div>
           </div>
         </div>
@@ -1476,7 +1479,7 @@ Running 20 checks on your project...
     </div>
 
     <div class="counter-badge" id="slideCounter" title="Clique para abrir o índice de slides">
-      Slide 1 de 15
+      Slide 1 de 16
     </div>
 
     <div style="font-size: 12px; color: var(--text-muted);">

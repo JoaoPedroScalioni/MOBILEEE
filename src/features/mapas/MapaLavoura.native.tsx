@@ -1,9 +1,10 @@
-import React, { useCallback, useRef, useState } from 'react';
-import MapView, { Callout, Marker, Polyline, UrlTile } from 'react-native-maps';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { DomWebView, DomWebViewRef } from '@expo/dom-webview';
 import {
   ActivityIndicator,
   Alert,
   Keyboard,
+  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -34,36 +35,22 @@ import {
   salvarTrechosColheita,
   TrechoColheita,
 } from './trechosStorage';
-
-type MapLayerType = 'osm' | 'satellite' | 'terrain';
-
-const TILE_SERVERS: Record<MapLayerType, { url: string; maxZ: number; label: string }> = {
-  osm: {
-    url: 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
-    maxZ: 20,
-    label: 'Padrão',
-  },
-  satellite: {
-    url: 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
-    maxZ: 20,
-    label: 'Satélite',
-  },
-  terrain: {
-    url: 'https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',
-    maxZ: 20,
-    label: 'Terreno',
-  },
-};
+import {
+  gerarHtmlMapaLavoura,
+  MAP_TILE_SERVERS,
+  MapLayerType,
+} from './mapHtmlBuilder';
 
 const TALHOES_SUGERIDOS = ['Talhão 01', 'Talhão 02', 'Lavoura Alta', 'Baixada', 'Terreiro'];
 
 export function MapaLavoura() {
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef<DomWebViewRef>(null);
 
   // Controle de exibição do mapa (desligado por padrão para economia de bateria)
   const [mapaAberto, setMapaAberto] = useState(false);
   const [mapLayer, setMapLayer] = useState<MapLayerType>('satellite');
   const [trechoFocado, setTrechoFocado] = useState<TrechoColheita | null>(null);
+  const [mapUri, setMapUri] = useState<string | null>(null);
 
   // Estado de GPS sob demanda
   const [locationResult, setLocationResult] = useState<LocationResult>({
@@ -250,102 +237,107 @@ export function MapaLavoura() {
     );
   };
 
-  // Abre o mapa sob demanda focando em um trecho específico
-  const abrirMapaFocadoNoTrecho = (trecho: TrechoColheita) => {
-    setTrechoFocado(trecho);
-    setMapaAberto(true);
-    setTimeout(() => {
-      if (!mapRef.current) return;
-      if (trecho.fimLat !== undefined && trecho.fimLng !== undefined) {
-        mapRef.current.fitToCoordinates(
-          [
-            { latitude: trecho.inicioLat, longitude: trecho.inicioLng },
-            { latitude: trecho.fimLat, longitude: trecho.fimLng },
-          ],
-          {
-            edgePadding: { top: 120, right: 80, bottom: 140, left: 80 },
-            animated: true,
-          },
-        );
-      } else {
-        mapRef.current.animateToRegion(
-          {
-            latitude: trecho.inicioLat,
-            longitude: trecho.inicioLng,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          },
-          700,
-        );
+  const mapLayerRef = useRef<MapLayerType>(mapLayer);
+  mapLayerRef.current = mapLayer;
+
+  const construirHtmlAtual = useCallback(
+    (focado?: TrechoColheita | null, layerOverride?: MapLayerType) => {
+      return gerarHtmlMapaLavoura({
+        layer: layerOverride ?? mapLayerRef.current,
+        userLat: locationResult.latitude,
+        userLng: locationResult.longitude,
+        trechoAtivo,
+        historicoTrechos,
+        trechoFocadoId: (focado !== undefined ? focado : trechoFocado)?.id || null,
+        apontamentos: apontamentos.map((a) => ({
+          id: a.id,
+          latitude: a.coordenadas.latitude,
+          longitude: a.coordenadas.longitude,
+          litros: a.quantidade.litros,
+          dataIso: new Date(a.data).toISOString(),
+        })),
+      });
+    },
+    [apontamentos, historicoTrechos, locationResult.latitude, locationResult.longitude, trechoAtivo, trechoFocado],
+  );
+
+  const gravarEExibirMapa = useCallback(
+    async (focado?: TrechoColheita | null) => {
+      const html = construirHtmlAtual(focado);
+      try {
+        const fsLegacy: any = await import('expo-file-system/legacy');
+        const dir = fsLegacy?.cacheDirectory || fsLegacy?.documentDirectory;
+        if (dir && typeof fsLegacy.writeAsStringAsync === 'function') {
+          const targetUri = `${dir}safracafe_mapa.html`;
+          await fsLegacy.writeAsStringAsync(targetUri, html);
+          setMapUri(`${targetUri}?v=${Date.now()}`);
+          return;
+        }
+      } catch {
+        // Fallback para data URI se o sistema de arquivos não estiver disponível
       }
-    }, 350);
+      setMapUri(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
+    },
+    [construirHtmlAtual],
+  );
+
+  useEffect(() => {
+    if (mapaAberto) {
+      void gravarEExibirMapa();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trechoAtivo, historicoTrechos, apontamentos]);
+
+  // Abre o mapa sob demanda focando em um trecho específico
+  const abrirMapaFocadoNoTrecho = async (trecho: TrechoColheita) => {
+    setTrechoFocado(trecho);
+    await gravarEExibirMapa(trecho);
+    setMapaAberto(true);
   };
 
   // Abre o mapa geral sob demanda
   const abrirMapaGeral = async () => {
     setTrechoFocado(null);
+    await gravarEExibirMapa(null);
     setMapaAberto(true);
     const res = await capturarCoordenadaUnica();
+    const targetLat = trechoAtivo ? trechoAtivo.inicioLat : res.latitude;
+    const targetLng = trechoAtivo ? trechoAtivo.inicioLng : res.longitude;
     setTimeout(() => {
-      mapRef.current?.animateToRegion(
-        {
-          latitude: trechoAtivo ? trechoAtivo.inicioLat : res.latitude,
-          longitude: trechoAtivo ? trechoAtivo.inicioLng : res.longitude,
-          latitudeDelta: 0.008,
-          longitudeDelta: 0.008,
-        },
-        700,
+      mapRef.current?.injectJavaScript(
+        `window.focusLocation && window.focusLocation(${targetLat}, ${targetLng}, 17); true;`,
       );
-    }, 300);
+    }, 500);
   };
 
   const alternarCamadaMapa = () => {
-    if (mapLayer === 'satellite') setMapLayer('osm');
-    else if (mapLayer === 'osm') setMapLayer('terrain');
-    else setMapLayer('satellite');
+    const nextLayer: MapLayerType =
+      mapLayer === 'satellite' ? 'osm' : mapLayer === 'osm' ? 'terrain' : 'satellite';
+    setMapLayer(nextLayer);
+    mapRef.current?.injectJavaScript(`window.setLayer && window.setLayer('${nextLayer}'); true;`);
   };
 
   const enquadrarTudoNoMapa = () => {
-    if (!mapRef.current) return;
-    const coords: { latitude: number; longitude: number }[] = [];
+    mapRef.current?.injectJavaScript(`window.fitAll && window.fitAll(); true;`);
+  };
 
-    if (trechoAtivo) {
-      coords.push({ latitude: trechoAtivo.inicioLat, longitude: trechoAtivo.inicioLng });
+  const abrirNoGoogleMapsExterno = async () => {
+    const lat = trechoFocado
+      ? trechoFocado.inicioLat
+      : trechoAtivo
+        ? trechoAtivo.inicioLat
+        : locationResult.latitude;
+    const lng = trechoFocado
+      ? trechoFocado.inicioLng
+      : trechoAtivo
+        ? trechoAtivo.inicioLng
+        : locationResult.longitude;
+    const url = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    try {
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert('Aviso', 'Não foi possível abrir o aplicativo Google Maps neste aparelho.');
     }
-    historicoTrechos.forEach((t) => {
-      coords.push({ latitude: t.inicioLat, longitude: t.inicioLng });
-      if (t.fimLat !== undefined && t.fimLng !== undefined) {
-        coords.push({ latitude: t.fimLat, longitude: t.fimLng });
-      }
-    });
-    apontamentos.forEach((a) => {
-      coords.push({
-        latitude: a.coordenadas.latitude,
-        longitude: a.coordenadas.longitude,
-      });
-    });
-
-    if (coords.length === 0) {
-      coords.push({ latitude: locationResult.latitude, longitude: locationResult.longitude });
-    }
-
-    if (coords.length === 1) {
-      mapRef.current.animateToRegion(
-        {
-          latitude: coords[0].latitude,
-          longitude: coords[0].longitude,
-          latitudeDelta: 0.006,
-          longitudeDelta: 0.006,
-        },
-        700,
-      );
-      return;
-    }
-
-    mapRef.current.fitToCoordinates(coords, {
-      edgePadding: { top: 110, right: 60, bottom: 130, left: 60 },
-      animated: true,
-    });
   };
 
   // Separação entre trechos concluídos hoje e arquivados
@@ -364,17 +356,6 @@ export function MapaLavoura() {
   // RENDERIZAÇÃO MODO 2: MAPA VISUAL SOB DEMANDA (SÓ CARREGA QUANDO SOLICITADO)
   // ============================================================================
   if (mapaAberto) {
-    const initialLat = trechoFocado
-      ? trechoFocado.inicioLat
-      : trechoAtivo
-        ? trechoAtivo.inicioLat
-        : locationResult.latitude;
-    const initialLng = trechoFocado
-      ? trechoFocado.inicioLng
-      : trechoAtivo
-        ? trechoAtivo.inicioLng
-        : locationResult.longitude;
-
     return (
       <View style={styles.mapContainer}>
         {/* Barra Superior para Fechar o Mapa e Economizar Bateria */}
@@ -391,107 +372,24 @@ export function MapaLavoura() {
 
           <TouchableOpacity style={styles.layerBadgeBtn} onPress={alternarCamadaMapa}>
             <Ionicons name="layers-outline" size={18} color="#1b4332" />
-            <Text style={styles.layerBadgeText}>{TILE_SERVERS[mapLayer].label}</Text>
+            <Text style={styles.layerBadgeText}>{MAP_TILE_SERVERS[mapLayer].label}</Text>
           </TouchableOpacity>
         </View>
 
-        <MapView
-          ref={mapRef}
-          style={styles.map}
-          mapType="none"
-          showsUserLocation={false}
-          showsMyLocationButton={false}
-          initialRegion={{
-            latitude: initialLat,
-            longitude: initialLng,
-            latitudeDelta: 0.006,
-            longitudeDelta: 0.006,
-          }}
-        >
-          <UrlTile
-            urlTemplate={TILE_SERVERS[mapLayer].url}
-            maximumZ={TILE_SERVERS[mapLayer].maxZ}
-            flipY={false}
-            zIndex={-1}
+        {mapUri ? (
+          <DomWebView
+            ref={mapRef}
+            source={{ uri: mapUri }}
+            style={styles.map}
+            originWhitelist={['*']}
+            allowFileAccess
+            allowFileAccessFromFileURLs
           />
-
-          {/* Marcador do Ponto Inicial em Andamento */}
-          {trechoAtivo && (
-            <Marker
-              coordinate={{
-                latitude: trechoAtivo.inicioLat,
-                longitude: trechoAtivo.inicioLng,
-              }}
-              title={`🟢 INÍCIO ATIVO: ${trechoAtivo.talhao}`}
-              description={`Colhedor: ${trechoAtivo.trabalhadorNome} • Em andamento`}
-              pinColor="#16a34a"
-            />
-          )}
-
-          {/* Trechos Concluídos (Marcador Início + Marcador Fim + Linha do Eito) */}
-          {historicoTrechos.map((t) => {
-            const isFocado = trechoFocado?.id === t.id;
-            return (
-              <React.Fragment key={t.id}>
-                <Marker
-                  coordinate={{ latitude: t.inicioLat, longitude: t.inicioLng }}
-                  title={`🟢 Início: ${t.talhao}`}
-                  description={`${t.trabalhadorNome} • Iniciado às ${new Date(
-                    t.inicioData,
-                  ).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`}
-                  pinColor="#10b981"
-                />
-                {t.fimLat !== undefined && t.fimLng !== undefined && (
-                  <>
-                    <Marker
-                      coordinate={{ latitude: t.fimLat, longitude: t.fimLng }}
-                      title={`🏁 Fim: ${t.talhao} (${t.distanciaMetros || 0}m)`}
-                      description={`Concluído às ${
-                        t.fimData
-                          ? new Date(t.fimData).toLocaleTimeString('pt-BR', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })
-                          : ''
-                      }`}
-                      pinColor="#dc2626"
-                    />
-                    <Polyline
-                      coordinates={[
-                        { latitude: t.inicioLat, longitude: t.inicioLng },
-                        { latitude: t.fimLat, longitude: t.fimLng },
-                      ]}
-                      strokeColor={isFocado ? '#f59e0b' : '#10b981'}
-                      strokeWidth={isFocado ? 5 : 4}
-                    />
-                  </>
-                )}
-              </React.Fragment>
-            );
-          })}
-
-          {/* Marcadores dos Balaios Colhidos */}
-          {apontamentos.map((a, index) => (
-            <Marker
-              key={a.id}
-              coordinate={{
-                latitude: a.coordenadas.latitude,
-                longitude: a.coordenadas.longitude,
-              }}
-              title={`☕ Balaio #${index + 1} (${a.quantidade.litros}L)`}
-              description={`Coordenada: ${a.coordenadas.latitude.toFixed(4)}, ${a.coordenadas.longitude.toFixed(4)}`}
-              pinColor="#0284c7"
-            >
-              <Callout tooltip={false} style={styles.callout}>
-                <View style={styles.calloutContainer}>
-                  <Text style={styles.calloutTitle}>Balaio #{index + 1}</Text>
-                  <Text style={styles.calloutSub}>{a.quantidade.litros} Litros colhidos</Text>
-                  <Text style={styles.calloutCoords}>📅 {formatarDataHora(a.data)}</Text>
-                </View>
-              </Callout>
-            </Marker>
-          ))}
-        </MapView>
+        ) : (
+          <View style={[styles.map, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#132a1e' }]}>
+            <ActivityIndicator size="large" color="#10b981" />
+          </View>
+        )}
 
         {/* Controles Flutuantes Laterais */}
         <View style={styles.floatingControls}>
@@ -507,19 +405,21 @@ export function MapaLavoura() {
             style={styles.controlButton}
             onPress={async () => {
               const pos = await capturarCoordenadaUnica();
-              mapRef.current?.animateToRegion(
-                {
-                  latitude: pos.latitude,
-                  longitude: pos.longitude,
-                  latitudeDelta: 0.005,
-                  longitudeDelta: 0.005,
-                },
-                700,
+              mapRef.current?.injectJavaScript(
+                `window.focusLocation && window.focusLocation(${pos.latitude}, ${pos.longitude}, 18); true;`,
               );
             }}
             accessibilityLabel="Minha posição atual"
           >
             <Ionicons name="locate" size={24} color="#2d6a4f" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.controlButton}
+            onPress={abrirNoGoogleMapsExterno}
+            accessibilityLabel="Abrir no Google Maps externo"
+          >
+            <Ionicons name="navigate-outline" size={22} color="#2d6a4f" />
           </TouchableOpacity>
         </View>
 

@@ -1274,7 +1274,7 @@ record.sync_status = <span class="code-string">'synced'</span>;
           <div class="card-body">
             <ul>
               <li><strong>EAS Build Cloud:</strong> Serviço de compilação em nuvem que gera o binário Android <code>.apk</code> assinado (<code>com.safracafe.app</code>) na organização <code>@joaopedroscalionis-team/safracafe</code>.</li>
-              <li><strong>EAS Update (Over-the-Air via <code>expo-updates</code>):</strong> Publica atualizações instantâneas de código/interface no canal <code>preview</code>. Ao abrir o app, <code>Updates.checkForUpdateAsync()</code> baixa e aplica a nova versão sem precisar reinstalar o APK.</li>
+              <li><strong>EAS Update (Over-the-Air via <code>expo-updates</code> + <code>OtaUpdatePrompt</code>):</strong> Publica atualizações instantâneas de código/interface no canal <code>preview</code>. Ao detectar nova versão no boot ou ao retornar ao app, exibe o alerta <em>"Atualização do Sistema"</em> e aplica no toque em <strong>"OK, Atualizar"</strong> sem precisar fechar e abrir o APK manualmente.</li>
             </ul>
           </div>
         </div>
@@ -1376,7 +1376,7 @@ record.sync_status = <span class="code-string">'synced'</span>;
             <ul>
               <li><strong>1. Autenticação e Vínculo:</strong> <code>eas login</code> + <code>eas build:configure</code> vinculado à organização <code>@joaopedroscalionis-team/safracafe</code> (Project ID: <code>374585a6-fe2a-4f11-83f0-8672f705efb0</code>).</li>
               <li><strong>2. Geração do Instalador APK:</strong> Configurado <code>"buildType": "apk"</code> no perfil <code>preview</code> do <code>eas.json</code> e compilado via <code>npx eas build -p android --profile preview</code>.</li>
-              <li><strong>3. Over-the-Air (OTA) Configurado:</strong> Módulo <code>expo-updates</code> ativo com verificação automática no boot (<code>Updates.checkForUpdateAsync()</code> → <code>fetchUpdateAsync()</code> → <code>reloadAsync()</code>).</li>
+              <li><strong>3. Over-the-Air (OTA) Interativo (<code>OtaUpdatePrompt.tsx</code>):</strong> Usa <code>Updates.useUpdates()</code> + listener <code>AppState</code> para avisar o usuário via modal <em>"Atualização do Sistema"</em>; ao clicar em <strong>"OK, Atualizar"</strong>, executa <code>fetchUpdateAsync()</code> → <code>reloadAsync()</code> na hora e o usuário continua usando normalmente.</li>
               <li><strong>Link Direto do APK Gerado:</strong><br>
                 <a href="https://expo.dev/artifacts/eas/6vsALYK2yvm0znR4cGuCjCSrBrEjqQuG4fmvecE76po.apk" target="_blank" style="color: var(--primary-light); word-break: break-all;">https://expo.dev/artifacts/eas/6vsALYK2yvm0znR4cGuCjCSrBrEjqQuG4fmvecE76po.apk</a>
               </li>
@@ -1397,12 +1397,11 @@ record.sync_status = <span class="code-string">'synced'</span>;
   <span class="code-string">"android"</span>: { <span class="code-string">"buildType"</span>: <span class="code-string">"apk"</span> }
 }
 
-<span class="code-comment">// app/_layout.tsx — Aplicação automática de atualização OTA</span>
-<span class="code-keyword">const</span> update = <span class="code-keyword">await</span> Updates.<span class="code-func">checkForUpdateAsync</span>();
-<span class="code-keyword">if</span> (update.isAvailable) {
-  <span class="code-keyword">await</span> Updates.<span class="code-func">fetchUpdateAsync</span>();
-  <span class="code-keyword">await</span> Updates.<span class="code-func">reloadAsync</span>();
-}</div>
+<span class="code-comment">// src/shared/components/OtaUpdatePrompt.tsx — Aviso "Atualização do Sistema"</span>
+<span class="code-keyword">const</span> { isUpdateAvailable, isUpdatePending } = Updates.<span class="code-func">useUpdates</span>();
+<span class="code-comment">// Exibe modal com botão "OK, Atualizar" para o usuário:</span>
+<span class="code-keyword">if</span> (!isUpdatePending) <span class="code-keyword">await</span> Updates.<span class="code-func">fetchUpdateAsync</span>();
+<span class="code-keyword">await</span> Updates.<span class="code-func">reloadAsync</span>(); <span class="code-comment">// Aplica na hora e continua usando!</span></div>
           </div>
         </div>
       </div>
@@ -1413,7 +1412,7 @@ record.sync_status = <span class="code-string">'synced'</span>;
       <div class="slide-header">
         <div class="slide-tag">Encerramento • Validação de Qualidade, Testes Automatizados e Diagnóstico</div>
         <h2 class="slide-title">
-          <span class="number">✓</span> Conclusão Técnica: 143 Testes Aprovados &amp; 20/20 Expo Doctor
+          <span class="number">✓</span> Conclusão Técnica: 146 Testes Aprovados &amp; 20/20 Expo Doctor
         </h2>
       </div>
 
@@ -1438,10 +1437,11 @@ Running 20 checks on your project...
 <span class="code-keyword">PASS</span> tests/infra/SupabaseStorageGateway.test.ts
 <span class="code-keyword">PASS</span> tests/utils/crachaHelper.test.ts
 <span class="code-keyword">PASS</span> tests/utils/mapHtmlBuilder.test.ts
+<span class="code-keyword">PASS</span> tests/components/OtaUpdatePrompt.test.tsx
 <span class="code-keyword">PASS</span> tests/utils/dateAndTrechosHelper.test.ts
 
-<span class="code-string">Test Suites: 38 passed, 38 total</span>
-<span class="code-string">Tests:       143 passed, 143 total</span>
+<span class="code-string">Test Suites: 39 passed, 39 total</span>
+<span class="code-string">Tests:       146 passed, 146 total</span>
 <span class="code-func">TypeScript:  0 errors (npx tsc --noEmit)</span></div>
           </div>
         </div>

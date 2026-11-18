@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/src/adapters/auth/AuthContext';
 import { DatabaseClient } from '@/src/infra/sqlite/DatabaseClient';
+import { OtaUpdatePrompt } from '@/src/shared/components/OtaUpdatePrompt';
 
 LogBox.ignoreLogs([
   'google places autocomplete',
@@ -74,23 +75,6 @@ export default function RootLayout() {
   useEffect(() => {
     SplashScreen.hideAsync().catch(() => {});
     DatabaseClient.getInstance().init().catch(() => {});
-
-    async function aplicarAtualizacaoOTASeDisponivel() {
-      if (__DEV__) return;
-      try {
-        const Updates = await import('expo-updates');
-        if (!Updates.isEnabled) return;
-        const update = await Updates.checkForUpdateAsync();
-        if (update.isAvailable) {
-          await Updates.fetchUpdateAsync();
-          await Updates.reloadAsync();
-        }
-      } catch {
-        // Continua normalmente quando offline
-      }
-    }
-
-    aplicarAtualizacaoOTASeDisponivel();
   }, []);
 
   return (
@@ -99,6 +83,7 @@ export default function RootLayout() {
         <AuthProvider>
           <SafeAreaProvider>
             <RootNavigator />
+            <OtaUpdatePrompt />
             <StatusBar style="auto" />
           </SafeAreaProvider>
         </AuthProvider>

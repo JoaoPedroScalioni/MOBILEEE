@@ -3,7 +3,7 @@ const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZi
 
 async function check() {
   console.log('--- Verificando Tabelas no Supabase (ruujrkumwobhuzmwsqrp) ---');
-  for (const table of ['trabalhadores', 'apontamentos', 'despesas']) {
+  for (const table of ['trabalhadores', 'apontamentos', 'despesas', 'trechos_colheita']) {
     try {
       const res = await fetch(`${url}/rest/v1/${table}?select=*`, {
         headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }

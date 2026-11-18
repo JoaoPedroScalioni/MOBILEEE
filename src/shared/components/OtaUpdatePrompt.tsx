@@ -53,7 +53,9 @@ export function OtaUpdatePrompt({ forceEnabledForTest = false }: OtaUpdatePrompt
   }, [ativo]);
 
   useEffect(() => {
-    void verificarAtualizacao(true);
+    const initTimer = setTimeout(() => {
+      void verificarAtualizacao(true);
+    }, 0);
 
     const sub = AppState.addEventListener('change', (nextState: AppStateStatus) => {
       if (nextState === 'active') {
@@ -62,6 +64,7 @@ export function OtaUpdatePrompt({ forceEnabledForTest = false }: OtaUpdatePrompt
     });
 
     return () => {
+      clearTimeout(initTimer);
       sub.remove();
     };
   }, [verificarAtualizacao]);

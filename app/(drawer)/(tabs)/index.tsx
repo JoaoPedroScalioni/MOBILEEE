@@ -59,7 +59,10 @@ export default function Apontamento() {
   );
 
   useEffect(() => {
-    carregarDados();
+    const timer = setTimeout(() => {
+      void carregarDados();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [carregarDados]);
 
   const [atualizandoGps, setAtualizandoGps] = useState(false);

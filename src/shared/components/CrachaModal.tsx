@@ -27,7 +27,7 @@ export function CrachaModal({ visible, onClose, trabalhador }: CrachaModalProps)
 
   const matrizQr = useMemo(
     () => (trabalhador ? gerarMatrizQrCode(trabalhador.cracha) : []),
-    [trabalhador?.cracha],
+    [trabalhador],
   );
 
   if (!trabalhador) return null;

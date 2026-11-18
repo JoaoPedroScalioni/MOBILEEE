@@ -62,7 +62,10 @@ export function MapaLavoura() {
   );
 
   React.useEffect(() => {
-    carregarDados();
+    const timer = setTimeout(() => {
+      void carregarDados();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [carregarDados]);
 
   const capturarCoordenadaUnica = useCallback(async (): Promise<LocationResult> => {
@@ -125,7 +128,6 @@ export function MapaLavoura() {
 
   const trechosOrdenados = [...historicoTrechos].sort((a, b) => b.inicioData - a.inicioData);
   const trechosHoje = trechosOrdenados.filter((t) => isHoje(t.inicioData));
-  const trechosArquivados = trechosOrdenados.filter((t) => !isHoje(t.inicioData));
   const trechosExibidos = mostrarTodosTrechos ? trechosOrdenados : trechosHoje;
 
   const distanciaTotalMetros = historicoTrechos.reduce(

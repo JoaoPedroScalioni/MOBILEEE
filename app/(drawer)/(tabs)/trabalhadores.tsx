@@ -48,7 +48,10 @@ export default function Trabalhadores() {
   );
 
   useEffect(() => {
-    carregarTrabalhadores();
+    const timer = setTimeout(() => {
+      void carregarTrabalhadores();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [carregarTrabalhadores]);
 
   function abrirDetalhes(item: Trabalhador) {

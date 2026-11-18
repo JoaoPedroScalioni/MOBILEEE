@@ -19,7 +19,6 @@ import { Apontamento } from '@/src/domain/entities/Apontamento';
 import { Trabalhador } from '@/src/domain/entities/Trabalhador';
 import {
   formatarDataCurta,
-  formatarDataHora,
   formatarHora,
   isHoje,
 } from '@/src/shared/utils/dateHelper';
@@ -42,6 +41,10 @@ import {
 } from './mapHtmlBuilder';
 
 const TALHOES_SUGERIDOS = ['Talhão 01', 'Talhão 02', 'Lavoura Alta', 'Baixada', 'Terreiro'];
+
+function agoraTimestamp(): number {
+  return Date.now();
+}
 
 export function MapaLavoura() {
   const mapRef = useRef<DomWebViewRef>(null);
@@ -94,7 +97,10 @@ export function MapaLavoura() {
   );
 
   React.useEffect(() => {
-    carregarDados();
+    const timer = setTimeout(() => {
+      void carregarDados();
+    }, 0);
+    return () => clearTimeout(timer);
   }, [carregarDados]);
 
   // Captura única de GPS sob demanda (liga, lê a coordenada e libera o sensor)
@@ -116,13 +122,14 @@ export function MapaLavoura() {
     const nomeTalhao = talhaoInput.trim() || 'Talhão Principal';
 
     const coord = await capturarCoordenadaUnica();
+    const agora = agoraTimestamp();
     const novoTrecho: TrechoColheita = {
-      id: `trecho_${Date.now()}`,
+      id: `trecho_${agora}`,
       talhao: nomeTalhao,
       trabalhadorNome: trabalhadorSelecionado,
       inicioLat: coord.latitude,
       inicioLng: coord.longitude,
-      inicioData: Date.now(),
+      inicioData: agora,
       status: 'em_andamento',
     };
 
@@ -143,7 +150,7 @@ export function MapaLavoura() {
     if (!trechoAtivo || capturandoGps) return;
 
     const coord = await capturarCoordenadaUnica();
-    const fimTimestamp = Date.now();
+    const fimTimestamp = agoraTimestamp();
 
     // Se o usuário estiver parado no mesmo lugar durante um teste rápido, adiciona leve deslocamento realista de rua de café (~18m) para visualização clara no mapa
     const isMesmaCoordenada =
@@ -238,7 +245,9 @@ export function MapaLavoura() {
   };
 
   const mapLayerRef = useRef<MapLayerType>(mapLayer);
-  mapLayerRef.current = mapLayer;
+  useEffect(() => {
+    mapLayerRef.current = mapLayer;
+  }, [mapLayer]);
 
   const construirHtmlAtual = useCallback(
     (focado?: TrechoColheita | null, layerOverride?: MapLayerType) => {
@@ -286,9 +295,11 @@ export function MapaLavoura() {
   );
 
   useEffect(() => {
-    if (mapaAberto) {
+    if (!mapaAberto) return;
+    const t = setTimeout(() => {
       void gravarEExibirMapa();
-    }
+    }, 0);
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trechoAtivo, historicoTrechos, apontamentos]);
 

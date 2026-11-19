@@ -1,79 +1,62 @@
 # SafraCafé — Gestão Offline-First da Colheita Cafeeira
 
-Aplicativo mobile **offline-first** construído com **Expo SDK 57 / React Native** para a **gestão
-operacional e financeira da colheita cafeeira**: cadastro de trabalhadores (QR Code no crachá),
-apontamento diário de balaios georreferenciado, registro de despesas com foto do recibo e
-visualização da lavoura em mapa com rota traçada. Arquitetado com **DDD + Clean Architecture + TDD**.
+Aplicativo mobile **offline-first** construído com **Expo SDK 58 / React Native 0.88 / Expo Router** para a **gestão operacional e financeira da colheita cafeeira**: cadastro de trabalhadores com **crachá QR Code 100% offline**, leitura de QR Code pela câmera, apontamento georreferenciado de balaios, despesas com foto do recibo enviada ao Bucket S3, controle de trechos em **mapa interativo estilo Google Maps** e sincronização assíncrona com o **Supabase**.
 
-Expo SDK 57 • React Native 0.86 • Expo Router • TypeScript 6.0 • Jest + jest-expo + RNTL
+Arquitetado com **DDD + Clean Architecture + TDD** · `TypeScript ~6.0` · `Jest + jest-expo + RNTL` · `SQLite + ORM próprio` · `Supabase (Auth, PostgreSQL, Storage S3)` · `EAS Build (.apk) + OTA Interativo`
 
 ---
 
-## Funcionalidades Implementadas
+## Documentação Completa e Apresentação
 
-- **Autenticação e Sessão**: login/logout com `AuthGateway` (interface no domínio, adapter em memória),
-  sessão restaurada no boot e persistida com `expo-secure-store`, exposta no app inteiro via
-  `AuthContext` (`useAuth`).
-- **Cadastro de Trabalhadores**: CRUD de trabalhadores (nome, CPF, crachá e diária). Cada cadastro
-  enfileira um `INSERT` na fila de sincronização. Seeds demo: `TRAB-001` José da Silva e
-  `TRAB-002` Maria de Souza (diária R$ 60).
-- **Apontamento de Balaio**: registro da produção diária em litros por trabalhador, com leitura QR
-  do crachá ou seleção manual, geolocalização via `expo-location` e páginação da fila de sync.
-- **Despesas**: registro de despesas (descrição, valor, categoria) com foto do recibo
-  (`expo-image-picker`) e geolocalização.
-- **Mapa**: `react-native-maps` com `Marker` + `Callout` dos apontamentos, `Polyline`,
-  `MapViewDirections` e busca de destino com `GooglePlacesAutocomplete` (`app/(drawer)/(tabs)/mapas.tsx`).
-- **Fila de Sincronização**: `SyncQueueItem` + `SyncPendingQueue` com `SincronizacaoService`
-  (last-write-wins) e gateway de rede/`sync` em memória — pronto para a troca por SQLite/Supabase.
+- **Documentação Técnica Completa do Sistema (tudo o que usamos e como funciona):** [`docs/DOCUMENTACAO_COMPLETA_SISTEMA.md`](docs/DOCUMENTACAO_COMPLETA_SISTEMA.md)
+- **Apresentação Interativa em Slides (12 tópicos da prova + APK + OTA):** [`apresentacao_roteiro_prova.html`](apresentacao_roteiro_prova.html)
 
-## Arquitetura
+---
 
-```
+## Principais Funcionalidades
+
+- **Autenticação & Sessão Segura**: Supabase Auth (`SupabaseAuthGateway`) com sessão persistida criptografada no hardware via `expo-secure-store` (`SessionStorageSecureStore`) e restauração automática no boot.
+- **Trabalhadores & Crachás QR Code 100% Offline**: CRUD completo com autovalidação de CPF/diária e geração local de matriz QR (`qrcode`) no app (`CrachaModal`) e em SVG vetorial para impressão/PDF (`expo-print` + `expo-sharing`), sem depender de internet.
+- **Apontamento de Balaios com Câmera & GPS Eco**: leitura rápida de QR Code (`expo-camera`) ou seleção por chips, volume em litros e captura pontual de GPS (`expo-location` com timeout 4s e fallback seguro). Filtros de **Hoje vs. Todos/Arquivados** (`DD/MM/AAAA às HH:MM`).
+- **Despesas com Foto de Recibo no S3**: cadastro por categoria com captura de nota fiscal (`expo-image-picker`), armazenamento local (`LocalReceiptStorage`) e upload binário para o bucket `recibos` do Supabase Storage.
+- **Mapa da Lavoura & Pontos da Colheita**: marcação de **Ponto Inicial** e **Ponto Final** com cálculo de distância por **Haversine** (`trechosStorage.ts`), renderizado em `@expo/dom-webview` via motor Web Mercator próprio (`mapHtmlBuilder.ts`) exibindo camadas **Satélite Híbrido**, **Padrão** e **Terreno** (tiles Google Maps + backup Esri/OSM + grade offline integrada) e atalho para o Google Maps externo.
+- **Sincronização Offline-First Resiliente**: fila transacional `sync_queue` (Outbox) no SQLite (`safracafe.db`), resolução de conflitos **Last-Write-Wins (LWW)**, Soft Delete (`deleted_at`), upload de recibos S3, espelhamento de `trechos_colheita` e disparo automático ao gravar, ao retornar ao app (`AppState`) e a cada 15s (`autoSync.ts`).
+- **Atualizações Over-the-Air (OTA) Interativas**: componente `OtaUpdatePrompt` com `expo-updates` exibindo o modal **"Atualização do Sistema"** para aplicar a nova versão com 1 toque em **"OK, Atualizar"**.
+
+---
+
+## Arquitetura de Pastas
+
+```text
+app/                      Telas e rotas Expo Router (Login, Drawer, Tabs, Detalhes, Modal)
 src/
-  domain/          Entidades, Value Objects, serviços e interfaces (contratos) — puro, sem SDK
-    entities/      Trabalhador, Apontamento, Despesa, SyncQueueItem, SyncStatus, Session
-    value-objects/ Coordinates, QuantidadeBalaio, ValorMonetario
-  usecases/        Casos de uso da aplicação (orquestram domínio via interfaces)
-  infra/           Implementações concretas in-memory (Singleton) dos repositórios/gateways
-  factory/         Container de Injeção de Dependência (Singleton)
-  adapters/
-    auth/          AuthContext (useAuth) + SessionStorageSecureStore (expo-secure-store)
+  domain/                 Entidades, Value Objects, Serviços e Contratos (100% puro, sem SDK)
+  usecases/               13 Casos de Uso com injeção de dependências via construtor
+  infra/
+    sqlite/               DatabaseClient, OrmSchema, OrmClient e repositórios SQLite
+    supabase/             SupabaseAuthGateway, SupabaseSyncGateway, SupabaseStorageGateway
+    filesystem/           LocalReceiptStorage (comprovantes locais)
+  adapters/auth/          AuthContext (useAuth) e SessionStorageSecureStore
+  factory/                container.ts (Singleton de composição de dependências)
+  features/mapas/         MapaLavoura (.native/.web), mapHtmlBuilder e trechosStorage
+  shared/                 Componentes reutilizáveis (CrachaModal, OtaUpdatePrompt) e utilitários
+supabase/                 Scripts SQL de schema, tabelas, bucket 'recibos' e políticas RLS
+tests/                    39 suítes com 146 testes automatizados
+docs/                     Documentação completa do sistema e especificações de engenharia
 ```
 
-Regras que nunca mudam:
+---
 
-- `domain/` nunca importa de `infra/`, `usecases/` ou de SDKs (`expo-*`, `react-native`, `supabase`).
-- Use cases recebem repositórios/gateways **via construtor**.
-- Repositórios-concretos e o container são **Singleton** (`private constructor` + `static instance` + `getInstance()`).
-- **Value Objects** são imutáveis e se auto-validam no construtor; **entidades** também se auto-validam.
-
-## Como rodar
+## Comandos Úteis
 
 ```bash
-npm install          # instala dependências
-npx expo start -c    # inicia o Metro (QR Code para abrir no Expo Go)
+npm install            # Instala as dependências
+npx expo start -c      # Inicia o Metro Bundler
+npx tsc --noEmit       # Validação de tipos TypeScript (0 erros)
+npm run lint           # Expo Lint / ESLint (0 erros e 0 avisos)
+npx expo-doctor        # Diagnóstico oficial Expo (20/20 checks)
+npm test               # Suíte Jest + RNTL (39 suítes / 146 testes)
+npm run db:check       # Verifica registros e arquivos S3 no Supabase
 ```
 
-**Conta demo (em memória):** `pesquisador@ecofield.app` / `123456`
-
-```bash
-npx jest             # roda os testes (TDD)
-npm run lint         # ESLint
-npx tsc --noEmit     # typecheck
-```
-
-## Testes
-
-Suíte com **85 testes em 23 arquivos**, organizada na pirâmide:
-
-| Camada | Exemplo | Técnica |
-| :--- | :--- | :--- |
-| Domínio | `Coordinates`, `QuantidadeBalaio`, `ValorMonetario`, `Trabalhador`, `Apontamento`, `Despesa`, `SyncStatus`, `SyncQueueItem`, `Session`, `SincronizacaoService` | Sem mock, puro |
-| Use case | `CadastrarTrabalhador`, `RegistrarApontamento`, `RegistrarDespesa`, `AuthenticateUser`, `SyncPendingQueue` | Fakes in-memory |
-| Adapter | `SessionStorageSecureStore` | `jest.mock('expo-secure-store')` |
-| Tela | `LoginScreen` | RNTL + use case fake injetado no `AuthProvider` |
-
-Documentação completa de engenharia em [`docs/documento-software-mobile.md`](docs/documento-software-mobile.md).
-Slides da primeira apresentação em [`docs/apresentacao-primeira-entrega.md`](docs/apresentacao-primeira-entrega.md).
-
-<!-- safra-cafe -->
+**Conta oficial de campo configurada:** `joao@safracafe.com`
